@@ -6,6 +6,31 @@ Evaluates both M = 56 (Student ID 23BA14056) and M = 20260 (Printed on exam pape
 Keypair from 2.1: N = 31553, e = 125, d = 30689.
 """
 
+def square_and_multiply_trace(base: int, exponent: int, modulus: int, title: str = ""):
+    x = base % modulus
+    bin_exp = bin(exponent)[2:]
+    print(f"\n    [+] BẢNG TÍNH LŨY THỪA NHANH (Square-and-Multiply) CHO {title}:")
+    print(f"        {base}^{exponent} mod {modulus} (Số mũ nhị phân: {bin_exp}, {len(bin_exp)} bits)")
+    print(f"        {'Bước':<6} | {'Bit':<4} | {'Phép toán':<10} | {'Tính toán':<24} | {'Giá trị hiện tại'}")
+    print("        " + "-" * 62)
+    y = 1
+    step = 0
+    for i, bit in enumerate(bin_exp):
+        step += 1
+        sq_val = (y * y) % modulus
+        calc_sq = f"{y}^2 mod {modulus}"
+        print(f"        {step:<6} | {bit:<4} | {'Square':<10} | {calc_sq:<24} | {sq_val}")
+        y = sq_val
+        if bit == '1':
+            step += 1
+            mul_val = (y * x) % modulus
+            calc_mul = f"{y} * {x} mod {modulus}"
+            print(f"        {step:<6} | {bit:<4} | {'Multiply':<10} | {calc_mul:<24} | {mul_val}")
+            y = mul_val
+    print("        " + "-" * 62)
+    print(f"        ===> KẾT QUẢ: {base}^{exponent} mod {modulus} = {y}\n")
+    return y
+
 def solve_rsa_encryption(custom_m=None):
     import sys
     if custom_m is None and len(sys.argv) > 1:
@@ -18,35 +43,102 @@ def solve_rsa_encryption(custom_m=None):
     e = 125
     d = 30689
     
-    print("=" * 65)
-    print("USTH FINAL EXAM 2025-2026 - EXERCISE 2.3: RSA ENCRYPT & DECRYPT")
-    print("=" * 65)
-    print(f"System Parameters: Modulus N = {N}, Public e = {e}, Private d = {d}\n")
+    print("=" * 75)
+    print("USTH FINAL EXAM 2025-2026 - EXERCISE 2.3: RSA ENCRYPT & DECRYPT (LỜI GIẢI TỰ LUẬN)")
+    print("=" * 75)
+    print(f"Tham số hệ thống đã cho: Modulus N = {N}, Khóa công khai e = {e}, Khóa bí mật d = {d}\n")
     
     # Case 1: Student ID (Default M = 56)
-    M1 = M_val
-    C1 = pow(M1, e, N)
+    print(f"[TRƯỜNG HỢP 1: THÔNG ĐIỆP MÃ SINH VIÊN (M = {M_val})]")
+    print(f"[BƯỚC 1] Quá trình mã hóa (Encryption):")
+    print(f"    Công thức: C = M^e mod N = {M_val}^{e} mod {N}")
+    C1 = square_and_multiply_trace(M_val, e, N, f"Mã hóa C = {M_val}^{e} mod {N}")
+    
+    print(f"[BƯỚC 2] Quá trình giải mã (Decryption):")
+    print(f"    Công thức: M = C^d mod N = {C1}^{d} mod {N}")
     M1_dec = pow(C1, d, N)
-    print("--- Case 1: Personalized Student ID (M = 56) ---")
-    print(f"Plaintext message M:          {M1}")
-    print(f"Encryption C = M^e mod N:     {M1}^{e} mod {N} = {C1}")
-    print(f"Decryption M = C^d mod N:     {C1}^{d} mod {N} = {M1_dec}")
-    print(f"Recovery Verified:            {M1 == M1_dec} (Correct!)\n")
+    print(f"    Kết quả giải mã: M = {C1}^{d} mod {N} = {M1_dec}")
+    print(f"    Kiểm tra khôi phục bản rõ: {M1_dec} == {M_val} ({M1_dec == M_val} - Chính xác tuyệt đối!)\n")
     
     # Case 2: Printed on exam sheet (M = 20260)
     M2 = 20260
+    print(f"[TRƯỜNG HỢP 2: THÔNG ĐIỆP ĐỀ IN TRÊN GIẤY (M = {M2})]")
+    print(f"[BƯỚC 1] Quá trình mã hóa:")
+    print(f"    C = {M2}^{e} mod {N}")
     C2 = pow(M2, e, N)
-    M2_dec = pow(C2, d, N)
-    print("--- Case 2: Printed Exam Sheet Message (M = 20260) ---")
-    print(f"Plaintext message M:          {M2}")
-    print(f"Encryption C = M^e mod N:     {M2}^{e} mod {N} = {C2}")
-    print(f"Decryption M = C^d mod N:     {C2}^{d} mod {N} = {M2_dec}")
-    print(f"Recovery Verified:            {M2 == M2_dec} (Correct!)")
-    print("=" * 65)
+    print(f"    Bản mã C = {C2}")
+    
+    print(f"[BƯỚC 2] Quá trình giải mã:")
+    print(f"    M = {C2}^{d} mod {N} = {pow(C2, d, N)}")
+    print(f"    Kiểm tra: {pow(C2, d, N) == M2} (Chính xác!)")
+    print("=" * 75)
     return {
-        "case_student": {"M": M1, "C": C1, "dec": M1_dec},
-        "case_printed": {"M": M2, "C": C2, "dec": M2_dec}
+        "case_student": {"M": M_val, "C": C1, "dec": M1_dec},
+        "case_printed": {"M": M2, "C": C2, "dec": pow(C2, d, N)}
     }
 
+def custom_rsa_calc(M: int, e: int, d: int, N: int):
+    print("\n" + "=" * 75)
+    print("CUSTOM RSA ENCRYPTION / DECRYPTION - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
+    print("=" * 75)
+    print(f"Tham số: Modulus N = {N}, Public e = {e}, Plaintext M = {M}")
+    print(f"\n[BƯỚC 1] Quá trình mã hóa C = M^e mod N = {M}^{e} mod {N}:")
+    C = square_and_multiply_trace(M, e, N, f"Mã hóa C = {M}^{e} mod {N}")
+    print(f"===> BẢN MÃ THU ĐƯỢC: C = {C}")
+
+    if d:
+        print(f"\n[BƯỚC 2] Quá trình giải mã M = C^d mod N = {C}^{d} mod {N}:")
+        M_dec = square_and_multiply_trace(C, d, N, f"Giải mã M = {C}^{d} mod {N}")
+        print(f"===> BẢN RÕ KHÔI PHỤC: M = {M_dec}")
+        print(f"===> KIỂM TRA KHỚP BẢN RÕ GỐC: {M_dec == M} (Chính xác!)")
+    print("=" * 75)
+
+
+
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: RSA ENCRYPTION / DECRYPTION")
+    print("=" * 65)
+    try:
+        val_m = input("Enter message M [e.g. 56]: ").strip()
+        m = int(val_m, 0) if val_m else 56
+        val_n = input("Enter modulus N [e.g. 31553]: ").strip()
+        n = int(val_n, 0) if val_n else 31553
+        val_e = input("Enter public exponent e [e.g. 125]: ").strip()
+        e = int(val_e, 0) if val_e else 125
+        val_d = input("Enter private exponent d (optional, press Enter to skip) [e.g. 30689]: ").strip()
+        d = int(val_d, 0) if val_d else None
+        custom_rsa_calc(m, e, d, n)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python rsa_encryption_decryption.py 56 125 31553
+    if len(sys.argv) > 3 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            m_arg = int(sys.argv[1], 0)
+            e_arg = int(sys.argv[2], 0)
+            n_arg = int(sys.argv[3], 0)
+            d_arg = int(sys.argv[4], 0) if len(sys.argv) > 4 else None
+            custom_rsa_calc(m_arg, e_arg, d_arg, n_arg)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Direct interactive flag: python rsa_encryption_decryption.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     solve_rsa_encryption()
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom M, e, N for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

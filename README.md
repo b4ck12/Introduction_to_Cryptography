@@ -21,16 +21,34 @@ This repository provides an end-to-end companion for theoretical lectures, labor
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Exam Solver Modes
 
-### 1. Clone the Repository
+### 1. Interactive Exam Calculator (All-in-One CLI)
+When taking an exam or working on problem sets with custom numbers, launch the master interactive dashboard:
 ```bash
-git clone https://github.com/your-username/usth-cryptography.git
-cd usth-cryptography
+python code/exam_calculator.py
+```
+This launches a menu of 29 algorithms. Enter the corresponding number to solve your exact exam problem with custom inputs!
+
+### 2. Standalone Script Interactive Mode
+Every individual script in `code/` supports interactive input for custom numbers:
+```bash
+# Method A: Direct interactive flag
+python code/rsa_key_generation.py -i
+python code/square_and_multiply.py -i
+python code/extended_euclidean.py -i
+
+# Method B: Run directly in terminal (shows default demo, then prompts for custom exam values)
+python code/square_and_multiply.py
+
+# Method C: Pass values directly as command-line arguments
+python code/euclidean_gcd.py 61430 52698
+python code/square_and_multiply.py 5 23 33
+python code/rsa_key_generation.py 139 227 125
 ```
 
-### 2. Run the Master Algorithm Suite
-Execute all 29 cryptographic algorithm scripts with automated self-testing:
+### 3. Run the Automated Master Test Suite
+Execute all 29 cryptographic algorithm scripts with automated self-testing (< 1.0s runtime):
 ```bash
 python code/run_all_crypto_algorithms.py
 ```
@@ -82,7 +100,12 @@ Total Execution Time: ~0.95 seconds
 
 ## 📂 Algorithm Catalog
 
-Every script is completely self-contained, documented, and parameterized. You can run scripts with default student parameters or supply your own arguments via command line.
+> [!TIP]
+> **Going to an exam with different numbers?**
+> - Run **[`code/exam_calculator.py`](code/exam_calculator.py)** to launch the interactive all-in-one exam solver menu.
+> - Or run any individual script below with **`-i`** (e.g., `python code/rsa_key_generation.py -i`) to input your specific exam parameters directly.
+
+Every script is completely self-contained, documented, and parameterized. You can run scripts with default student parameters, input custom numbers interactively, or supply arguments via command line.
 
 ### A. Number Theory & Foundations
 | Script | Algorithm / Topic | Description & CLI Example |

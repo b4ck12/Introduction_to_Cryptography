@@ -114,5 +114,70 @@ def main():
     print_cayley_tables(5)
     print("=" * 70)
 
+def custom_input():
+    print("\n" + "=" * 70)
+    print("CUSTOM EXAM INPUT: MODULAR ARITHMETIC CALCULATOR")
+    print("=" * 70)
+    print("Choose calculation type:")
+    print("  [1] Basic Arithmetic: (a + b, a - b, a * b, a^b mod m)")
+    print("  [2] Solve Linear Congruence: a * x = b (mod m)")
+    print("  [3] Print Cayley Addition & Multiplication Tables for Z_m")
+    try:
+        choice = input("Select [1/2/3, default 1]: ").strip()
+        if choice == "2":
+            val_a = input("Enter a [e.g. 7]: ").strip()
+            a = int(val_a, 0) if val_a else 7
+            val_b = input("Enter b [e.g. 11]: ").strip()
+            b = int(val_b, 0) if val_b else 11
+            val_m = input("Enter modulus m [e.g. 13]: ").strip()
+            m = int(val_m, 0) if val_m else 13
+            sols = solve_linear_congruence(a, b, m)
+            print(f"\n[=>] Solving {a} * x = {b} (mod {m}):")
+            if sols is None:
+                print(f"[-] No solution exists because gcd({a}, {m}) does not divide {b}.")
+            else:
+                print(f"[+] Solutions x in Z_{m}: {sols}")
+                for s in sols:
+                    print(f"    Verification: ({a} * {s}) mod {m} = {(a * s) % m}")
+        elif choice == "3":
+            val_m = input("Enter modulus m [e.g. 5]: ").strip()
+            m = int(val_m, 0) if val_m else 5
+            print_cayley_tables(m)
+        else:
+            val_a = input("Enter first integer a [e.g. 15]: ").strip()
+            a = int(val_a, 0) if val_a else 15
+            val_b = input("Enter second integer b [e.g. 29]: ").strip()
+            b = int(val_b, 0) if val_b else 29
+            val_m = input("Enter modulus m [e.g. 13]: ").strip()
+            m = int(val_m, 0) if val_m else 13
+            print(f"\n[=>] Results in Z_{m}:")
+            print(f"    ({a} + {b}) mod {m}  = {mod_add(a, b, m)}")
+            print(f"    ({a} - {b}) mod {m}  = {mod_sub(a, b, m)}")
+            print(f"    ({a} * {b}) mod {m}  = {mod_mul(a, b, m)}")
+            print(f"    ({a} ^ {b}) mod {m}  = {mod_pow(a, b, m)}")
+            g = math.gcd(a, m)
+            if g == 1:
+                print(f"    ({a}^(-1)) mod {m}   = {pow(a, -1, m)}")
+            else:
+                print(f"    Modular inverse {a}^(-1) mod {m} does not exist (gcd={g} != 1)")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support direct interactive flag: python modular_arithmetic.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     main()
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 70)
+        c = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

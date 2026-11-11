@@ -72,7 +72,45 @@ def int_to_string(number: int, verbose: bool = True) -> str:
     return result_str
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: STRING <-> INTEGER CONVERTER")
+    print("=" * 65)
+    print("Choose conversion direction:")
+    print("  [1] String to Big-Endian Integer (M = SUM ord(c_i) * 256^(k-1-i))")
+    print("  [2] Integer to String (ASCII characters)")
+    try:
+        choice = input("Select [1/2, default 1]: ").strip()
+        if choice == "2":
+            val_int = input("Enter integer M [e.g. 1718382455]: ").strip()
+            num = int(val_int, 0) if val_int else 1718382455
+            int_to_string(num, verbose=True)
+        else:
+            txt = input("Enter text string [e.g. flow]: ")
+            if not txt:
+                txt = "flow"
+            string_to_int(txt, verbose=True)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python string_integer_conversion.py "flow"
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        arg = sys.argv[1]
+        if arg.isdigit():
+            int_to_string(int(arg), verbose=True)
+        else:
+            string_to_int(arg, verbose=True)
+        sys.exit(0)
+
+    # Direct interactive flag: python string_integer_conversion.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: STRING <-> INTEGER CONVERSION (LAB 3 EX 1 & EX 2)")
     print("=" * 65)
@@ -91,3 +129,11 @@ if __name__ == "__main__":
     m_id = string_to_int(student_msg, verbose=False)
     rec_id = int_to_string(m_id, verbose=False)
     print(f"\nStudent ID Message: '{student_msg}' -> Int: {m_id} -> Recovered: '{rec_id}' (Match: {rec_id == student_msg})")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom text/number for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

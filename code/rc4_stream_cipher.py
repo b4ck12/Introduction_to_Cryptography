@@ -60,7 +60,42 @@ class RC4:
         return bytes([b ^ next(gen) for b in data])
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: RC4 STREAM CIPHER")
+    print("=" * 65)
+    try:
+        raw_key = input("Enter key string [e.g. SECRET]: ").strip()
+        key_bytes = raw_key.encode("utf-8") if raw_key else b"SECRET"
+        val_n = input("Enter number of keystream bytes to generate [default 8]: ").strip()
+        n = int(val_n, 0) if val_n else 8
+        rc4 = RC4(key_bytes)
+        gen = rc4.prga_generator()
+        ks = [next(gen) for _ in range(n)]
+        print(f"\n[+] Key: {key_bytes}")
+        print(f"[+] Keystream ({n} bytes):")
+        print(f"    Decimal: {ks}")
+        print(f"    Hex    : {[f'0x{b:02X}' for b in ks]}")
+
+        raw_msg = input("\nEnter message to encrypt/decrypt (or press Enter to skip): ").strip()
+        if raw_msg:
+            msg_b = raw_msg.encode("utf-8")
+            c = RC4(key_bytes).crypt(msg_b)
+            print(f"[+] Ciphertext (Hex): {c.hex()}")
+            p = RC4(key_bytes).crypt(c)
+            print(f"[+] Decrypted text  : {p.decode(errors='replace')}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python rc4_stream_cipher.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: RC4 STREAM CIPHER (KSA & PRGA)")
     print("=" * 65)
@@ -90,3 +125,11 @@ if __name__ == "__main__":
     decrypted = RC4(key).crypt(ciphertext)
     print(f"[+] Decrypted: {decrypted.decode()}")
     print(f"[+] Verification Match: {decrypted == message}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom key/message for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

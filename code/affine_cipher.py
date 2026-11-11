@@ -69,7 +69,51 @@ def affine_decrypt(ciphertext: str, a: int, b: int) -> str:
     return "".join(plaintext)
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: AFFINE CIPHER CALCULATOR (e(x) = a*x + b mod 26)")
+    print("=" * 65)
+    print("Choose operation:")
+    print("  [1] Encrypt text with key (a, b)")
+    print("  [2] Decrypt text with key (a, b)")
+    try:
+        op = input("Select [1/2, default 1]: ").strip()
+        txt = input("Enter text string [e.g. ATTACK AT DAWN]: ").strip()
+        if not txt:
+            txt = "ATTACK AT DAWN"
+        val_a = input("Enter multiplier a (must have gcd(a, 26)=1) [default 7]: ").strip()
+        a = int(val_a, 0) if val_a else 7
+        if math.gcd(a, 26) != 1:
+            print(f"[-] ERROR: gcd({a}, 26) = {math.gcd(a, 26)} != 1. Multiplier 'a' must be coprime to 26!")
+            return
+        val_b = input("Enter shift b [0-25, default 4]: ").strip()
+        b = int(val_b, 0) if val_b else 4
+        if op == "2":
+            res = affine_decrypt(txt, a, b)
+            print(f"\n[=>] Decrypted text with key ({a}, {b}): '{res}'")
+        else:
+            res = affine_encrypt(txt, a, b)
+            print(f"\n[=>] Encrypted ciphertext with key ({a}, {b}): '{res}'")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python affine_cipher.py "HELLO" 7 4
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        txt = sys.argv[1]
+        a = int(sys.argv[2], 0) if len(sys.argv) > 2 else 7
+        b = int(sys.argv[3], 0) if len(sys.argv) > 3 else 4
+        print(f"Encrypted: {affine_encrypt(txt, a, b)}")
+        sys.exit(0)
+
+    # Direct interactive flag: python affine_cipher.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: AFFINE CIPHER (KEY VALIDATION, ENCRYPT, DECRYPT)")
     print("=" * 65)
@@ -103,3 +147,11 @@ if __name__ == "__main__":
     decrypted = affine_decrypt(cipher, a_key, b_key)
     print(f"    Decrypted : '{decrypted}'")
     print(f"    Match     : {decrypted == msg}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom text/keys for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

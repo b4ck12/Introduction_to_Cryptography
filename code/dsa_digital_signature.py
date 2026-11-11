@@ -88,7 +88,41 @@ def dsa_verify(p: int, q: int, alpha: int, beta: int, h_m: int, r: int, s: int, 
     return v == r
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: DSA DIGITAL SIGNATURE")
+    print("=" * 65)
+    try:
+        val_p = input("Enter prime p [e.g. 59]: ").strip()
+        p = int(val_p, 0) if val_p else 59
+        val_q = input("Enter prime divisor q [e.g. 29]: ").strip()
+        q = int(val_q, 0) if val_q else 29
+        val_alpha = input("Enter generator alpha [e.g. 3]: ").strip()
+        alpha = int(val_alpha, 0) if val_alpha else 3
+        val_d = input("Enter private key d [e.g. 7]: ").strip()
+        d = int(val_d, 0) if val_d else 7
+        val_ke = input("Enter ephemeral key k_E [e.g. 10]: ").strip()
+        ke = int(val_ke, 0) if val_ke else 10
+        val_h = input("Enter message hash h(M) [e.g. 26]: ").strip()
+        h = int(val_h, 0) if val_h else 26
+
+        beta = pow(alpha, d, p)
+        print(f"\n[+] Public key beta = alpha^d mod p = {alpha}^{d} mod {p} = {beta}")
+        r, s = dsa_sign(p, q, alpha, d, ke, h, verbose=True)
+        valid = dsa_verify(p, q, alpha, beta, h, r, s, verbose=True)
+        print(f"[=>] Signature Valid: {valid}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python dsa_digital_signature.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: DSA DIGITAL SIGNATURE (SLIDE 12 TEST VECTOR & STUDENT ID)")
     print("=" * 65)
@@ -115,3 +149,11 @@ if __name__ == "__main__":
     r2, s2 = dsa_sign(p1, q1, alpha1, d1, k_E1, h_student, verbose=True)
     is_valid2 = dsa_verify(p1, q1, alpha1, beta1, h_student, r2, s2, verbose=True)
     print(f"Student ID Signature Verification Result: {is_valid2}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

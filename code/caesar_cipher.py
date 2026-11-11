@@ -46,7 +46,54 @@ def caesar_brute_force(ciphertext: str) -> List[Tuple[int, str]]:
     return candidates
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: CAESAR CIPHER CALCULATOR")
+    print("=" * 65)
+    print("Choose operation:")
+    print("  [1] Encrypt text with key k")
+    print("  [2] Decrypt text with key k")
+    print("  [3] Brute-force Attack (Try all 26 keys on ciphertext)")
+    try:
+        op = input("Select [1/2/3, default 1]: ").strip()
+        txt = input("Enter text string [e.g. HELLO USTH]: ").strip()
+        if not txt:
+            txt = "HELLO USTH"
+        if op == "3":
+            print(f"\n[+] Brute-force decryption of '{txt}':")
+            print(f"{'Key k':<6} | {'Candidate Plaintext'}")
+            print("-" * 45)
+            for k, cand in caesar_brute_force(txt):
+                print(f"k = {k:<2}  | {cand}")
+        elif op == "2":
+            val_k = input("Enter shift key k [0-25, default 3]: ").strip()
+            k = int(val_k, 0) if val_k else 3
+            res = caesar_decrypt(txt, k)
+            print(f"\n[=>] Decrypted text (k={k}): '{res}'")
+        else:
+            val_k = input("Enter shift key k [0-25, default 3]: ").strip()
+            k = int(val_k, 0) if val_k else 3
+            res = caesar_encrypt(txt, k)
+            print(f"\n[=>] Encrypted ciphertext (k={k}): '{res}'")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python caesar_cipher.py "HELLO" 3
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        txt = sys.argv[1]
+        k = int(sys.argv[2], 0) if len(sys.argv) > 2 else 3
+        print(f"Encrypted: {caesar_encrypt(txt, k)}")
+        sys.exit(0)
+
+    # Direct interactive flag: python caesar_cipher.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: CAESAR CIPHER (ENCRYPTION, DECRYPTION, BRUTE-FORCE)")
     print("=" * 65)
@@ -90,3 +137,10 @@ if __name__ == "__main__":
     for k, text in candidates:
         flag = " <== CORRECT KEY" if k == key else ""
         print(f"k = {k:<2}  | {text}{flag}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom text/key for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()

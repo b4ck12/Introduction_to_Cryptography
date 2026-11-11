@@ -114,7 +114,31 @@ def run_feistel_decipher(ciphertext_64: int, keys: List[int], verbose: bool = Tr
     return plaintext_64
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: 16-ROUND FEISTEL CIPHER")
+    print("=" * 65)
+    try:
+        val_pt = input("Enter 64-bit plaintext hex [e.g. 0x0123456789ABCDEF]: ").strip()
+        pt = int(val_pt, 16) if val_pt else 0x0123456789ABCDEF
+        val_id = input("Enter seed/student ID for subkey derivation [default 56]: ").strip()
+        sid = int(val_id, 0) if val_id else 56
+        keys = [((sid * 104729 + i * 7919) & 0xFFFFFFFF) for i in range(16)]
+        c = run_feistel_cipher(pt, keys, verbose=True)
+        dec = run_feistel_decipher(c, keys, verbose=True)
+        print(f"[=>] Invertibility: {dec == pt}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python des_feistel_cipher.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: DES FEISTEL STRUCTURE & INVERTIBILITY PROOF")
     print("=" * 65)
@@ -135,3 +159,11 @@ if __name__ == "__main__":
     print(f"Original Plaintext : 0x{plaintext:016X}")
     print(f"Decrypted Plaintext: 0x{decrypted:016X}")
     print(f"Feistel Invertibility Verified: {decrypted == plaintext}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom plaintext/seed for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

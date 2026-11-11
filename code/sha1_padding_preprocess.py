@@ -6,7 +6,9 @@ Analyzes both l = 20260 bits (Printed on exam sheet) and l = 56 bits (Student ID
 """
 
 def solve_sha1_padding_for_len(l_bits, label=""):
-    print(f"\n--- {label} (Length l = {l_bits} bits) ---")
+    print(f"\n" + "=" * 75)
+    print(f"{label} - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC (l = {l_bits} bits)")
+    print("=" * 75)
     rem = l_bits % 512
     # Formula: (l + 1 + k) = 448 mod 512
     # k = (447 - (l mod 512)) mod 512
@@ -19,12 +21,35 @@ def solve_sha1_padding_for_len(l_bits, label=""):
     total_len = l_bits + 1 + k_zeros + 64
     total_blocks = total_len // 512
     
-    print(f"Original message length l:    {l_bits} bits")
-    print(f"l mod 512:                    {rem} bits")
-    print(f"Number of zero bits k to pad: (447 - {rem}) mod 512 = {k_zeros} bits")
-    print(f"64-bit length field (Hex):    {length_hex_64}")
-    print(f"Total length after padding:   {l_bits} + 1 + {k_zeros} + 64 = {total_len} bits")
-    print(f"Total 512-bit blocks (L):     {total_len} / 512 = {total_blocks} blocks (Each block: 16 words x 32 bits)")
+    print(f"[BƯỚC 1] Xác định chiều dài thông điệp ban đầu:")
+    print(f"    l = {l_bits} bits")
+
+    print(f"\n[BƯỚC 2] Tính số dư khi chia cho kích thước khối 512 bits:")
+    print(f"    l mod 512 = {l_bits} mod 512 = {rem} bits")
+
+    print(f"\n[BƯỚC 3] Áp dụng quy tắc đệm bit 1 và k bit 0 theo chuẩn SHA-1:")
+    print(f"    - Thêm 1 bit '1' ngay sau thông điệp.")
+    print(f"    - Thêm k bit '0' sao cho: (l + 1 + k) = 448 (mod 512)")
+    print(f"    - Suy ra công thức tính k:")
+    print(f"        k = (447 - (l mod 512)) mod 512 = (447 - {rem}) mod 512 = {k_zeros} bit 0")
+    print(f"    ===> SỐ BIT 0 CẦN CHÈN THÊM: k = {k_zeros} bit 0")
+
+    print(f"\n[BƯỚC 4] Biểu diễn trường chiều dài 64-bit của thông điệp gốc l (Big-Endian):")
+    print(f"    - Giá trị thập phân : l = {l_bits}")
+    print(f"    - Biểu diễn Hex 64-bit: {length_hex_64}")
+    print(f"    - Biểu diễn Nhị phân  : {length_bin_64[:32]} {length_bin_64[32:]}")
+
+    print(f"\n[BƯỚC 5] Cấu trúc thông điệp sau đệm hoàn chỉnh:")
+    print(f"    Message_Padded = M (l bits) || '1' (1 bit) || '0'^{k_zeros} ({k_zeros} bits) || Length_64 (64 bits)")
+
+    print(f"\n[BƯỚC 6] Tính tổng chiều dài thông điệp sau khi đệm:")
+    print(f"    Total_Length = l + 1 + k + 64 = {l_bits} + 1 + {k_zeros} + 64 = {total_len} bits")
+    print(f"    Kiểm tra tính chia hết: {total_len} % 512 = {total_len % 512} == 0 (Chính xác!)")
+
+    print(f"\n[BƯỚC 7] Tính tổng số khối 512-bit (L):")
+    print(f"    L = Total_Length / 512 = {total_len} / 512 = {total_blocks} khối")
+    print(f"    (Mỗi khối gồm 16 từ 32-bit: W_0, W_1, ..., W_15)")
+    print("=" * 75)
     return {
         "l": l_bits,
         "k_zeros": k_zeros,
@@ -32,6 +57,7 @@ def solve_sha1_padding_for_len(l_bits, label=""):
         "total_len": total_len,
         "blocks": total_blocks
     }
+
 
 def solve_sha1_padding(custom_l=None):
     import sys
@@ -57,5 +83,43 @@ def solve_sha1_padding(custom_l=None):
     solve_sha1_padding_for_len(l_id, f"Case B: Personalized Student ID (l = {l_id} bits)")
     print("=" * 70)
 
+def custom_input():
+    print("\n" + "=" * 70)
+    print("CUSTOM EXAM INPUT: SHA-1 PADDING PREPROCESS")
+    print("=" * 70)
+    print("Choose input format:")
+    print("  [1] Message bit length l directly (e.g. 20260 bits)")
+    print("  [2] Text message string (length calculated in bits)")
+    try:
+        choice = input("Select [1/2, default 1]: ").strip()
+        if choice == "2":
+            txt = input("Enter text string [e.g. hello]: ")
+            if not txt:
+                txt = "hello"
+            l_bits = len(txt.encode("utf-8")) * 8
+            solve_sha1_padding_for_len(l_bits, f"Custom Text '{txt}' ({len(txt)} chars = {l_bits} bits)")
+        else:
+            val_l = input("Enter message bit length l [e.g. 20260]: ").strip()
+            l_bits = int(val_l, 0) if val_l else 20260
+            solve_sha1_padding_for_len(l_bits, f"Custom Bit Length l = {l_bits}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python sha1_padding_preprocess.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     solve_sha1_padding()
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 70)
+        c = input("[?] Enter custom bit length l for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

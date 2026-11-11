@@ -76,7 +76,46 @@ def vigenere_decrypt(ciphertext: str, key: str, verbose: bool = True) -> str:
     return "".join(plaintext)
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: VIGENÈRE CIPHER CALCULATOR")
+    print("=" * 65)
+    print("Choose operation:")
+    print("  [1] Encrypt text with keyword")
+    print("  [2] Decrypt text with keyword")
+    try:
+        op = input("Select [1/2, default 1]: ").strip()
+        txt = input("Enter text string [e.g. USTHCRYPTO]: ").strip()
+        if not txt:
+            txt = "USTHCRYPTO"
+        kw = input("Enter keyword [e.g. KEY]: ").strip()
+        if not kw:
+            kw = "KEY"
+        if op == "2":
+            res = vigenere_decrypt(txt, kw, verbose=True)
+            print(f"\n[=>] Decrypted text with keyword '{kw}': '{res}'")
+        else:
+            res = vigenere_encrypt(txt, kw, verbose=True)
+            print(f"\n[=>] Encrypted ciphertext with keyword '{kw}': '{res}'")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python vigenere_cipher.py "USTH" "KEY"
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        txt = sys.argv[1]
+        kw = sys.argv[2] if len(sys.argv) > 2 else "KEY"
+        print(f"Encrypted: {vigenere_encrypt(txt, kw, verbose=False)}")
+        sys.exit(0)
+
+    # Direct interactive flag: python vigenere_cipher.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: VIGENÈRE CIPHER (POLYALPHABETIC)")
     print("=" * 65)
@@ -93,3 +132,11 @@ if __name__ == "__main__":
     recovered = vigenere_decrypt(cipher, keyword, verbose=True)
     print(f"[=>] Full Recovered Plaintext: {recovered}")
     print(f"[=>] Verification Match: {recovered == message}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom text/keyword for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

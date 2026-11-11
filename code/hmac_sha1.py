@@ -62,7 +62,29 @@ def hmac_sha1_manual(key: bytes, message: bytes, verbose: bool = True) -> bytes:
     return mac_tag
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: HMAC-SHA1 AUTHENTICATION CODE")
+    print("=" * 65)
+    try:
+        raw_key = input("Enter secret key [e.g. Jefe]: ").strip()
+        k_b = raw_key.encode("utf-8") if raw_key else b"Jefe"
+        raw_msg = input("Enter message [e.g. hello world]: ").strip()
+        m_b = raw_msg.encode("utf-8") if raw_msg else b"hello world"
+        mac = hmac_sha1_manual(k_b, m_b, verbose=True)
+        print(f"[=>] Final HMAC-SHA1 Tag: 0x{mac.hex()}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python hmac_sha1.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: HMAC-SHA1 (RFC 2104 & STUDENT ID 23BA14056)")
     print("=" * 65)
@@ -92,3 +114,11 @@ if __name__ == "__main__":
     print(f"Manual HMAC-SHA1  : 0x{mac_student.hex()}")
     print(f"Standard Library  : 0x{std_mac.hex()}")
     print(f"Verification Match: {mac_student == std_mac}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom key/message for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

@@ -120,7 +120,43 @@ def encrypt_ctr(data: bytes, key: bytes, nonce: int) -> bytes:
     return bytes(out)
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: BLOCK CIPHER MODES (ECB, CBC, CTR)")
+    print("=" * 65)
+    try:
+        raw_pt = input("Enter plaintext string [e.g. SECRET EXAM MESSAGE]: ").strip()
+        pt = raw_pt.encode("utf-8") if raw_pt else b"SECRET EXAM MESSAGE"
+        raw_key = input("Enter 8-byte key [e.g. USTH2026]: ").strip()
+        k = raw_key.encode("utf-8")[:8] if raw_key else b"USTH2026"
+        k = k.ljust(8, b'\0')
+        raw_iv = input("Enter 8-byte IV for CBC [e.g. INITVEC1]: ").strip()
+        iv_b = raw_iv.encode("utf-8")[:8] if raw_iv else b"INITVEC1"
+        iv_b = iv_b.ljust(8, b'\0')
+
+        print(f"\n[+] Input Plaintext: {pt}")
+        print(f"[+] Key (8 bytes)  : {k}")
+        print(f"[+] IV (8 bytes)   : {iv_b}")
+
+        c_ecb = encrypt_ecb(pt, k)
+        c_cbc = encrypt_cbc(pt, k, iv_b)
+        c_ctr = encrypt_ctr(pt, k, 1000)
+
+        print(f"\n[=>] ECB Ciphertext (Hex): {c_ecb.hex()}")
+        print(f"[=>] CBC Ciphertext (Hex): {c_cbc.hex()}")
+        print(f"[=>] CTR Ciphertext (Hex): {c_ctr.hex()}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python block_cipher_modes.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: BLOCK CIPHER MODES OF OPERATION (ECB, CBC, CTR)")
     print("=" * 65)
@@ -156,3 +192,11 @@ if __name__ == "__main__":
     print(f"    Ciphertext (Hex): {c_ctr.hex()[:48]}...")
     print(f"    Decrypted text  : {p_ctr}")
     print(f"    Match           : {p_ctr == plaintext}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

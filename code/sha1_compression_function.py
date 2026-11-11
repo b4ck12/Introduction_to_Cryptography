@@ -127,15 +127,47 @@ class SHA1Compressor:
         return new_state
 
 
+def custom_input():
+    print("\n" + "=" * 70)
+    print("CUSTOM EXAM INPUT: SHA-1 COMPRESSION & HASH")
+    print("=" * 70)
+    try:
+        raw_msg = input("Enter message string to hash [e.g. abc]: ").strip()
+        msg_bytes = raw_msg.encode("utf-8") if raw_msg else b"abc"
+        # Standard SHA-1 pad
+        l_bits = len(msg_bytes) * 8
+        rem = l_bits % 512
+        k_zeros = (447 - rem) % 512
+        pad = b"\x80" + b"\x00" * (k_zeros // 8) + l_bits.to_bytes(8, 'big')
+        padded_msg = msg_bytes + pad
+        print(f"\n[+] Total padded length: {len(padded_msg)} bytes ({len(padded_msg)*8} bits = {len(padded_msg)//64} blocks)")
+        
+        state = list(SHA1Compressor.IV)
+        for blk_idx in range(len(padded_msg) // 64):
+            blk = padded_msg[blk_idx*64 : (blk_idx+1)*64]
+            print(f"\n--- Compressing Block {blk_idx+1}/{len(padded_msg)//64} ---")
+            state = SHA1Compressor.compress(state, blk, verbose=True)
+
+        final_hex = "".join(f"{h:08x}" for h in state)
+        print(f"[=>] Final SHA-1 Digest: {final_hex}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python sha1_compression_function.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
+    # Standard run:
+    # Example 512-bit block containing ASCII for 'abc' with SHA-1 padding
+    msg_abc = b"abc" + b"\x80" + b"\x00" * 52 + (24).to_bytes(8, 'big')
     print("=" * 70)
     print("DEMO: SHA-1 COMPRESSION FUNCTION & MESSAGE EXPANSION")
     print("=" * 70)
-
-    # Example 512-bit block containing ASCII for 'abc' with SHA-1 padding
-    # 'a' = 0x61, 'b' = 0x62, 'c' = 0x63, followed by 0x80, 52 zeros, and 64-bit length 24 bits
-    # Total = 3 + 1 + 52 + 8 = 64 bytes (512 bits)
-    msg_abc = b"abc" + b"\x80" + b"\x00" * 52 + (24).to_bytes(8, 'big')
     print(f"Testing 512-bit padded block for 'abc' ({len(msg_abc)} bytes):")
 
     init_state = list(SHA1Compressor.IV)
@@ -148,10 +180,6 @@ if __name__ == "__main__":
     print(f"Verification Match  : {actual_hash == expected_sha1_abc}")
 
     # Session 7 Slide 25 Exercise:
-    # Compute output of first round of stage 1 of SHA-1 for:
-    # 1. x = 0...00 (512 zeros)
-    # 2. x = 0...01 (bit 512 is 1)
-    # Ignoring initial IV (A0 = B0 = C0 = D0 = E0 = 0)
     print("\n" + "=" * 70)
     print("SESSION 7 SLIDE 25 - FIRST ROUND OUTPUT EXERCISE")
     print("=" * 70)
@@ -160,7 +188,6 @@ if __name__ == "__main__":
     print("               f_0(0, 0, 0) = (0 & 0) | (~0 & 0) = 0")
     print("               (A_0 <<< 5) = 0, E_0 = 0 ==> T = K_0 + W_0 = 0x5A827999 + W_0")
     
-    # Case 1: x = 0...00
     blk1 = bytes(64)
     w1 = SHA1Compressor.expand_block(blk1)
     t1 = (0x5A827999 + w1[0]) & 0xFFFFFFFF
@@ -169,7 +196,6 @@ if __name__ == "__main__":
     print(f"   T = 0x5A827999 + 0x{w1[0]:08X} = 0x{t1:08X}")
     print(f"   First round output: A_1 = 0x{t1:08X}, B_1 = 0, C_1 = 0, D_1 = 0, E_1 = 0")
 
-    # Case 2: x = 0...01 (bit 512 is one)
     blk2 = bytearray(64)
     blk2[-1] = 0x01
     w2 = SHA1Compressor.expand_block(bytes(blk2))
@@ -180,3 +206,11 @@ if __name__ == "__main__":
     print(f"   First round output: A_1 = 0x{t2:08X}, B_1 = 0, C_1 = 0, D_1 = 0, E_1 = 0")
     print(f"   [=>] Conclusion: Both inputs produce IDENTICAL output (0x5A827999, 0, 0, 0, 0) after Round 1!")
     print("=" * 70)
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 70)
+        c = input("[?] Enter custom message for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

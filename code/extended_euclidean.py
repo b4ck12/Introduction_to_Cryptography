@@ -80,7 +80,49 @@ def mod_inverse(a: int, m: int, verbose: bool = True) -> int:
     return inv
 
 
+def custom_input():
+    print("\n" + "=" * 60)
+    print("CUSTOM EXAM INPUT: EXTENDED EUCLIDEAN & MODULAR INVERSE")
+    print("=" * 60)
+    print("Choose operation:")
+    print("  [1] Compute Modular Inverse: a^(-1) mod m")
+    print("  [2] Compute Bézout Identity & GCD: a*s + b*t = gcd(a, b)")
+    try:
+        op = input("Select [1/2, default 1]: ").strip()
+        if op == "2":
+            val_a = input("Enter a [e.g. 65537]: ").strip()
+            a = int(val_a, 0) if val_a else 65537
+            val_b = input("Enter b [e.g. 35256]: ").strip()
+            b = int(val_b, 0) if val_b else 35256
+            extended_euclidean(a, b, verbose=True)
+        else:
+            val_a = input("Enter number to invert a [e.g. 125]: ").strip()
+            a = int(val_a, 0) if val_a else 125
+            val_m = input("Enter modulus m [e.g. 31188]: ").strip()
+            m = int(val_m, 0) if val_m else 31188
+            mod_inverse(a, m, verbose=True)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python extended_euclidean.py 125 31188
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 26
+            mod_inverse(a, b, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Direct interactive flag: python extended_euclidean.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 60)
     print("DEMO: EXTENDED EUCLIDEAN ALGORITHM & MODULAR INVERSE")
     print("=" * 60)
@@ -104,3 +146,11 @@ if __name__ == "__main__":
     print("\n4. Affine Cipher: Decryption key for a = 7 (mod 26):")
     a_inv = mod_inverse(7, 26)
     print(f"Result: a^(-1) = {a_inv}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 60)
+        choice = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
+        if choice in ("y", "yes"):
+            custom_input()
+

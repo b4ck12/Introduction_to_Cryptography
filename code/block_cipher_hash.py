@@ -62,7 +62,39 @@ def miyaguchi_preneel_step(h_prev: bytes, x_i: bytes) -> bytes:
     return xor_bytes(xor_bytes(enc, x_i), h_prev)
 
 
+def custom_input():
+    print("\n" + "=" * 70)
+    print("CUSTOM EXAM INPUT: BLOCK CIPHER HASH CONSTRUCTIONS")
+    print("=" * 70)
+    try:
+        raw_x = input("Enter 8-byte message block [e.g. MSG_BLK1]: ").strip()
+        x_b = raw_x.encode("utf-8")[:8] if raw_x else b"MSG_BLK1"
+        x_b = x_b.ljust(8, b'\0')
+        raw_iv = input("Enter 8-byte initial IV [e.g. INITVEC0]: ").strip()
+        iv_b = raw_iv.encode("utf-8")[:8] if raw_iv else b"INITVEC0"
+        iv_b = iv_b.ljust(8, b'\0')
+
+        h_dm = davies_meyer_step(iv_b, x_b)
+        h_mmo = matyas_meyer_oseas_step(iv_b, x_b)
+        h_mp = miyaguchi_preneel_step(iv_b, x_b)
+
+        print(f"\n[+] Input Message Block x_i: {x_b} (Hex: 0x{x_b.hex()})")
+        print(f"[+] Initial IV h_{{i-1}}   : {iv_b} (Hex: 0x{iv_b.hex()})")
+        print(f"\n[=>] Davies-Meyer Step       : 0x{h_dm.hex()}")
+        print(f"[=>] Matyas-Meyer-Oseas Step : 0x{h_mmo.hex()}")
+        print(f"[=>] Miyaguchi-Preneel Step  : 0x{h_mp.hex()}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python block_cipher_hash.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 70)
     print("DEMO: BLOCK-CIPHER-BASED HASH CONSTRUCTIONS")
     print("=" * 70)
@@ -99,3 +131,11 @@ if __name__ == "__main__":
         h_mp = miyaguchi_preneel_step(h_mp, blk)
         print(f"   Step {idx}: h_{idx} = 0x{h_mp.hex()}")
     print(f"   [=>] Final Miyaguchi-Preneel Digest: 0x{h_mp.hex()}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 70)
+        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

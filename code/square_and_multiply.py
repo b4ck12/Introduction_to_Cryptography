@@ -72,7 +72,41 @@ def square_and_multiply(base: int, exponent: int, modulus: int, verbose: bool = 
     return y
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: SQUARE-AND-MULTIPLY EXPONENTIATION")
+    print("=" * 65)
+    try:
+        val_base = input("Enter base x [e.g. 56]: ").strip()
+        base = int(val_base, 0) if val_base else 56
+        val_exp = input("Enter exponent e / H [e.g. 125]: ").strip()
+        exp = int(val_exp, 0) if val_exp else 125
+        val_mod = input("Enter modulus n / m [e.g. 31553]: ").strip()
+        mod = int(val_mod, 0) if val_mod else 31553
+        square_and_multiply(base, exp, mod, verbose=True)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python square_and_multiply.py 5 23 33
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            b = int(sys.argv[1], 0)
+            e = int(sys.argv[2], 0) if len(sys.argv) > 2 else 1
+            m = int(sys.argv[3], 0) if len(sys.argv) > 3 else 1000000007
+            square_and_multiply(b, e, m, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Direct interactive flag: python square_and_multiply.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: SQUARE-AND-MULTIPLY FAST EXPONENTIATION")
     print("=" * 65)
@@ -101,3 +135,11 @@ if __name__ == "__main__":
     print("\n4. Session 6 Slide 11: Compute C = 5^23 mod 33:")
     c4 = square_and_multiply(5, 23, 33, verbose=True)
     print(f"Slide 11 Ciphertext C = {c4} (Expected: 26, Match: {c4 == 26})")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

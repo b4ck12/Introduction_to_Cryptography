@@ -43,7 +43,38 @@ def euclidean_gcd(a: int, b: int, verbose: bool = True) -> int:
     return r_prev
 
 
+def custom_input():
+    print("\n" + "=" * 60)
+    print("CUSTOM EXAM INPUT: EUCLIDEAN GCD")
+    print("=" * 60)
+    try:
+        val_a = input("Enter first integer a [e.g. 61430]: ").strip()
+        a = int(val_a, 0) if val_a else 61430
+        val_b = input("Enter second integer b [e.g. 52698]: ").strip()
+        b = int(val_b, 0) if val_b else 52698
+        euclidean_gcd(a, b, verbose=True)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python euclidean_gcd.py 61430 52698
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0
+            euclidean_gcd(a, b, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Support direct interactive flag: python euclidean_gcd.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 60)
     print("DEMO: EUCLIDEAN ALGORITHM FOR GCD")
     print("=" * 60)
@@ -59,3 +90,11 @@ if __name__ == "__main__":
     # 3. Student ID Check: gcd(56, 31188)
     print("3. Student ID check (x=56): gcd(31188, 56):")
     g3 = euclidean_gcd(31188, 56)
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 60)
+        choice = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
+        if choice in ("y", "yes"):
+            custom_input()
+

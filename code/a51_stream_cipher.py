@@ -75,9 +75,52 @@ def run_a51(x_dec=513365, y_dec=3355443, z_dec=7401712, n=10, output_first=True)
     print("=" * 75 + "\n")
     return keystream, ks_str
 
+def custom_input():
+    print("\n" + "=" * 75)
+    print("CUSTOM EXAM INPUT: A5/1 STREAM CIPHER")
+    print("=" * 75)
+    try:
+        val_n = input("Enter number of keystream bits to generate [default 10]: ").strip()
+        n = int(val_n, 0) if val_n else 10
+        print("Choose clocking convention:")
+        print("  [1] Option 1 (USTH Official Exam Standard: Output at t=0 before shift)")
+        print("  [2] Option 2 (Textbook Shift-First: Clock active registers, then output)")
+        opt = input("Select convention [1/2, default 1]: ").strip()
+        out_first = (opt != "2")
+
+        custom_regs = input("Use custom initial register states? [y/N]: ").strip().lower()
+        if custom_regs in ("y", "yes"):
+            raw_x = input("Enter 19-bit state for X [e.g. 1010101010101010101]: ").strip()
+            raw_y = input("Enter 22-bit state for Y [e.g. 1100110011001100110011]: ").strip()
+            raw_z = input("Enter 23-bit state for Z [e.g. 11100011100011100011100]: ").strip()
+            x = [int(b) for b in raw_x] if len(raw_x) == 19 else None
+            y = [int(b) for b in raw_y] if len(raw_y) == 22 else None
+            z = [int(b) for b in raw_z] if len(raw_z) == 23 else None
+            run_a51(x, y, z, n=n, output_first=out_first)
+        else:
+            run_a51(n=n, output_first=out_first)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python a51_stream_cipher.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=== OFFICIAL USTH RESULT (Option 1) ===")
     run_a51(output_first=True)
     
     print("=== TEXTBOOK RESULT (Option 2) ===")
     run_a51(output_first=False)
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 75)
+        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

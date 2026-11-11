@@ -164,4 +164,16 @@ def solve_all_slide_exercises():
     print("=" * 80)
 
 if __name__ == "__main__":
+    import sys
+
     solve_all_slide_exercises()
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("\n" + "-" * 75)
+        print("[*] All slide exercises have been computed and displayed above.")
+        print("[*] To run specific algorithms with custom values, run any script with '-i', e.g.:")
+        print("    python square_and_multiply.py -i")
+        print("    python rsa_key_generation.py -i")
+        print("    python exam_calculator.py")
+

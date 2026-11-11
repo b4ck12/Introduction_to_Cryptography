@@ -61,7 +61,53 @@ def stream_xor_demo(plaintext: str, key_bytes: bytes, verbose: bool = True) -> T
     return c_bytes, decrypted_text
 
 
+def custom_input():
+    print("\n" + "=" * 70)
+    print("CUSTOM EXAM INPUT: BITWISE XOR STREAM CIPHER")
+    print("=" * 70)
+    print("Choose input format:")
+    print("  [1] ASCII Text strings (Message XOR Keystream)")
+    print("  [2] Hexadecimal bytes (e.g. 56 XOR AA)")
+    try:
+        fmt = input("Select [1/2, default 1]: ").strip()
+        if fmt == "2":
+            hex_m = input("Enter message bytes in hex [e.g. 38]: ").strip()
+            if not hex_m:
+                hex_m = "38"
+            hex_k = input("Enter key bytes in hex [e.g. AA]: ").strip()
+            if not hex_k:
+                hex_k = "AA"
+            m_bytes = bytes.fromhex(hex_m)
+            k_bytes = bytes.fromhex(hex_k)
+            # Repeat key if shorter
+            k_stream = (k_bytes * ((len(m_bytes) // len(k_bytes)) + 1))[:len(m_bytes)]
+            c_bytes = bytes([b1 ^ b2 for b1, b2 in zip(m_bytes, k_stream)])
+            print(f"\n[+] Hex XOR Calculation:")
+            print(f"    Message:   0x{m_bytes.hex()} ({bin(int.from_bytes(m_bytes, 'big'))})")
+            print(f"    Keystream: 0x{k_stream.hex()} ({bin(int.from_bytes(k_stream, 'big'))})")
+            print(f"    Cipher:    0x{c_bytes.hex()} ({bin(int.from_bytes(c_bytes, 'big'))})")
+        else:
+            txt = input("Enter plaintext message [e.g. USTH 2026]: ").strip()
+            if not txt:
+                txt = "USTH 2026"
+            key_txt = input("Enter key string [e.g. SECRET123]: ").strip()
+            if not key_txt:
+                key_txt = "SECRET123"
+            k_bytes = key_txt.encode("utf-8")
+            k_stream = (k_bytes * ((len(txt) // len(k_bytes)) + 1))[:len(txt)]
+            stream_xor_demo(txt, k_stream, verbose=True)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python binary_xor_stream.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 70)
     print("DEMO: BITWISE XOR STREAM CIPHER (LAB 1 EXERCISES 1, 2, 3)")
     print("=" * 70)
@@ -91,3 +137,11 @@ if __name__ == "__main__":
     m = c ^ k
     print(f"   ID: {student_id} (0x{student_id:02X}) ^ Key (0x{k:02X}) = Cipher: {c} (0x{c:02X})")
     print(f"   Cipher: {c} ^ Key (0x{k:02X}) = Original ID: {m} (Match: {m == student_id})")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 70)
+        c = input("[?] Enter custom message/key for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

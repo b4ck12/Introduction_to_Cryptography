@@ -32,18 +32,31 @@ def solve_des_s1(student_id_str="23BA14056"):
     val = S1_BOX[row][col]
     val_bin_4bit = f"{val:04b}"
     
-    print("=" * 60)
-    print("USTH FINAL EXAM 2025-2026 - EXERCISE 1: DES S1-BOX LOOKUP")
-    print("=" * 60)
-    print(f"Student ID:                 {student_id_str}")
-    print(f"Last 3 digits:              {last_3:03d}")
-    print(f"Input integer x:            {last_3} mod 64 = {x}")
-    print(f"6-bit Binary:               {bin_6bit} (b1={bin_6bit[0]}, b2={bin_6bit[1]}, b3={bin_6bit[2]}, b4={bin_6bit[3]}, b5={bin_6bit[4]}, b6={bin_6bit[5]})")
-    print(f"Row r (b1, b6):             '{row_bin}' -> Row {row}")
-    print(f"Column c (b2..b5):          '{col_bin}' -> Column {col}")
-    print(f"S1-Box Output (decimal):    {val}")
-    print(f"S1-Box Output (4-bit bin):  {val_bin_4bit}")
-    print("=" * 60)
+    print("=" * 75)
+    print("USTH FINAL EXAM 2025-2026 - EXERCISE 1: DES S1-BOX LOOKUP (LỜI GIẢI TỰ LUẬN)")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Xác định số nguyên x từ 3 chữ số cuối mã sinh viên:")
+    print(f"    * Mã sinh viên       : {student_id_str}")
+    print(f"    * 3 chữ số cuối      : {last_3:03d}")
+    print(f"    * Số nguyên đầu vào x: x = {last_3} mod 64 = {x}")
+    
+    print(f"\n[BƯỚC 2] Biểu diễn số nguyên x dưới dạng nhị phân 6 bit:")
+    print(f"    {x}_10 = ({bin_6bit})_2 = (b1 b2 b3 b4 b5 b6)")
+    print(f"    Chi tiết từng bit: b1={bin_6bit[0]}, b2={bin_6bit[1]}, b3={bin_6bit[2]}, b4={bin_6bit[3]}, b5={bin_6bit[4]}, b6={bin_6bit[5]}")
+
+    print(f"\n[BƯỚC 3] Xác định chỉ số Hàng r và Cột c trong bảng S1:")
+    print(f"    * Hàng r (ghép bit ngoài cùng b1 b6):")
+    print(f"        r = (b1 b6)_2 = ({row_bin})_2 = {int(row_bin[0])*2} + {int(row_bin[1])} = {row}  ===> HÀNG {row}")
+    print(f"    * Cột c (ghép 4 bit ở giữa b2 b3 b4 b5):")
+    print(f"        c = (b2 b3 b4 b5)_2 = ({col_bin})_2 = {int(col_bin[0])*8} + {int(col_bin[1])*4} + {int(col_bin[2])*2} + {int(col_bin[3])} = {col} ===> CỘT {col}")
+
+    print(f"\n[BƯỚC 4] Tra cứu giá trị trong bảng S1-Box tại tọa độ (Hàng {row}, Cột {col}):")
+    print(f"    S1[{row}][{col}] = {val} (Thập phân)")
+
+    print(f"\n[BƯỚC 5] Đổi giá trị đầu ra sang hệ nhị phân 4 bit:")
+    print(f"    {val}_10 = ({val_bin_4bit})_2")
+    print(f"    ===> ĐÁP SỐ BÀI 1: Đầu ra của hộp S1 là {val} (Nhị phân: {val_bin_4bit}_2)")
+    print("=" * 75)
     return {
         "x": x,
         "bin_6bit": bin_6bit,
@@ -53,6 +66,32 @@ def solve_des_s1(student_id_str="23BA14056"):
         "val_bin": val_bin_4bit
     }
 
+def custom_input():
+    print("\n" + "=" * 60)
+    print("CUSTOM EXAM INPUT: DES S1-BOX LOOKUP")
+    print("=" * 60)
+    try:
+        user_in = input("Enter Student ID (e.g. 23BA14056) or integer (0-63) or 6-bit binary [default: 23BA14056]: ").strip()
+        if not user_in:
+            user_in = "23BA14056"
+        solve_des_s1(user_in)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    # Support direct interactive flag: python des_sbox_lookup.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     sid = sys.argv[1] if len(sys.argv) > 1 else "23BA14056"
     solve_des_s1(sid)
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 60)
+        c = input("[?] Enter custom Student ID for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

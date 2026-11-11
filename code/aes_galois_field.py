@@ -108,7 +108,65 @@ def aes_mix_single_column(col: List[int]) -> List[int]:
     return [d0, d1, d2, d3]
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: AES GF(2^8) & S-BOX CALCULATOR")
+    print("=" * 65)
+    print("Choose operation:")
+    print("  [1] Multiply two bytes in GF(2^8) (mod x^8 + x^4 + x^3 + x + 1)")
+    print("  [2] Compute xtime(b) (multiplication by 0x02)")
+    print("  [3] Compute GF(2^8) Inversion & AES S-Box output for a byte")
+    print("  [4] AES MixColumns Transform for a 4-byte column")
+    try:
+        op = input("Select [1/2/3/4, default 1]: ").strip()
+        if op == "2":
+            val_b = input("Enter byte in hex [e.g. 57]: ").strip()
+            b = int(val_b, 16) if val_b else 0x57
+            res = xtime(b)
+            print(f"\n[=>] xtime(0x{b:02X}) = 0x{res:02X} (Binary: {bin(res)})")
+        elif op == "3":
+            val_b = input("Enter byte in hex or int [e.g. 0x38 or 56]: ").strip()
+            b = int(val_b, 0) if val_b else 0x38
+            inv = gf_inverse(b)
+            s_out = aes_sbox_byte(b)
+            print(f"\n[=>] Input byte: 0x{b:02X}")
+            print(f"    GF(2^8) Inverse : 0x{inv:02X} (Check: 0x{b:02X} * 0x{inv:02X} = 0x{gf_multiply(b, inv):02X})")
+            print(f"    AES S-Box Output: 0x{s_out:02X}")
+        elif op == "4":
+            raw_col = input("Enter 4 hex bytes separated by spaces [e.g. DB 13 53 45]: ").strip()
+            col = [int(x, 16) for x in raw_col.split()] if raw_col else [0xDB, 0x13, 0x53, 0x45]
+            mixed = aes_mix_single_column(col)
+            print(f"\n[=>] Input Column : {[f'0x{x:02X}' for x in col]}")
+            print(f"    Output Column: {[f'0x{x:02X}' for x in mixed]}")
+        else:
+            val_a = input("Enter first byte in hex [e.g. 57]: ").strip()
+            a = int(val_a, 16) if val_a else 0x57
+            val_b = input("Enter second byte in hex [e.g. 83]: ").strip()
+            b = int(val_b, 16) if val_b else 0x83
+            prod = gf_multiply(a, b)
+            print(f"\n[=>] 0x{a:02X} * 0x{b:02X} in GF(2^8) = 0x{prod:02X}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python aes_galois_field.py 0x57 0x83
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0x02
+            print(f"0x{a:02X} * 0x{b:02X} = 0x{gf_multiply(a, b):02X}")
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Direct interactive flag: python aes_galois_field.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: AES GALOIS FIELD GF(2^8) ARITHMETIC & S-BOX")
     print("=" * 65)
@@ -147,3 +205,11 @@ if __name__ == "__main__":
     print(f"   Output Column: {[f'0x{x:02X}' for x in mixed_col]}")
     print(f"   Expected     : {[f'0x{x:02X}' for x in expected_mixed]}")
     print(f"   Match        : {mixed_col == expected_mixed}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom bytes for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

@@ -82,7 +82,36 @@ def simulate_dhke_mitm(p: int, alpha: int, a: int, b: int, e1: int, e2: int, ver
     return K_Alice, K_Bob
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: DHKE MAN-IN-THE-MIDDLE ATTACK")
+    print("=" * 65)
+    try:
+        val_p = input("Enter prime p [e.g. 467]: ").strip()
+        p = int(val_p, 0) if val_p else 467
+        val_alpha = input("Enter generator alpha [e.g. 2]: ").strip()
+        alpha = int(val_alpha, 0) if val_alpha else 2
+        val_a = input("Enter Alice's private key a [e.g. 228]: ").strip()
+        a = int(val_a, 0) if val_a else 228
+        val_b = input("Enter Bob's private key b [e.g. 57]: ").strip()
+        b = int(val_b, 0) if val_b else 57
+        val_o1 = input("Enter Attacker private key towards Alice [e.g. 16]: ").strip()
+        o1 = int(val_o1, 0) if val_o1 else 16
+        val_o2 = input("Enter Attacker private key towards Bob [e.g. 16]: ").strip()
+        o2 = int(val_o2, 0) if val_o2 else o1
+        simulate_dhke_mitm(p, alpha, a, b, o1, o2, verbose=True)
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Direct interactive flag: python dhke_mitm_attack.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: MAN-IN-THE-MIDDLE ATTACK ON DIFFIE-HELLMAN KEY EXCHANGE")
     print("=" * 65)
@@ -110,3 +139,11 @@ if __name__ == "__main__":
     b_s8 = 57
     o_s8 = 16
     simulate_dhke_mitm(p_s8, alpha_s8, a_s8, b_s8, o_s8, o_s8, verbose=True)
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+

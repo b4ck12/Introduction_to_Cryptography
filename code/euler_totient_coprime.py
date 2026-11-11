@@ -76,7 +76,55 @@ def find_coprime_pairs(numbers: List[int]) -> List[Tuple[int, int]]:
     return coprimes
 
 
+def custom_input():
+    print("\n" + "=" * 65)
+    print("CUSTOM EXAM INPUT: EULER'S TOTIENT & COPRIME PAIRS")
+    print("=" * 65)
+    print("Choose calculation type:")
+    print("  [1] Compute Phi(m), Prime Factors & Coprime Set Z_m*")
+    print("  [2] Find All Pairwise Coprime Pairs from a List of Numbers")
+    try:
+        choice = input("Select [1/2, default 1]: ").strip()
+        if choice == "2":
+            val_list = input("Enter comma-separated integers [e.g. 10, 15, 21, 28, 33]: ").strip()
+            if val_list:
+                nums = [int(x.strip(), 0) for x in val_list.split(",") if x.strip()]
+            else:
+                nums = [10, 15, 21, 28, 33]
+            pairs = find_coprime_pairs(nums)
+            print(f"\n[+] Input list ({len(nums)} elements): {nums}")
+            print(f"[+] Total possible pairs: C({len(nums)}, 2) = {len(nums)*(len(nums)-1)//2}")
+            print(f"[+] Total coprime pairs found: {len(pairs)}")
+            for idx, (a, b) in enumerate(pairs, 1):
+                print(f"    {idx:>2}. gcd({a}, {b}) = 1")
+        else:
+            val_m = input("Enter integer m [e.g. 26]: ").strip()
+            m = int(val_m, 0) if val_m else 26
+            phi = euler_totient(m, verbose=True)
+            coprimes = [k for k in range(1, m + 1) if math.gcd(k, m) == 1]
+            print(f"[=>] Elements coprime to {m} (Z_{m}*): {coprimes}")
+            print(f"[=>] Count |Z_{m}*| = {len(coprimes)} == Phi({m}) = {phi}")
+    except (ValueError, KeyboardInterrupt, EOFError) as err:
+        print(f"[-] Input error or cancelled: {err}")
+
+
 if __name__ == "__main__":
+    import sys
+
+    # Support CLI arguments: python euler_totient_coprime.py 26
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            m = int(sys.argv[1], 0)
+            euler_totient(m, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Direct interactive flag: python euler_totient_coprime.py -i
+    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
+        custom_input()
+        sys.exit(0)
+
     print("=" * 65)
     print("DEMO: EULER'S TOTIENT FUNCTION & COPRIME PAIRS")
     print("=" * 65)
@@ -128,3 +176,11 @@ if __name__ == "__main__":
     print(f"\nStudent ID x = {student_id}:")
     phi_id = euler_totient(student_id, verbose=True)
     print(f"Phi({student_id}) = {phi_id}")
+
+    # Interactive prompt if user runs directly in terminal
+    if sys.stdin.isatty():
+        print("-" * 65)
+        c = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
+        if c in ("y", "yes"):
+            custom_input()
+
