@@ -15,6 +15,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ALGORITHM_SCRIPTS = [
     # 1. Modular Arithmetic & Foundations
+    ("modulo_calculator.py", "Direct Modulo Calculator (a mod m, Negative Modulo, Expression Modulo)"),
     ("modular_arithmetic.py", "Modular Addition, Multiplication, Cayley Tables"),
     ("modular_equation_solver.py", "Modular Equation Solver & x Modulo Reducer (ax ≡ b mod m, CRT, ID mod m)"),
     ("euclidean_gcd.py", "Euclidean Algorithm for GCD (Lab 2 Ex 1)"),

@@ -10,6 +10,25 @@ const tauri = window.__TAURI__ ? window.__TAURI__.core : null;
 const ALGORITHMS = [
   // 1. Modular Arithmetic & Foundations
   {
+    id: "modulo_calculator",
+    category: "1. Modular Arithmetic & Foundations",
+    title: "Phép Tính Modulo Cơ Bản (a mod m)",
+    formula: "r = a mod m (a = q·m + r, 0 ≤ r < m)",
+    script: "modulo_calculator.py",
+    fields: [
+      { id: "a", label: "Số bị chia a (hoặc biểu thức / Mã SV)", type: "text", default: "56", placeholder: "e.g. 56 hoặc 181 - 14775", hint: "Số bị chia a hoặc biểu thức rút gọn" },
+      { id: "m", label: "Modulus m", type: "number", default: 64, placeholder: "e.g. 64", hint: "Modulus dương (m > 0)" }
+    ],
+    presets: [
+      { label: "Đề thi S-Box: 56 mod 64 = 56", values: { a: "56", m: 64 } },
+      { label: "Đề thi Caesar: 56 mod 26 = 4", values: { a: "56", m: 26 } },
+      { label: "ElGamal trung gian: (181 - 14775) mod 996", values: { a: "181 - 14775", m: 996 } },
+      { label: "Slide 24 Ex 1(d): -11 * 3 mod 13", values: { a: "-11 * 3", m: 13 } },
+      { label: "Slide 24 Ex 1(a): 15 * 29 mod 13", values: { a: "15 * 29", m: 13 } },
+      { label: "Slide 25 Ex 1: -11 mod 13", values: { a: "-11", m: 13 } }
+    ]
+  },
+  {
     id: "modular_equation_solver",
     category: "1. Modular Arithmetic & Foundations",
     title: "Tìm x qua Modulo (x mod m, a·x ≡ b, CRT)",
@@ -803,6 +822,11 @@ async function runAllTestsSuite() {
 function runClientSideFallback(toolId, args) {
   try {
     switch (toolId) {
+      case "modulo_calculator": {
+        const aStr = (args[0] || "56").trim();
+        const mVal = parseInt(args[1]) || 64;
+        return solveModuloClient(aStr, mVal);
+      }
       case "modular_equation_solver": {
         const aStr = (args[0] || "").trim();
         const bStr = (args[1] || "").trim();
@@ -1261,6 +1285,71 @@ function solveSha1PadClient(l) {
          `[BƯỚC 7] Số khối 512-bit:\n` +
          `    M = ${totalBits} / 512 = ${blocks} khối (512 bits mỗi khối)\n` +
          `===========================================================================`;
+}
+
+function solveModuloClient(aStr, m) {
+  let a = 56;
+  try {
+    const clean = aStr.replace(/[^0-9+\-*/()_ ]/g, "");
+    if (clean) {
+      a = Function(`'use strict'; return (${clean})`)();
+    } else {
+      const d = aStr.replace(/\D/g, "");
+      a = d ? parseInt(d.slice(-3)) : 56;
+    }
+  } catch (e) {
+    const d = aStr.replace(/\D/g, "");
+    a = d ? parseInt(d.slice(-3)) : 56;
+  }
+
+  const q = Math.floor(a / m);
+  const r = ((a % m) + m) % m;
+
+  let out = `===========================================================================\n`;
+  out += `PHÉP TÍNH MODULO (MODULAR ARITHMETIC): ${aStr} mod ${m}\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Thiết lập bài toán & Định nghĩa phép Modulo:\n`;
+  out += `    Công thức tổng quát: a = q * m + r  (với điều kiện tiên quyết: 0 <= r < m)\n`;
+  out += `    * Số bị chia a = ${a} (từ biểu thức: '${aStr}')\n`;
+  out += `    * Số chia Modulus m = ${m}\n\n`;
+
+  out += `[BƯỚC 2] Quá trình chia Euclid để tìm thương số q và số dư chuẩn r:\n`;
+  out += `    * Thương số nguyên: q = floor(${a} / ${m}) = ${q}\n`;
+  out += `    * Phần dư chuẩn  : r = a - (q * m) = ${a} - (${q} * ${m}) = ${r}\n`;
+  out += `    * Đẳng thức chia Euclid: ${a} = ${q} * ${m} + ${r}\n`;
+  if (a < 0) {
+    out += `    [!] LƯU Ý SỐ ÂM (Chuẩn giảng đường USTH):\n`;
+    out += `        Trong toán học đồng dư, phần dư r LUÔN LUÔN không âm (0 <= r < ${m}).\n`;
+    out += `        Vì ${a} < 0, ta lùi thương q xuống floor(${a}/${m}) = ${q}\n`;
+    out += `        Do đó: ${a} = ${q} * ${m} + ${r}  ===> Phần dư chuẩn là r = ${r}.\n\n`;
+  } else {
+    out += `    Kiểm tra điều kiện: 0 <= ${r} < ${m} -> True (Chính xác tuyệt đối!)\n\n`;
+  }
+
+  out += `[BƯỚC 3] Biểu diễn đồng dư (Modular Congruence):\n`;
+  out += `    ${a} ≡ ${r} (mod ${m})\n`;
+  out += `    ===> KẾT QUẢ ĐỒNG DƯ: ${aStr} mod ${m} = ${r}\n\n`;
+
+  out += `[BƯỚC 4] Ý nghĩa & Ứng dụng trong các bài thi USTH Cryptography:\n`;
+  if (m === 64) {
+    const bin6 = r.toString(2).padStart(6, "0");
+    const row = parseInt(bin6[0] + bin6[5], 2);
+    const col = parseInt(bin6.slice(1, 5), 2);
+    out += `    - Ứng dụng Hộp S-Box DES S1 (Bài 1 Đề thi 2025-2026):\n`;
+    out += `      Đầu vào x = ${a} mod 64 = ${r}.\n`;
+    out += `      Biểu diễn 6 bit nhị phân: ${r} = ${bin6}₂ (b1=${bin6[0]}, b2=${bin6[1]}, b3=${bin6[2]}, b4=${bin6[3]}, b5=${bin6[4]}, b6=${bin6[5]}).\n`;
+    out += `      Hàng r = (b1 b6)₂ = (${bin6[0]}${bin6[5]})₂ = ${row}\n`;
+    out += `      Cột c  = (b2 b3 b4 b5)₂ = (${bin6.slice(1, 5)})₂ = ${col}\n`;
+  } else if (m === 26) {
+    out += `    - Ứng dụng Mật mã Cổ điển (Caesar / Affine / Vigenère):\n`;
+    out += `      Khóa dịch k = ${a} mod 26 = ${r}.\n`;
+    out += `      Ký tự tương ứng trong bảng chữ cái (A=0, B=1, ...): '${String.fromCharCode(65 + r)}'\n`;
+  } else {
+    out += `    - Ứng dụng rút gọn số trong hệ mã hóa khóa công khai (RSA / ElGamal / DHKE):\n`;
+    out += `      Thu gọn giá trị trung gian về không gian Z_${m}: ${r}.\n`;
+  }
+  out += `===========================================================================`;
+  return out;
 }
 
 function solveStudentIdReductionClient(idStr, customM) {
@@ -2010,6 +2099,12 @@ function escapeHtml(text) {
 
 function extractHeroAnswer(rawText, tool) {
   if (!rawText) return null;
+
+  // 0. Direct Modulo Calculator (a mod m)
+  const modResMatch = rawText.match(/===>\s*KẾT QUẢ ĐỒNG DƯ:?\s*(.*)/i);
+  if (modResMatch) {
+    return { title: "KẾT QUẢ ĐỒNG DƯ (MODULO RESULT)", value: modResMatch[1].trim() };
+  }
 
   // 1. Modular Equation Solver & Congruences
   if (tool && tool.id === "modular_equation_solver") {

@@ -298,7 +298,28 @@ if __name__ == "__main__":
         except Exception as err:
             print(f"[-] Linear congruence solver error: {err}")
 
-    # If only 1 argument or b is empty -> reduce student ID modulo 64, 26, etc.
+    # If 3 arguments but b is empty (e.g. a=56, b="", m=64) or 2 arguments (a=56, m=64):
+    target_m = None
+    if len(args) >= 3 and not args[1].strip() and args[2].strip():
+        try:
+            target_m = parse_flexible_int(args[2])
+        except Exception:
+            pass
+    elif len(args) == 2 and args[1].strip():
+        try:
+            target_m = parse_flexible_int(args[1])
+        except Exception:
+            pass
+
+    if target_m is not None and len(args) >= 1 and args[0].strip():
+        try:
+            import modulo_calculator
+            modulo_calculator.calculate_modulo_detail(args[0].strip(), target_m)
+            sys.exit(0)
+        except Exception as err:
+            print(f"[-] Direct modulo calculator error: {err}")
+
+    # If only 1 argument or b is empty without specific m -> reduce student ID modulo 64, 26, etc.
     if len(args) >= 1 and args[0].strip():
         try:
             reduce_student_id_all(args[0].strip())
