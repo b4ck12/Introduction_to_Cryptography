@@ -1,20 +1,20 @@
 <style>
 @page {
   size: A4 portrait;
-  margin: 4mm 5mm 4mm 5mm;
+  margin: 3.5mm 5mm 3.5mm 5mm;
 }
 @media print {
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 6.8pt;
-    line-height: 1.18;
-    color: #050505;
+    font-size: 6.7pt;
+    line-height: 1.16;
+    color: #000;
     background: #fff;
     margin: 0;
     padding: 0;
   }
   h1 { 
-    font-size: 9pt; 
+    font-size: 8.8pt; 
     margin: 0 0 1px 0; 
     text-align: center; 
     font-weight: 800; 
@@ -22,316 +22,301 @@
     text-transform: uppercase; 
     border-bottom: 1.2px solid #1e3a8a; 
     padding-bottom: 1px; 
-    letter-spacing: 0.3px;
   }
   .meta-sub {
-    font-size: 6.5pt;
+    font-size: 6.2pt;
     text-align: center;
     color: #475569;
-    font-weight: 600;
-    margin-bottom: 2.5px;
+    font-weight: 700;
+    margin-bottom: 2px;
   }
   .grid-3col { 
     display: grid; 
     grid-template-columns: 1fr 1fr 1fr; 
-    column-gap: 3.5mm; 
-    row-gap: 2mm; 
+    column-gap: 3mm; 
+    row-gap: 1.8mm; 
   }
   .box { 
-    border: 0.8px solid #64748b; 
+    border: 0.8px solid #475569; 
     border-radius: 2px; 
-    padding: 2px 3.5px; 
+    padding: 2px 3px; 
     background: #fff; 
     break-inside: avoid;
-    margin-bottom: 2mm;
+    margin-bottom: 1.8mm;
   }
   .box-title { 
-    font-size: 7.2pt; 
+    font-size: 7pt; 
     font-weight: 800; 
     color: #0f172a; 
     background: #f1f5f9; 
-    margin: -2px -3.5px 2px -3.5px; 
-    padding: 1.5px 3.5px; 
+    margin: -2px -3px 2px -3px; 
+    padding: 1.2px 3px; 
     border-bottom: 0.8px solid #94a3b8; 
     text-transform: uppercase;
   }
-  .formula { 
+  .f { 
     font-family: "Courier New", Consolas, monospace; 
     font-weight: 700; 
     color: #1d4ed8; 
-    font-size: 6.9pt; 
+    font-size: 6.8pt; 
   }
-  .keyword { font-weight: 700; color: #b91c1c; }
-  .step { font-weight: 700; color: #047857; }
-  table.eea-tab { 
+  .st { font-weight: 800; color: #047857; }
+  .kw { font-weight: 800; color: #b91c1c; }
+  table.eea { 
     width: 100%; 
     border-collapse: collapse; 
-    font-size: 6.2pt; 
+    font-size: 6.1pt; 
     margin: 1.5px 0; 
-    line-height: 1.1;
   }
-  table.eea-tab th, table.eea-tab td { 
-    border: 0.5px solid #94a3b8; 
-    padding: 0.8px 1.5px; 
+  table.eea th, table.eea td { 
+    border: 0.5px solid #64748b; 
+    padding: 0.6px 1px; 
     text-align: center; 
   }
-  table.eea-tab th { 
+  table.eea th { 
     background: #f8fafc; 
     font-weight: 700; 
   }
-  ul { margin: 0; padding-left: 10px; }
-  li { margin-bottom: 1px; }
-  p { margin: 1px 0; }
+  ul { margin: 0; padding-left: 9px; }
+  li { margin-bottom: 0.8px; }
+  p { margin: 0.8px 0; }
 }
 @media screen {
-  body { font-family: sans-serif; font-size: 11px; line-height: 1.4; padding: 15px; max-width: 1200px; margin: 0 auto; }
-  .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
-  .box { border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; margin-bottom: 10px; }
+  body { font-family: sans-serif; font-size: 11px; line-height: 1.35; padding: 15px; max-width: 1200px; margin: 0 auto; }
+  .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+  .box { border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; margin-bottom: 8px; }
   .box-title { font-weight: bold; background: #f1f5f9; padding: 4px; margin: -8px -8px 6px -8px; }
-  table.eea-tab { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 10px; }
-  table.eea-tab th, table.eea-tab td { border: 1px solid #cbd5e1; padding: 3px; text-align: center; }
-  .formula { font-family: monospace; font-weight: bold; color: #1d4ed8; }
-  .keyword { font-weight: bold; color: #b91c1c; }
-  .step { font-weight: bold; color: #047857; }
+  table.eea { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 10px; }
+  table.eea th, table.eea td { border: 1px solid #cbd5e1; padding: 3px; text-align: center; }
+  .f { font-family: monospace; font-weight: bold; color: #1d4ed8; }
+  .st { font-weight: bold; color: #047857; }
+  .kw { font-weight: bold; color: #b91c1c; }
 }
 </style>
 
-# USTH CRYPTOGRAPHY - TỔNG HỢP CÔNG THỨC & PHƯƠNG PHÁP GIẢI TỰ LUẬN (CHEATSHEET A4)
-<div class="meta-sub">Dành cho phòng thi | Quy chuẩn 100% công thức tổng quát & bước giải | Khuyết số cụ thể để tính qua Tool</div>
+# USTH CRYPTOGRAPHY - CÔNG THỨC & CÁC BƯỚC GIẢI TỰ LUẬN TẤT CẢ DẠNG BÀI THI (A4)
+<div class="meta-sub">Dành cho phòng thi | Cấu trúc chuẩn từng bước để viết bài thi | Không ghim số cố định | Tính số qua Tool</div>
 
 <div class="grid-3col">
 
-<!-- ==================== CỘT 1: NỀN TẢNG TOÁN HỌC & CỔ ĐIỂN ==================== -->
+<!-- ==================== CỘT 1: S-BOX, EEA, SQUARE-AND-MULTIPLY ==================== -->
 <div class="col">
 
-  <!-- BOX 1: EEA VÀ NGHỊCH ĐẢO MODULO -->
+  <!-- DẠNG 1: S-BOX DES -->
   <div class="box">
-    <div class="box-title">1. TẠI SAO CẦN EEA & NGHỊCH ĐẢO MODULO?</div>
-    <p><b>Bản chất:</b> Trong $\mathbb{Z}_m$, không có phép chia. Phép chia $b/a \pmod m$ thực chất là nhân $b \cdot a^{-1} \pmod m$.</p>
-    <p><b>Định nghĩa:</b> $x = a^{-1} \pmod m \iff a \cdot x \equiv 1 \pmod m \iff a \cdot x - k \cdot m = 1$.</p>
-    <p><b>Tại sao cần thuật toán Euclid mở rộng (EEA)?</b></p>
+    <div class="box-title">DẠNG 1: TRA CỨU HỘP S-BOX DES S1 (3 ĐIỂM)</div>
     <ul>
-      <li>Đẳng thức Bézout khẳng định: Luôn tồn tại 2 số nguyên $s, t$ sao cho: <span class="formula">$\gcd(a, m) = a \cdot s + m \cdot t$</span>.</li>
-      <li>Điều kiện tồn tại nghịch đảo: <span class="keyword">$\gcd(a, m) = 1$</span>.</li>
-      <li>Khi đó: $a \cdot s + m \cdot t = 1 \implies a \cdot s \equiv 1 \pmod m \implies \mathbf{a^{-1} \equiv s \pmod m}$.</li>
-      <li>Nếu $s < 0 \implies \mathbf{a^{-1} = s + m}$.</li>
-    </ul>
-    <p><b>Quy tắc lập bảng truy hồi EEA 5 cột:</b></p>
-    <table class="eea-tab">
-      <tr><th>Bước</th><th>q</th><th>r</th><th>s</th><th>t</th><th>Phương trình chia</th></tr>
-      <tr><td>init</td><td>-</td><td>$r_0 = m$</td><td>$s_0 = 1$</td><td>$t_0 = 0$</td><td>Modulus $m$</td></tr>
-      <tr><td>init</td><td>-</td><td>$r_1 = a$</td><td>$s_1 = 0$</td><td>$t_1 = 1$</td><td>Số cần nghịch đảo $a$</td></tr>
-      <tr><td>$i$</td><td>$q_i$</td><td>$r_i$</td><td>$s_i$</td><td>$t_i$</td><td>$r_{i-2} = q_i \cdot r_{i-1} + r_i$</td></tr>
-    </table>
-    <p><b>Công thức truy hồi từng dòng:</b></p>
-    <ul>
-      <li>Thương số: <span class="formula">$q_i = \lfloor r_{i-2} / r_{i-1} \rfloor$</span> (chia lấy phần nguyên).</li>
-      <li>Phần dư: <span class="formula">$r_i = r_{i-2} - q_i \cdot r_{i-1}$</span>.</li>
-      <li>Hệ số $s$: <span class="formula">$s_i = s_{i-2} - q_i \cdot s_{i-1}$</span>.</li>
-      <li>Hệ số $t$: <span class="formula">$t_i = t_{i-2} - q_i \cdot t_{i-1}$</span>.</li>
-      <li><span class="step">Dừng lại:</span> Khi $r_i = 0$. Giá trị $r_{i-1} = \gcd(a, m) = 1$. Nghịch đảo là hệ số tương ứng ($s_{i-1}$ hoặc $t_{i-1}$).</li>
+      <li><span class="st">Bước 1:</span> Rút gọn số: <span class="f">$x = (\text{Mã\_SV}) \pmod{64}$</span> (với $0 \le x < 64$).</li>
+      <li><span class="st">Bước 2:</span> Đổi $x$ ra nhị phân 6 bit: <span class="f">$x = (b_1 b_2 b_3 b_4 b_5 b_6)_2$</span>.</li>
+      <li><span class="st">Bước 3:</span> Xác định tọa độ Hàng và Cột:
+        <br>• <b>Hàng $r$:</b> Ghép bit đầu và cuối: <span class="f">$r = (b_1 b_6)_2 \in \{0, 1, 2, 3\}$</span>.
+        <br>• <b>Cột $c$:</b> Ghép 4 bit ở giữa: <span class="f">$c = (b_2 b_3 b_4 b_5)_2 \in \{0 \dots 15\}$</span>.
+      </li>
+      <li><span class="st">Bước 4:</span> Gióng hàng $r$ và cột $c$ trên bảng ma trận $S_1$ đề cho:
+        <br>$\implies \mathbf{\text{Giá trị}} = S_1[r][c]$ (hệ thập phân).
+      </li>
+      <li><span class="st">Bước 5:</span> Đổi giá trị sang nhị phân 4 bit: <span class="f">$(y_1 y_2 y_3 y_4)_2$</span>.
+        <br><i>Ghi chú:</i> Nếu số lẻ $\to$ đề Question Set 1; Chẵn $\to$ Set 2.
+      </li>
     </ul>
   </div>
 
-  <!-- BOX 2: SQUARE AND MULTIPLY -->
+  <!-- DẠNG 2: THUẬT TOÁN EEA LẬP BẢNG -->
   <div class="box">
-    <div class="box-title">2. LŨY THỪA NHANH (SQUARE-AND-MULTIPLY)</div>
-    <p><b>Bài toán:</b> Tính <span class="formula">$y = x^c \pmod n$</span> với số mũ $c$ rất lớn.</p>
-    <p><b>Các bước thực hiện tự luận:</b></p>
+    <div class="box-title">DẠNG 2: BẢNG EUCLID MỞ RỘNG (EEA) TÌM NGHỊCH ĐẢO</div>
+    <p><b>Bài toán:</b> Tìm <span class="f">$d = e^{-1} \pmod m$</span> sao cho <span class="f">$e \cdot d \equiv 1 \pmod m$</span>.</p>
     <ul>
-      <li><span class="step">B1:</span> Đổi số mũ $c$ sang nhị phân: $c = (b_k b_{k-1} \dots b_1 b_0)_2$.</li>
-      <li><span class="step">B2:</span> Đặt giá trị tích lũy $y = 1$.</li>
-      <li><span class="step">B3:</span> Quét từng bit từ trái sang phải ($i = k$ về $0$):
-        <br>• <b>Luôn luôn Bình phương:</b> <span class="formula">$y = y^2 \pmod n$</span> (Square).
-        <br>• <b>Nếu bit $b_i = 1$:</b> Nhân thêm cơ số: <span class="formula">$y = (y \cdot x) \pmod n$</span> (Multiply).
+      <li><span class="st">Bước 1:</span> Lập bảng mẫu gồm 6 cột: <code>Bước | q | r | s | t | Phương trình chia</code>.</li>
+      <li><span class="st">Bước 2:</span> Điền 2 dòng khởi tạo (init):
+        <br>• Dòng 1 (init): $r_0 = m$, $s_0 = 1$, $t_0 = 0$. (PT: $r_0 = m$).
+        <br>• Dòng 2 (init): $r_1 = e$, $s_1 = 0$, $t_1 = 1$. (PT: $r_1 = e$).
       </li>
-      <li>Kẻ bảng gồm các cột: <code>Bước | Bit | Phép toán | Công thức tính | Giá trị y</code>.</li>
+      <li><span class="st">Bước 3:</span> Tính từng dòng $i \ge 1$ theo công thức truy hồi:
+        <table class="eea">
+          <tr><th>q</th><th>r</th><th>s</th><th>t</th><th>Phương trình chia</th></tr>
+          <tr><td>$q_i = \lfloor r_{i-2} / r_{i-1} \rfloor$</td><td>$r_i = r_{i-2} - q_i r_{i-1}$</td><td>$s_i = s_{i-2} - q_i s_{i-1}$</td><td>$t_i = t_{i-2} - q_i t_{i-1}$</td><td>$r_{i-2} = q_i \cdot r_{i-1} + r_i$</td></tr>
+        </table>
+      </li>
+      <li><span class="st">Bước 4:</span> Dừng khi $r_i = 0$. Dòng trước đó $r_{i-1} = \gcd(e, m) = 1$.</li>
+      <li><span class="st">Bước 5:</span> Kết luận: <span class="f">$d \equiv t_{i-1} \pmod m$</span>.
+        <br><b>Nếu $t_{i-1} < 0$:</b> Tính <span class="kw">$d = t_{i-1} + m$</span>.
+        <br>Kiểm tra lại: <span class="f">$(e \cdot d) \pmod m = 1$</span>.
+      </li>
     </ul>
   </div>
 
-  <!-- BOX 3: MẬT MÃ CỔ ĐIỂN & ĐỒNG DƯ KHÁC -->
+  <!-- DẠNG 3: SQUARE-AND-MULTIPLY -->
   <div class="box">
-    <div class="box-title">3. MẬT MÃ CỔ ĐIỂN & ĐỒNG DƯ BẬC NHẤT</div>
+    <div class="box-title">DẠNG 3: LŨY THỪA NHANH (SQUARE-AND-MULTIPLY)</div>
+    <p><b>Bài toán:</b> Tính giá trị <span class="f">$y = x^c \pmod n$</span> (ví dụ $M^e \bmod N$ hay $C^d \bmod N$).</p>
     <ul>
-      <li><b>Caesar:</b> Mã hóa $C = (P + k) \pmod{26}$ | Giải mã $P = (C - k) \pmod{26}$.</li>
-      <li><b>Affine:</b> $C = (a \cdot P + b) \pmod{26}$ (ĐK: $\gcd(a, 26) = 1$).
-        <br>Giải mã: <span class="formula">$P = a^{-1} \cdot (C - b) \pmod{26}$</span>.
+      <li><span class="st">Bước 1:</span> Đổi số mũ $c$ ra dạng nhị phân: <span class="f">$c = (b_k b_{k-1} \dots b_1 b_0)_2$</span>.</li>
+      <li><span class="st">Bước 2:</span> Kẻ bảng gồm 5 cột:
+        <br><code>Bước | Bit b_i | Phép toán | Biểu thức tính toán | Giá trị y</code>.
       </li>
-      <li><b>Vigenère:</b> $C_i = (P_i + K_{i \pmod m}) \pmod{26}$ | $P_i = (C_i - K_{i \pmod m}) \pmod{26}$.</li>
-      <li><b>Vernam / One-Time Pad:</b> $C = P \oplus K$ | $P = C \oplus K$.</li>
-      <li><b>Định lý số dư Trung Hoa (CRT):</b> Hệ $x \equiv a_i \pmod{m_i}$ với $\gcd(m_i, m_j) = 1$.
-        <br>1. $M = \prod_{i=1}^n m_i$.
-        <br>2. $M_i = M / m_i$ và tìm $y_i = M_i^{-1} \pmod{m_i}$ bằng EEA.
-        <br>3. Nghiệm duy nhất: <span class="formula">$x = \left(\sum_{i=1}^n a_i \cdot M_i \cdot y_i\right) \pmod M$</span>.
+      <li><span class="st">Bước 3:</span> Khởi tạo $y = 1$. Quét từ bit cao nhất $b_k$ về $b_0$:
+        <br>• <b>Mọi bit:</b> Luôn thực hiện <span class="f">Square: $y = y^2 \pmod n$</span>.
+        <br>• <b>Nếu bit $b_i = 1$:</b> Thực hiện thêm <span class="f">Multiply: $y = (y \cdot x) \pmod n$</span>.
+      </li>
+      <li><span class="st">Bước 4:</span> Giá trị $y$ ở dòng cuối cùng chính là đáp số của phép tính.</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ==================== CỘT 2: RSA, CHỨNG CHỈ PKI, EMAIL ==================== -->
+<div class="col">
+
+  <!-- DẠNG 4: THIẾT LẬP KHÓA RSA -->
+  <div class="box">
+    <div class="box-title">DẠNG 4: THIẾT LẬP KHÓA RSA (KEY GENERATION)</div>
+    <ul>
+      <li><span class="st">Bước 1:</span> Đề cho 2 số nguyên tố $p, q$. Tính Modulus:
+        <br><span class="f">$N = p \cdot q$</span>.
+      </li>
+      <li><span class="st">Bước 2:</span> Tính giá trị hàm Euler Totient:
+        <br><span class="f">$\Phi(N) = (p - 1)(q - 1)$</span>.
+      </li>
+      <li><span class="st">Bước 3:</span> Chọn số mũ công khai $e$:
+        <br>• Điều kiện: $1 < e < \Phi(N)$ và <span class="kw">$\gcd(e, \Phi(N)) = 1$</span>.
+        <br>• Phân tích thừa số nguyên tố $\Phi(N)$ để chỉ ra $e$ nguyên tố cùng nhau với $\Phi(N)$.
+      </li>
+      <li><span class="st">Bước 4:</span> Tìm số mũ bí mật $d$ bằng thuật toán EEA:
+        <br><span class="f">$d = e^{-1} \pmod{\Phi(N)} \iff e \cdot d \equiv 1 \pmod{\Phi(N)}$</span>.
+      </li>
+      <li><span class="st">Bước 5:</span> Kết luận cặp khóa:
+        <br>• Khóa công khai (Public Key): <span class="f">$k_{pub} = (N, e)$</span>.
+        <br>• Khóa bí mật (Private Key): <span class="f">$k_{pri} = (N, d)$</span>.
+      </li>
+    </ul>
+  </div>
+
+  <!-- DẠNG 5: MÃ HÓA & GIẢI MÃ RSA -->
+  <div class="box">
+    <div class="box-title">DẠNG 5: MÃ HÓA & GIẢI MÃ RSA (ENCRYPT/DECRYPT)</div>
+    <ul>
+      <li><span class="st">Bước 1 (Mã hóa - Encryption):</span>
+        <br>• Công thức: <span class="f">$C = M^e \pmod N$</span> (với $0 \le M < N$).
+        <br>• Trình bày bảng tính lũy thừa nhanh Square-and-Multiply cho $M^e \pmod N$.
+        <br>$\implies$ Kết luận bản mã $C$ thu được.
+      </li>
+      <li><span class="st">Bước 2 (Giải mã - Decryption):</span>
+        <br>• Công thức: <span class="f">$M = C^d \pmod N$</span>.
+        <br>• Trình bày bảng tính lũy thừa nhanh Square-and-Multiply cho $C^d \pmod N$.
+        <br>$\implies$ Kết luận bản rõ $M$ khôi phục.
+      </li>
+      <li><span class="st">Bước 3 (Kiểm tra xác thực):</span>
+        <br>So sánh bản rõ khôi phục với bản rõ gốc: <span class="kw">$M_{dec} == M$</span>.
+        <br>Giải thích: Do $C^d \equiv (M^e)^d \equiv M^{e \cdot d} \equiv M^{k\Phi(N)+1} \equiv M \pmod N$.
+      </li>
+    </ul>
+  </div>
+
+  <!-- DẠNG 6: CHỨNG CHỈ RSA & HYBRID EMAIL -->
+  <div class="box">
+    <div class="box-title">DẠNG 6: CHỨNG CHỈ RSA CA & GỬI EMAIL PKI</div>
+    <p><b>A. Cấp & Xác thực Chứng chỉ số RSA:</b></p>
+    <ul>
+      <li><span class="st">B1 (Ký số CA):</span> CA ký lên thông tin người dùng $M$ bằng khóa bí mật CA $d_{CA}$: <span class="f">$S_{CA} = M^{d_{CA}} \pmod{N_{CA}}$</span>.</li>
+      <li><span class="st">B2 (Đóng gói Cert):</span> $\text{Cert}_A = (M, S_{CA}, e_A, N_A)$.</li>
+      <li><span class="st">B3 (Xác thực Cert):</span> Người nhận dùng khóa công khai CA $e_{CA}$ tính: <span class="f">$V = (S_{CA})^{e_{CA}} \pmod{N_{CA}}$</span>. Kiểm tra nếu <span class="kw">$V == M$</span> $\to$ Chứng chỉ hợp lệ.</li>
+    </ul>
+    <p><b>B. Quy trình Gửi nhận Email bảo mật PKI (Hybrid):</b></p>
+    <ul>
+      <li><span class="st">Phía gửi Alice (5 bước):</span>
+        <br>1. Tạo khóa phiên đối xứng ngẫu nhiên $K_{sym}$ (AES/DES).
+        <br>2. Mã hóa thư: <span class="f">$C = E_{K_{sym}}(\text{Email})$</span>.
+        <br>3. Mã hóa khóa phiên bằng khóa Bob: <span class="f">$C_K = E_{e_B}(K_{sym}) = K_{sym}^{e_B} \pmod{N_B}$</span>.
+        <br>4. Ký số băm thư bằng khóa Alice: <span class="f">$\sigma = S_{d_A}(\text{Hash}(\text{Email})) = \text{Hash}^{d_A} \pmod{N_A}$</span>.
+        <br>5. Đóng gói gửi cho Bob: $\{C, C_K, \sigma, \text{Cert}_A\}$.
+      </li>
+      <li><span class="st">Phía nhận Bob (3 bước):</span>
+        <br>1. Dùng $d_B$ giải mã $C_K \implies$ thu được khóa phiên $K_{sym}$.
+        <br>2. Dùng $K_{sym}$ giải mã $C \implies$ đọc được nội dung Email.
+        <br>3. Lấy $e_A$ từ $\text{Cert}_A$ để xác thực chữ ký $\sigma \implies$ tính toàn vẹn.
       </li>
     </ul>
   </div>
 
 </div>
 
-<!-- ==================== CỘT 2: KHỐI DES, RSA VÀ PKI ==================== -->
+<!-- ==================== CỘT 3: ELGAMAL, DHKE, SHA-1 ==================== -->
 <div class="col">
 
-  <!-- BOX 4: DES S-BOX -->
+  <!-- DẠNG 7: CHỮ KÝ SỐ ELGAMAL -->
   <div class="box">
-    <div class="box-title">4. TRA CỨU HỘP S-BOX S1 TRONG DES</div>
-    <p><b>Quy trình tự luận từng bước:</b></p>
+    <div class="box-title">DẠNG 7: CHỮ KÝ SỐ ELGAMAL & CHỨNG CHỈ CA</div>
+    <p><b>Tham số:</b> Số nguyên tố $p$, phần tử sinh $\alpha$, khóa bí mật $d \implies$ Khóa công khai: <span class="f">$\beta = \alpha^d \pmod p$</span>. Thông điệp cần ký $x$ (hoặc $x_A = x + e_A$).</p>
     <ul>
-      <li><span class="step">Bước 1:</span> Rút gọn số nguyên đầu vào: <span class="formula">$x = (\text{Student\_ID}) \pmod{64}$</span>.</li>
-      <li><span class="step">Bước 2:</span> Biểu diễn $x$ dưới dạng nhị phân 6 bit:
-        <br><span class="formula">$x = (b_1 b_2 b_3 b_4 b_5 b_6)_2$</span>.
+      <li><span class="st">Bước 1 (Kiểm tra khóa tạm thời $k_E$):</span>
+        <br>• Tính <span class="kw">$\gcd(k_E, p - 1)$</span>.
+        <br>• <b>Nếu $\gcd \ne 1$:</b> Kết luận <span class="kw">VÔ NGHIỆM</span> (do không tồn tại nghịch đảo $k_E^{-1}$).
+        <br>• <b>Nếu $\gcd = 1$:</b> Thỏa mãn, tiếp tục bước 2.
       </li>
-      <li><span class="step">Bước 3:</span> Xác định tọa độ Hàng và Cột:
-        <br>• <b>Hàng (Row) $r$:</b> Ghép bit ngoài cùng: <span class="formula">$r = (b_1 b_6)_2 \in \{0, 1, 2, 3\}$</span>.
-        <br>• <b>Cột (Col) $c$:</b> Ghép 4 bit ở giữa: <span class="formula">$c = (b_2 b_3 b_4 b_5)_2 \in \{0 \dots 15\}$</span>.
+      <li><span class="st">Bước 2 (Tính thành phần $r$):</span>
+        <br><span class="f">$r = \alpha^{k_E} \pmod p$</span> (tính bằng Square-and-Multiply).
       </li>
-      <li><span class="step">Bước 4:</span> Gióng hàng $r$ và cột $c$ trong ma trận $S_1$ cho trước:
-        <br>$\implies \mathbf{\text{Out}} = S_1[r][c]$ (thập phân) $\implies$ đổi sang 4 bit nhị phân.
+      <li><span class="st">Bước 3 (Tìm nghịch đảo $k_E^{-1}$):</span>
+        <br>Lập bảng EEA tính <span class="f">$k_E^{-1} \pmod{p - 1}$</span> sao cho $k_E \cdot k_E^{-1} \equiv 1 \pmod{p-1}$.
       </li>
-      <li><b>Ý nghĩa lý thuyết:</b> S-Box là thành phần phi tuyến duy nhất trong DES, tạo hiệu ứng hỗn loạn (Confusion).</li>
-    </ul>
-  </div>
-
-  <!-- BOX 5: HỆ MÃ HÓA RSA -->
-  <div class="box">
-    <div class="box-title">5. TẠO KHÓA, MÃ HÓA & GIẢI MÃ RSA</div>
-    <p><b>Quy trình thiết lập khóa (Key Generation):</b></p>
-    <ul>
-      <li><span class="step">B1:</span> Chọn 2 số nguyên tố bí mật $p$ và $q$ ($p \ne q$).</li>
-      <li><span class="step">B2:</span> Tính Modulus: <span class="formula">$N = p \cdot q$</span>.</li>
-      <li><span class="step">B3:</span> Tính hàm phi Euler: <span class="formula">$\Phi(N) = (p - 1)(q - 1)$</span>.</li>
-      <li><span class="step">B4:</span> Chọn số mũ công khai $e$ thỏa mãn:
-        <br>• $1 < e < \Phi(N)$ và <span class="keyword">$\gcd(e, \Phi(N)) = 1$</span> (phân tích thừa số $\Phi(N)$ để chứng minh).
+      <li><span class="st">Bước 4 (Tính thành phần $s$):</span>
+        <br><span class="f">$s = (x - d \cdot r) \cdot k_E^{-1} \pmod{p - 1}$</span>.
+        <br>• Nếu $(x - d \cdot r) < 0$: Quy về phần dư dương bằng công thức:
+        <br><span class="f">$((x - d \cdot r) \pmod{p-1} + (p-1)) \pmod{p-1}$</span>.
+        <br>$\implies$ Kết luận chữ ký số: <span class="f">$(r, s)$</span>. Chứng chỉ: <span class="f">$\text{Cert} = (x, (r, s))$</span>.
       </li>
-      <li><span class="step">B5:</span> Tính số mũ bí mật $d$ bằng thuật toán EEA:
-        <br><span class="formula">$d = e^{-1} \pmod{\Phi(N)} \iff e \cdot d \equiv 1 \pmod{\Phi(N)}$</span>.
-      </li>
-      <li><b>Cặp khóa:</b> Khóa công khai $k_{pub} = (N, e)$; Khóa bí mật $k_{pri} = (N, d)$.</li>
-    </ul>
-    <p><b>Quá trình Mã hóa & Giải mã:</b></p>
-    <ul>
-      <li><b>Mã hóa (Encryption):</b> Bản rõ $M < N \implies$ Bản mã: <span class="formula">$C = M^e \pmod N$</span>.</li>
-      <li><b>Giải mã (Decryption):</b> Bản rõ khôi phục: <span class="formula">$M = C^d \pmod N$</span>.</li>
-      <li><b>Chứng minh tính đúng đắn:</b> Dựa trên Định lý Euler ($M^{\Phi(N)} \equiv 1 \pmod N$):
-        <br>$C^d \equiv (M^e)^d \equiv M^{ed} \equiv M^{k \cdot \Phi(N) + 1} \equiv (M^{\Phi(N)})^k \cdot M \equiv 1^k \cdot M \equiv M \pmod N$.
+      <li><span class="st">Bước 5 (Xác minh chữ ký - Verification):</span>
+        <br>• Tính <span class="f">$v_1 = (\beta^r \cdot r^s) \pmod p = [(\beta^r \bmod p) \cdot (r^s \bmod p)] \pmod p$</span>.
+        <br>• Tính <span class="f">$v_2 = \alpha^x \pmod p$</span>.
+        <br>• So sánh: Nếu <span class="kw">$v_1 \equiv v_2 \pmod p$</span> $\implies$ Chữ ký hoàn toàn hợp lệ!
       </li>
     </ul>
   </div>
 
-  <!-- BOX 6: CHỨNG CHỈ PKI & EMAIL HYBRID -->
+  <!-- DẠNG 8: TRAO ĐỔI KHÓA DIFFIE-HELLMAN -->
   <div class="box">
-    <div class="box-title">6. CHỨNG CHỈ SỐ PKI CA & EMAIL BẢO MẬT</div>
-    <p><b>Chứng chỉ số RSA cấp bởi CA:</b></p>
+    <div class="box-title">DẠNG 8: TRAO ĐỔI KHÓA DIFFIE-HELLMAN (DHKE)</div>
     <ul>
-      <li>CA có cặp khóa $(e_{CA}, d_{CA}, N_{CA})$.</li>
-      <li><b>Cấp chứng chỉ:</b> CA ký số lên định danh/khóa $M$: <span class="formula">$S_{CA} = M^{d_{CA}} \pmod{N_{CA}}$</span>.</li>
-      <li><b>Xác thực:</b> Người dùng kiểm tra: <span class="formula">$V = (S_{CA})^{e_{CA}} \pmod{N_{CA}}$</span>. Nếu $V == M \implies$ Hợp lệ!</li>
-    </ul>
-    <p><b>Quy trình gửi nhận Email bảo mật PKI (Hybrid):</b></p>
-    <ul>
-      <li><b>Bên gửi (Alice):</b>
-        <br>1. Sinh khóa phiên đối xứng ngẫu nhiên $K_{sym}$ (AES/DES).
-        <br>2. Mã hóa nội dung thư: $C = E_{K_{sym}}(\text{Email})$.
-        <br>3. Mã hóa khóa phiên bằng khóa công khai Bob: $C_K = E_{e_B}(K_{sym})$.
-        <br>4. Ký số lên băm thư bằng khóa bí mật Alice: $\sigma = S_{d_A}(\text{Hash}(\text{Email}))$.
-        <br>5. Đóng gói gửi đi: $(C, C_K, \sigma, \text{Cert}_A)$.
+      <li><span class="st">Bước 1:</span> Tham số công khai hệ thống: Số nguyên tố $p$, phần tử sinh $\alpha \in \mathbb{Z}_p^*$.</li>
+      <li><span class="st">Bước 2:</span> Alice chọn số bí mật $a$. Tính khóa công khai:
+        <br><span class="f">$k_A = \alpha^a \pmod p$</span> $\implies$ gửi $k_A$ cho Bob.
       </li>
-      <li><b>Bên nhận (Bob):</b>
-        <br>1. Dùng khóa riêng $d_B$ giải mã $C_K \implies$ lấy lại $K_{sym}$.
-        <br>2. Dùng $K_{sym}$ giải mã $C \implies$ lấy lại nội dung Email.
-        <br>3. Dùng $e_A$ (từ $\text{Cert}_A$) xác thực chữ ký $\sigma \implies$ toàn vẹn & chống chối bỏ.
+      <li><span class="st">Bước 3:</span> Bob chọn số bí mật $b$. Tính khóa công khai:
+        <br><span class="f">$k_B = \alpha^b \pmod p$</span> $\implies$ gửi $k_B$ cho Alice.
+      </li>
+      <li><span class="st">Bước 4:</span> Tính khóa phiên bí mật chung (Session Key):
+        <br>• Alice tính: <span class="f">$k_{AB} = (k_B)^a \pmod p$</span>.
+        <br>• Bob tính: <span class="f">$k_{AB} = (k_A)^b \pmod p$</span>.
+        <br>• Kiểm tra tính thống nhất: <span class="f">$k_{AB} = \alpha^{a \cdot b} \pmod p$</span> (Hai bên ra cùng số).
+      </li>
+      <li><span class="st">Bước 5 (Nếu đề hỏi Tấn công MITM của Oscar):</span>
+        <br>• Oscar chọn bí mật $o$, tính $k_O = \alpha^o \pmod p$ gửi cho cả hai.
+        <br>• Khóa Alice - Oscar: <span class="f">$k_{AO} = (k_O)^a = (k_A)^o \pmod p$</span>.
+        <br>• Khóa Bob - Oscar: <span class="f">$k_{BO} = (k_O)^b = (k_B)^o \pmod p$</span>.
       </li>
     </ul>
   </div>
 
-</div>
-
-<!-- ==================== CỘT 3: CHỮ KÝ ELGAMAL, DHKE, SHA-1 ==================== -->
-<div class="col">
-
-  <!-- BOX 7: CHỮ KÝ ELGAMAL -->
+  <!-- DẠNG 9: TIỀN XỬ LÝ ĐỆM SHA-1 -->
   <div class="box">
-    <div class="box-title">7. CHỮ KÝ SỐ ELGAMAL & CHỨNG CHỈ CA</div>
-    <p><b>Tham số hệ thống:</b> Số nguyên tố $p$, phần tử sinh $\alpha \in \mathbb{Z}_p^*$.</p>
-    <p><b>Tạo khóa:</b> Chọn khóa bí mật $d \in [2, p-2] \implies$ Khóa công khai: <span class="formula">$\beta = \alpha^d \pmod p$</span>.</p>
-    <p><b>Quy trình Ký số thông điệp $x$ (hoặc $x_A = x + e_A$):</b></p>
+    <div class="box-title">DẠNG 9: ĐỆM SHA-1 & HÀM BĂM KHỐI DAVIES-MEYER</div>
     <ul>
-      <li><span class="step">Bước 1 (Điều kiện tiên quyết):</span> Chọn khóa tạm thời (Ephemeral key) $k_E \in [1, p-2]$ sao cho: <span class="keyword">$\gcd(k_E, p-1) = 1$</span>.
-        <br><i>Lưu ý quan trọng:</i> Nếu $\gcd(k_E, p-1) \ne 1 \implies$ <b>VÔ NGHIỆM</b> vì không tồn tại $k_E^{-1} \pmod{p-1}$!
+      <li><span class="st">Bước 1:</span> Xác định chiều dài ban đầu: $l$ bits.</li>
+      <li><span class="st">Bước 2 (Chèn bit 1):</span> Thêm 1 bit '1' vào đuôi thông điệp ($l + 1$ bits).</li>
+      <li><span class="st">Bước 3 (Tính số bit 0 cần đệm $k$):</span>
+        <br>• Điều kiện: <span class="f">$(l + 1 + k) \equiv 448 \pmod{512}$</span>.
+        <br>• Công thức: <span class="f">$k = (447 - (l \bmod 512)) \pmod{512}$</span> (với $0 \le k < 512$).
+        <br><i>Cách tính nhẩm:</i> Lấy $l \pmod{512} = \text{rem}$. Nếu $\text{rem} \le 447 \implies k = 447 - \text{rem}$; Nếu $\text{rem} > 447 \implies k = 447 - \text{rem} + 512$.
       </li>
-      <li><span class="step">Bước 2:</span> Tính thành phần chữ ký $r$:
-        <br><span class="formula">$r = \alpha^{k_E} \pmod p$</span>.
+      <li><span class="st">Bước 4 (Chèn 64 bit độ dài gốc):</span> Biểu diễn $l$ bằng 64 bit nhị phân.</li>
+      <li><span class="st">Bước 5 (Tổng kết):</span>
+        <br>• Tổng chiều dài sau đệm: <span class="f">$L = l + 1 + k + 64$</span> bits.
+        <br>• Số khối 512-bit: <span class="f">$N = L / 512$</span> (khối).
       </li>
-      <li><span class="step">Bước 3:</span> Tìm nghịch đảo modulo $p-1$:
-        <br><span class="formula">$k_E^{-1} \pmod{p-1}$</span> (dùng thuật toán EEA với $p-1$).
-      </li>
-      <li><span class="step">Bước 4:</span> Tính thành phần chữ ký $s$:
-        <br><span class="formula">$s = (x - d \cdot r) \cdot k_E^{-1} \pmod{p-1}$</span>.
-        <br><i>Lưu ý số âm:</i> Nếu $(x - d \cdot r) < 0$, quy về phần dư dương bằng cách cộng thêm $p-1$: <span class="formula">$((x - dr) \pmod{p-1} + (p-1)) \pmod{p-1}$</span>.
-      </li>
-      <li>$\implies$ Cặp chữ ký số là $\mathbf{(r, s)}$. Chứng chỉ: $\text{Cert} = (x, (r, s))$.</li>
-    </ul>
-    <p><b>Quy trình Xác minh chữ ký (Verification):</b></p>
-    <ul>
-      <li>Người nhận có: $(p, \alpha, \beta)$, thông điệp $x$ và chữ ký $(r, s)$.</li>
-      <li><span class="step">B1:</span> Tính <span class="formula">$v_1 = (\beta^r \cdot r^s) \pmod p = [(\beta^r \bmod p) \cdot (r^s \bmod p)] \pmod p$</span>.</li>
-      <li><span class="step">B2:</span> Tính <span class="formula">$v_2 = \alpha^x \pmod p$</span>.</li>
-      <li><span class="step">B3:</span> So sánh: Nếu <span class="keyword">$v_1 \equiv v_2 \pmod p$</span> $\implies$ Chữ ký hợp lệ!</li>
-      <li><b>Chứng minh toán học:</b>
-        <br>$\beta^r \cdot r^s \equiv (\alpha^d)^r \cdot (\alpha^{k_E})^s \equiv \alpha^{dr + k_E s} \pmod p$.
-        <br>Vì $s \equiv (x - dr)k_E^{-1} \pmod{p-1} \implies k_E s \equiv x - dr \pmod{p-1}$.
-        <br>$\implies dr + k_E s \equiv dr + x - dr \equiv x \pmod{p-1}$.
-        <br>Theo định lý Fermat nhỏ: $\alpha^{dr + k_E s} \equiv \alpha^x \pmod p \implies v_1 = v_2$.
+      <li><span class="st">Sơ đồ khối Davies-Meyer (nếu đề hỏi):</span>
+        <br><span class="f">$h_i = E_{m_i}(h_{i-1}) \oplus h_{i-1}$</span> (Khối $m_i$ làm Khóa, $h_{i-1}$ làm Bản rõ).
       </li>
     </ul>
-  </div>
-
-  <!-- BOX 8: DIFFIE-HELLMAN -->
-  <div class="box">
-    <div class="box-title">8. TRAO ĐỔI KHÓA DIFFIE-HELLMAN (DHKE)</div>
-    <p><b>Thiết lập công khai:</b> Số nguyên tố lớn $p$, phần tử sinh $\alpha \in \mathbb{Z}_p^*$.</p>
-    <p><b>Giao thức chuẩn:</b></p>
-    <ul>
-      <li>Alice chọn bí mật $a \in [2, p-2] \implies$ gửi Bob: <span class="formula">$k_A = \alpha^a \pmod p$</span>.</li>
-      <li>Bob chọn bí mật $b \in [2, p-2] \implies$ gửi Alice: <span class="formula">$k_B = \alpha^b \pmod p$</span>.</li>
-      <li><b>Tính Khóa phiên chung (Shared Session Key):</b>
-        <br>• Alice tính: <span class="formula">$k_{AB} = (k_B)^a \pmod p$</span>.
-        <br>• Bob tính: <span class="formula">$k_{AB} = (k_A)^b \pmod p$</span>.
-        <br>$\implies k_{AB} = (\alpha^b)^a = (\alpha^a)^b = \mathbf{\alpha^{a \cdot b} \pmod p}$.
-      </li>
-    </ul>
-    <p><b>Tấn công Kẻ-đứng-giữa (Man-in-the-Middle - MITM):</b></p>
-    <ul>
-      <li>Oscar đứng giữa chặn $k_A, k_B$. Oscar tự sinh số bí mật $o$, tính $k_O = \alpha^o \pmod p$ và gửi $k_O$ cho cả Alice và Bob.</li>
-      <li>Khóa phiên Alice - Oscar: <span class="formula">$k_{AO} = (k_O)^a = (k_A)^o \pmod p$</span>.</li>
-      <li>Khóa phiên Bob - Oscar: <span class="formula">$k_{BO} = (k_O)^b = (k_B)^o \pmod p$</span>.</li>
-      <li>Oscar có thể giải mã, đọc trộm và sửa đổi toàn bộ thông điệp.</li>
-      <li><b>Khắc phục:</b> Ký số lên khóa công khai hoặc dùng chứng chỉ số CA.</li>
-    </ul>
-  </div>
-
-  <!-- BOX 9: SHA-1 VÀ HÀM BĂM -->
-  <div class="box">
-    <div class="box-title">9. ĐỆM SHA-1 (PADDING) & HÀM BĂM KHỐI</div>
-    <p><b>Quy trình đệm SHA-1 cho thông điệp dài $l$ bit:</b></p>
-    <ul>
-      <li><span class="step">Bước 1:</span> Nối 1 bit '1' vào cuối thông điệp $M$ (độ dài thành $l + 1$).</li>
-      <li><span class="step">Bước 2:</span> Thêm $k$ bit '0' sao cho: <span class="formula">$(l + 1 + k) \equiv 448 \pmod{512}$</span>
-        <br>$\implies \mathbf{k = (447 - (l \bmod 512)) \bmod 512}$ (với $0 \le k < 512$).
-        <br><i>Ví dụ tính nhanh $k$:</i> Lấy $l \pmod{512} = \text{rem}$. Nếu $\text{rem} \le 447 \implies k = 447 - \text{rem}$. Nếu $\text{rem} > 447 \implies k = 447 - \text{rem} + 512$.
-      </li>
-      <li><span class="step">Bước 3:</span> Nối thêm <b>64 bit</b> biểu diễn nhị phân của chiều dài ban đầu $l$ (Big-Endian).</li>
-      <li><span class="step">Bước 4:</span> Tổng số bit sau đệm: <span class="formula">$L = l + 1 + k + 64$</span> bits.
-        <br>Số khối 512-bit: <span class="formula">$N = L / 512$</span> (luôn là số nguyên).
-      </li>
-    </ul>
-    <p><b>Sơ đồ nén Davies-Meyer:</b> Khối băm xây dựng từ mã hóa khối:
-      <br><span class="formula">$h_i = E_{m_i}(h_{i-1}) \oplus h_{i-1}$</span> (Khối tin $m_i$ làm Khóa, $h_{i-1}$ làm Bản rõ).
-    </p>
-    <p><b>Độ an toàn va chạm (Birthday Paradox):</b>
-      <br>Hàm băm đầu ra $n$ bit có độ phức tạp tìm va chạm (Collision resistance) là <span class="keyword">$\mathcal{O}(2^{n/2})$</span> thay vì $2^n$.
-      <br>Xác suất va chạm đạt $50\%$ khi số lượng thông điệp băm thử nghiệm đạt: <span class="formula">$k \approx 1.177 \cdot \sqrt{2^n} = 1.177 \cdot 2^{n/2}$</span>.
-    </p>
   </div>
 
 </div>
