@@ -1,3 +1,4 @@
+import os
 # -*- coding: utf-8 -*-
 """
 Script: solve_rsa_keygen_2025.py
@@ -226,7 +227,11 @@ def custom_input():
             cands = [122, 123, 124, 125]
         custom_rsa_keygen(p, q, cands)
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 run_demo = solve_rsa_keygen
@@ -250,10 +255,10 @@ if __name__ == "__main__":
         except Exception:
             pass
 
-    if sys.stdin.isatty():
-
-        custom_input()
-
-    else:
-
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

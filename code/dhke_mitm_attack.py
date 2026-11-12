@@ -1,3 +1,4 @@
+import os
 """
 =============================================================================
 Course: Introduction to Cryptography (USTH)
@@ -101,7 +102,11 @@ def custom_input():
         o2 = int(val_o2, 0) if val_o2 else o1
         simulate_dhke_mitm(p, alpha, a, b, o1, o2, verbose=True)
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 def run_demo():
@@ -139,7 +144,10 @@ if __name__ == "__main__":
     if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
         run_demo()
         sys.exit(0)
-    if sys.stdin.isatty():
-        custom_input()
-    else:
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

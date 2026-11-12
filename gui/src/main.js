@@ -338,12 +338,15 @@ const ALGORITHMS = [
     fields: [
       { id: "p", label: "Prime Modulus p", type: "number", default: 27361, placeholder: "e.g. 27361", hint: "Public large prime" },
       { id: "alpha", label: "Generator alpha", type: "number", default: 6, placeholder: "e.g. 6", hint: "Primitive root mod p" },
-      { id: "a", label: "Alice Private Key a", type: "number", default: 56, placeholder: "e.g. 56", hint: "Alice's secret (Student ID)" },
-      { id: "b", label: "Bob Private Key b", type: "number", default: 2365, placeholder: "e.g. 2365", hint: "Bob's secret" }
+      { id: "a", label: "Alice Private Key a", type: "number", default: 20260, placeholder: "e.g. 20260", hint: "Alice's secret (a = M = 20260)" },
+      { id: "b", label: "Bob Private Key b", type: "number", default: 24373, placeholder: "e.g. 24373", hint: "Bob's secret (b = C = 24373)" }
     ],
     presets: [
-      { label: "Exam 2025: p=27361, alpha=6, a=56, b=2365", values: { p: 27361, alpha: 6, a: 56, b: 2365 } },
-      { label: "Exam Sheet Variant: p=51907, alpha=6", values: { p: 51907, alpha: 6, a: 56, b: 2365 } },
+      { label: "Exam 2025 (Chuẩn đề in: a=20260, b=24373)", values: { p: 27361, alpha: 6, a: 20260, b: 24373 } },
+      { label: "Exam 2025 Biến thể B (p=51907, a=20260, b=24373)", values: { p: 51907, alpha: 6, a: 20260, b: 24373 } },
+      { label: "Exam 2025 Dự phòng (a=56, b=2365)", values: { p: 27361, alpha: 6, a: 56, b: 2365 } },
+      { label: "Đề 2023-2024 Set 01: p=863, a=2023, b=2024", values: { p: 863, alpha: 2, a: 2023, b: 2024 } },
+      { label: "Đề 2023-2024 Set 02: p=593, a=2023, b=2024", values: { p: 593, alpha: 2, a: 2023, b: 2024 } },
       { label: "Slide 18 Example: p=467, alpha=2", values: { p: 467, alpha: 2, a: 228, b: 57 } }
     ]
   },
@@ -381,6 +384,8 @@ const ALGORITHMS = [
       { id: "x", label: "Message x to Sign", type: "number", default: 181, placeholder: "e.g. 181", hint: "Exam x_A = 56 + 125 = 181" }
     ],
     presets: [
+      { label: "Đề 2023-2024 Set 01 (p=863, d=127, ke=215, x=30)", values: { p: 863, alpha: 2, d: 127, ke: 215, x: 30 } },
+      { label: "Đề 2023-2024 Set 02 (p=593, d=127, ke=215, x=30)", values: { p: 593, alpha: 2, d: 127, ke: 215, x: 30 } },
       { label: "Exam 2025-2026 Bài 2.2 (k_E = 185, x_A = 181)", values: { p: 997, alpha: 6, d: 25, ke: 185, x: 181 } },
       { label: "Exam 2025 với x = 56 (k_E = 185)", values: { p: 997, alpha: 6, d: 25, ke: 185, x: 56 } },
       { label: "Bẫy đề thi: k_E = 105 (Vô nghiệm)", values: { p: 997, alpha: 6, d: 25, ke: 105, x: 181 } },
@@ -416,6 +421,8 @@ const ALGORITHMS = [
       { id: "l", label: "Message Bit Length l", type: "number", default: 20260, placeholder: "e.g. 20260", hint: "Total bit length of raw message" }
     ],
     presets: [
+      { label: "Đề 2023-2024 Set 01: l = 2096 bits (5 khối)", values: { l: 2096 } },
+      { label: "Đề 2023-2024 Set 02: l = 2225 bits (5 khối)", values: { l: 2225 } },
       { label: "Exam 2025: l = 20260 bits (40 blocks)", values: { l: 20260 } },
       { label: "Student ID: l = 56 bits (1 block)", values: { l: 56 } },
       { label: "Textbook 'abc': l = 24 bits (1 block)", values: { l: 24 } }
@@ -1380,17 +1387,21 @@ function extractHeroAnswer(rawText, tool) {
     if (rawText.includes("PHƯƠNG TRÌNH VÔ NGHIỆM")) {
       return { title: "PHƯƠNG TRÌNH ĐỒNG DƯ BẬC NHẤT", value: "VÔ NGHIỆM (No Integer Solution)" };
     }
-    const crtMatch = rawText.match(/===>\s*ĐÁP SỐ DUY NHẤT:?\s*\n\s*(x\s*≡\s*[^\n\r]+)/i);
+    const crtMatch = rawText.match(/===>\s*ĐÁP SỐ DUY NHẤT:?[\r\n\s]+(x\s*≡\s*[^\r\n]+)/i);
     if (crtMatch) {
       return { title: "NGHIỆM ĐỊNH LÝ SỐ DƯ TRUNG HOA (CRT)", value: crtMatch[1].trim() };
     }
-    const congMatch = rawText.match(/===>\s*ĐÁP SỐ TẬP NGHIỆM:?\s*\n\s*(x\s*∈\s*[^\n\r]+)/i);
+    const congMatch = rawText.match(/===>\s*ĐÁP SỐ TẬP NGHIỆM:?[\r\n\s]+(x\s*∈\s*[^\r\n]+)/i);
     if (congMatch) {
       return { title: "TẬP NGHIỆM PHƯƠNG TRÌNH ĐỒNG DƯ (a·x ≡ b)", value: congMatch[1].trim() };
     }
-    const desSpec = rawText.match(/DES S-Box input\s*:\s*(x\s*=\s*[^\n\r]+)/i);
+    const desSpec = rawText.match(/DES S-Box input\s*:\s*(x\s*=\s*[^\r\n]+)/i);
     if (desSpec) {
       return { title: "RÚT GỌN MÃ SINH VIÊN QUA MODULO", value: desSpec[1].trim() };
+    }
+    const idRedMatch = rawText.match(/===>\s*(?:RÚT GỌN MÃ SINH VIÊN|ĐÁP SỐ):?[\r\n\s]+([^\r\n]+)/i);
+    if (idRedMatch && !idRedMatch[1].trim().endsWith(":")) {
+      return { title: "RÚT GỌN MÃ SINH VIÊN QUA MODULO", value: idRedMatch[1].trim() };
     }
   }
 
@@ -1404,12 +1415,14 @@ function extractHeroAnswer(rawText, tool) {
   }
 
   // 3. RSA Ciphertext & Decrypted Plaintext
-  const rsaEncMatch = rawText.match(/===>\s*BẢN MÃ RSA.*?:?\s*C\s*=\s*(\d+)/i);
-  if (rsaEncMatch) {
-    return { title: "BẢN MÃ RSA (CIPHERTEXT C)", value: `C = ${rsaEncMatch[1]}` };
-  }
+  const rsaEncMatch = rawText.match(/===>\s*BẢN MÃ (?:THU ĐƯỢC|RSA).*?:?\s*C\s*=\s*(\d+)/i) ||
+                      rawText.match(/===>\s*BẢN MÃ.*?:?\s*C\s*=\s*(\d+)/i);
   const rsaDecMatch = rawText.match(/===>\s*BẢN RÕ KHÔI PHỤC:?\s*M\s*=\s*(\d+)/i);
-  if (rsaDecMatch) {
+  if (rsaEncMatch && rsaDecMatch) {
+    return { title: "KẾT QUẢ MÃ HÓA & GIẢI MÃ RSA", value: `C = ${rsaEncMatch[1]}  |  Khôi phục M = ${rsaDecMatch[1]}` };
+  } else if (rsaEncMatch) {
+    return { title: "BẢN MÃ RSA (CIPHERTEXT C)", value: `C = ${rsaEncMatch[1]}` };
+  } else if (rsaDecMatch) {
     return { title: "BẢN RÕ KHÔI PHỤC (PLAINTEXT M)", value: `M = ${rsaDecMatch[1]}` };
   }
 
@@ -1425,7 +1438,15 @@ function extractHeroAnswer(rawText, tool) {
     }
   }
 
-  // 5. ElGamal / Digital Signatures
+  // 5. Diffie-Hellman Key Exchange
+  if (tool && (tool.id === "diffie_hellman_key_exchange" || tool.id === "dhke_mitm_attack")) {
+    const dhMatch = rawText.match(/===>\s*KHÓA PHIÊN CHUNG.*?:?\s*([^\r\n]+)/i);
+    if (dhMatch) {
+      return { title: "KHÓA PHIÊN CHUNG DIFFIE-HELLMAN", value: dhMatch[1].trim() };
+    }
+  }
+
+  // 6. ElGamal / Digital Signatures
   if (tool && tool.id === "elgamal_digital_signature") {
     const certMatch = rawText.match(/===>\s*CHỨNG CHỈ SỐ:?\s*([^\n\r]+)/i);
     if (certMatch) return { title: "CHỨNG CHỈ SỐ CA (CERTIFICATE)", value: certMatch[1].trim() };
@@ -1436,34 +1457,42 @@ function extractHeroAnswer(rawText, tool) {
     }
   }
 
-  // 6. Square-and-Multiply
-  const smMatch = rawText.match(/===>\s*KẾT QUẢ CUỐI CÙNG:?\s*(.*)/i);
-  if (smMatch) {
+  // 7. PKI RSA Certificate
+  if (tool && tool.id === "pki_rsa_certificate") {
+    const pkiMatch = rawText.match(/===>\s*CHỨNG CHỈ SỐ.*?:?\s*([^\r\n]+)/i) ||
+                     rawText.match(/Chữ ký số của CA.*?:?\s*([^\r\n]+)/i);
+    if (pkiMatch) return { title: "CHỨNG CHỈ SỐ PKI CA", value: pkiMatch[1].trim() };
+  }
+
+  // 8. Square-and-Multiply
+  const smMatch = rawText.match(/===>\s*KẾT QUẢ CUỐI CÙNG:?\s*(.*)/i) ||
+                  rawText.match(/===>\s*KẾT QUẢ:?\s*(.*)/i);
+  if (smMatch && (tool?.id === "square_and_multiply" || rawText.includes("Square-and-Multiply"))) {
     return { title: "KẾT QUẢ TÍNH LŨY THỪA MODULO", value: smMatch[1].trim() };
   }
 
-  // 7. Extended Euclidean Modular Inverse
+  // 9. Extended Euclidean Modular Inverse
   const invMatch = rawText.match(/(?:Kết quả nghịch đảo|Modular Inverse|Khóa riêng d)\s*[:=]\s*([^\n\r]+)/i);
   if (invMatch) {
     return { title: "NGHỊCH ĐẢO MODULO / KHÓA BÍ MẬT d", value: invMatch[1].trim() };
   }
 
-  // 8. Euclidean GCD
+  // 10. Euclidean GCD
   const gcdMatch = rawText.match(/(?:===>|\[=>\])\s*(?:Result|ĐÁP SỐ)?:?\s*(gcd\([^)]+\)\s*=\s*\d+)/i);
   if (gcdMatch) {
     return { title: "ƯỚC CHUNG LỚN NHẤT (GCD)", value: gcdMatch[1].trim() };
   }
 
-  // 9. Classical Ciphers Ciphertext
+  // 11. Classical Ciphers Ciphertext
   const cipherMatch = rawText.match(/===>\s*BẢN MÃ \(CIPHERTEXT\):?\s*['"]?([^'"\n\r]+)['"]?/i);
   if (cipherMatch) {
     return { title: "BẢN MÃ ĐÃ MÃ HÓA (CIPHERTEXT)", value: cipherMatch[1].trim() };
   }
 
-  // 10. General Answer
+  // 12. General Answer
   const genMatch = rawText.match(/===>\s*(?:ĐÁP SỐ|KẾT QUẢ):?\s*([^\n\r]+)/i);
   if (genMatch && genMatch[1].trim() && !genMatch[1].trim().endsWith(":")) {
-    return { title: "ĐÁP SỐ CHÍNH XÁC", value: genMatch[1].trim() };
+    return { title: `ĐÁP SỐ CHÍNH XÁC (${tool ? tool.title : "KẾT QUẢ"})`, value: genMatch[1].trim() };
   }
 
   return null;

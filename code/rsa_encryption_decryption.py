@@ -110,35 +110,43 @@ def custom_input():
         d = int(val_d, 0) if val_d else None
         custom_rsa_calc(m, e, d, n)
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input cancelled or non-interactive: {err}. Falling back to exam defaults.")
+        run_demo()
 
 
 run_demo = solve_rsa_encryption
 
 
 if __name__ == "__main__":
+    import os
     import sys
 
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+    # Demo mode or non-interactive pipe
+    if "--demo" in sys.argv:
         solve_rsa_encryption()
         sys.exit(0)
 
-    # Support CLI arguments: python rsa_encryption_decryption.py 56 125 31553
-    if len(sys.argv) > 3 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    # Support CLI arguments: python rsa_encryption_decryption.py 20260 125 31553 30689
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 3:
         try:
-            m_arg = int(sys.argv[1], 0)
-            e_arg = int(sys.argv[2], 0)
-            n_arg = int(sys.argv[3], 0)
-            d_arg = int(sys.argv[4], 0) if len(sys.argv) > 4 else None
+            m_arg = int(cli_args[0], 0)
+            e_arg = int(cli_args[1], 0)
+            n_arg = int(cli_args[2], 0)
+            d_arg = int(cli_args[3], 0) if len(cli_args) > 3 else None
             custom_rsa_calc(m_arg, e_arg, d_arg, n_arg)
             sys.exit(0)
-        except Exception:
-            pass
+        except Exception as err:
+            print(f"[-] CLI error: {err}")
+            if os.environ.get("GUI_MODE") == "1":
+                solve_rsa_encryption()
+                sys.exit(0)
 
-    if sys.stdin.isatty():
-
-        custom_input()
-
-    else:
-
+    # In GUI mode or non-interactive terminal, never prompt for stdin input
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

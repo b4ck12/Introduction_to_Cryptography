@@ -1,3 +1,4 @@
+import os
 """
 =============================================================================
 Course: Introduction to Cryptography (USTH)
@@ -125,7 +126,11 @@ def custom_input():
         print(f"    Coefficient: {coeff:.4f}")
         print(f"[=>] Number of messages needed k ~ {coeff:.4f} * 2^{m//2} ~ {k_bound:.3e} messages")
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
@@ -133,7 +138,10 @@ if __name__ == "__main__":
     if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
         run_demo()
         sys.exit(0)
-    if sys.stdin.isatty():
-        custom_input()
-    else:
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

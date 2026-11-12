@@ -62,11 +62,20 @@ fn run_crypto_calc(script_name: String, args: Vec<String>) -> Result<String, Str
     let mut cmd = Command::new(&python);
     cmd.arg(&script_path);
 
+    // Pass valid CLI arguments, filtering out empty or whitespace-only arguments
     for arg in &args {
-        cmd.arg(arg);
+        let trimmed = arg.trim();
+        if !trimmed.is_empty() {
+            cmd.arg(trimmed);
+        }
     }
 
     cmd.current_dir(&code_dir);
+
+    // Completely isolate stdin to prevent Python from inheriting parent console stdin
+    cmd.stdin(std::process::Stdio::null());
+    cmd.env("GUI_MODE", "1");
+    cmd.env("PYTHONUNBUFFERED", "1");
 
     // On Windows, prevent console popup if subprocess is spawned
     #[cfg(target_os = "windows")]

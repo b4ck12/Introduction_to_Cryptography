@@ -1,3 +1,4 @@
+import os
 """
 =============================================================================
 Course: Introduction to Cryptography (USTH)
@@ -85,7 +86,11 @@ def custom_input():
         mod = int(val_mod, 0) if val_mod else 31553
         square_and_multiply(base, exp, mod, verbose=True)
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 def run_demo():
@@ -139,7 +144,10 @@ if __name__ == "__main__":
             pass
 
     # Default: Open directly into Custom Exam Input prompt
-    if sys.stdin.isatty():
-        custom_input()
-    else:
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

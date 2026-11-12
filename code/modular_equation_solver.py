@@ -1,3 +1,4 @@
+import os
 # -*- coding: utf-8 -*-
 """
 =============================================================================
@@ -240,7 +241,11 @@ def custom_input():
             sid = val_id if val_id else "23BA14056"
             reduce_student_id_all(sid)
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 def run_demo():
@@ -302,7 +307,10 @@ if __name__ == "__main__":
         except Exception as err:
             print(f"[-] Student ID reduction error: {err}")
 
-    if sys.stdin.isatty():
-        custom_input()
-    else:
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

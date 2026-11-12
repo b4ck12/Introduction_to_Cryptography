@@ -1,3 +1,4 @@
+import os
 # -*- coding: utf-8 -*-
 """
 Script: solve_sha1_padding.py
@@ -103,7 +104,11 @@ def custom_input():
             l_bits = int(val_l, 0) if val_l else 20260
             solve_sha1_padding_for_len(l_bits, f"Custom Bit Length l = {l_bits}")
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 run_demo = solve_sha1_padding
@@ -125,10 +130,10 @@ if __name__ == "__main__":
         except Exception:
             pass
 
-    if sys.stdin.isatty():
-
-        custom_input()
-
-    else:
-
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()

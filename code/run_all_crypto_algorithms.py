@@ -55,6 +55,7 @@ ALGORITHM_SCRIPTS = [
     ("birthday_attack_collision.py", "Birthday Paradox & Collision Probability Bounds"),
     ("hmac_sha1.py", "HMAC-SHA1 Keyed Hash Authentication Code (RFC 2104)"),
     ("session_slide_exercises.py", "Master Lecture Slide Exercises Suite (Sessions 1 - 8)"),
+    ("exam_2023_2024_solver.py", "Exam 2023-2024 Solver Suite (Set 01 & Set 02 Full Solution)"),
 ]
 
 def main():

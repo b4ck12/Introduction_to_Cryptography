@@ -190,7 +190,47 @@ def custom_input():
         x = int(val_x, 0) if val_x else 181
         custom_elgamal_sign(p, alpha, d, ke, x)
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
+
+
+def verify_elgamal_signature(p: int, alpha: int, beta: int, x: int, r: int, s: int):
+    """
+    Independent verification of an ElGamal signature (r, s) on message x with public key (p, alpha, beta).
+    """
+    print("\n" + "=" * 75)
+    print("XÁC MINH CHỮ KÝ SỐ ELGAMAL (ELGAMAL SIGNATURE VERIFICATION)")
+    print(f"Tham số công khai: p = {p}, alpha = {alpha}, beta = {beta}")
+    print(f"Thông điệp x = {x} | Cặp chữ ký: (r = {r}, s = {s})")
+    print("=" * 75)
+
+    if not (0 < r < p):
+        print(f"[-] LỖI: r = {r} không nằm trong khoảng 0 < r < p ({p})!")
+        return False
+
+    print("[BƯỚC 1] Tính v1 = (beta^r * r^s) mod p:")
+    term_beta_r = pow(beta, r, p)
+    term_r_s = pow(r, s, p)
+    v1 = (term_beta_r * term_r_s) % p
+    print(f"    beta^r mod p = {beta}^{r} mod {p} = {term_beta_r}")
+    print(f"    r^s mod p    = {r}^{s} mod {p} = {term_r_s}")
+    print(f"    v1 = ({term_beta_r} * {term_r_s}) mod {p} = {v1}")
+
+    print("\n[BƯỚC 2] Tính v2 = alpha^x mod p:")
+    v2 = pow(alpha, x, p)
+    print(f"    v2 = {alpha}^{x} mod {p} = {v2}")
+
+    print("\n[BƯỚC 3] So sánh kết quả v1 và v2:")
+    print(f"    v1 = {v1}, v2 = {v2}")
+    if v1 == v2:
+        print(f"===> KẾT LUẬN: v1 == v2 ({v1} == {v2}) => CHỮ KÝ HOÀN TOÀN HỢP LỆ VÀ XÁC THỰC!")
+        return True
+    else:
+        print(f"===> KẾT LUẬN: v1 != v2 ({v1} != {v2}) => CHỮ KÝ KHÔNG HỢP LỆ (Bị giả mạo hoặc sai tham số)!")
+        return False
 
 
 def run_demo():
@@ -202,6 +242,24 @@ if __name__ == "__main__":
     if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
+
+    # Support signature verification flag: --verify p alpha beta x r s
+    if "--verify" in sys.argv:
+        v_idx = sys.argv.index("--verify")
+        v_args = [a for a in sys.argv[v_idx + 1:] if not a.startswith("-")]
+        if len(v_args) >= 6:
+            try:
+                p_v = int(v_args[0], 0)
+                alpha_v = int(v_args[1], 0)
+                beta_v = int(v_args[2], 0)
+                x_v = int(v_args[3], 0)
+                r_v = int(v_args[4], 0)
+                s_v = int(v_args[5], 0)
+                verify_elgamal_signature(p_v, alpha_v, beta_v, x_v, r_v, s_v)
+                sys.exit(0)
+            except Exception as err:
+                print(f"[-] Verification arguments error: {err}")
+                sys.exit(1)
 
     # Extract non-flag arguments
     cli_args = [a for a in sys.argv[1:] if not a.startswith("-")]

@@ -1,3 +1,4 @@
+import os
 # -*- coding: utf-8 -*-
 """
 =============================================================================
@@ -161,7 +162,11 @@ def custom_input():
             else:
                 print(f"    Modular inverse {a}^(-1) mod {m} does not exist (gcd={g} != 1)")
     except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}")
+        print(f"[-] Input error or cancelled: {err}. Using default.")
+        try:
+            run_demo()
+        except Exception:
+            pass
 
 
 def run_demo():
@@ -197,7 +202,10 @@ if __name__ == "__main__":
             pass
 
     # Default: Open directly into Custom Exam Input prompt
-    if sys.stdin.isatty():
-        custom_input()
-    else:
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
+    else:
+        try:
+            custom_input()
+        except (EOFError, KeyboardInterrupt):
+            run_demo()
