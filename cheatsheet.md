@@ -1,88 +1,88 @@
 <style>
 @page {
   size: A4 portrait;
-  margin: 3mm 4mm 3mm 4mm;
+  margin: 2.5mm 3.5mm 2.5mm 3.5mm;
 }
 @media print {
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    font-size: 6.2pt;
-    line-height: 1.13;
+    font-size: 5.9pt;
+    line-height: 1.12;
     color: #000;
     background: #fff;
     margin: 0;
     padding: 0;
   }
   h1 { 
-    font-size: 8.5pt; 
+    font-size: 8pt; 
     margin: 0 0 1px 0; 
     text-align: center; 
     font-weight: 800; 
     color: #1e3a8a; 
     text-transform: uppercase; 
-    border-bottom: 1px solid #1e3a8a; 
+    border-bottom: 0.8px solid #1e3a8a; 
     padding-bottom: 0.5px; 
   }
   .meta-sub {
-    font-size: 5.8pt;
+    font-size: 5.4pt;
     text-align: center;
     color: #475569;
     font-weight: 700;
-    margin-bottom: 1.5px;
+    margin-bottom: 1px;
   }
   .grid-3col { 
     display: grid; 
     grid-template-columns: 1fr 1fr 1fr; 
-    column-gap: 2.5mm; 
-    row-gap: 1.2mm; 
+    column-gap: 2.2mm; 
+    row-gap: 1mm; 
   }
   .box { 
-    border: 0.7px solid #475569; 
-    border-radius: 2px; 
-    padding: 1.5px 2.5px; 
+    border: 0.6px solid #475569; 
+    border-radius: 1.5px; 
+    padding: 1.2px 2mm; 
     background: #fff; 
     break-inside: avoid;
-    margin-bottom: 1.2mm;
+    margin-bottom: 1mm;
   }
   .box-title { 
-    font-size: 6.6pt; 
+    font-size: 6.2pt; 
     font-weight: 800; 
     color: #0f172a; 
     background: #f1f5f9; 
-    margin: -1.5px -2.5px 1.5px -2.5px; 
-    padding: 1px 2.5px; 
-    border-bottom: 0.6px solid #94a3b8; 
+    margin: -1.2px -2mm 1.2px -2mm; 
+    padding: 0.8px 2mm; 
+    border-bottom: 0.5px solid #94a3b8; 
     text-transform: uppercase;
   }
   .f { 
     font-family: "Courier New", Consolas, monospace; 
     font-weight: 700; 
     color: #1d4ed8; 
-    font-size: 6.3pt; 
+    font-size: 6.0pt; 
   }
   .st { font-weight: 800; color: #047857; }
   .kw { font-weight: 800; color: #b91c1c; }
   table.eea { 
     width: 100%; 
     border-collapse: collapse; 
-    font-size: 5.7pt; 
-    margin: 1px 0; 
+    font-size: 5.5pt; 
+    margin: 0.8px 0; 
   }
   table.eea th, table.eea td { 
     border: 0.4px solid #64748b; 
-    padding: 0.4px 0.8px; 
+    padding: 0.3px 0.6px; 
     text-align: center; 
   }
   table.eea th { 
     background: #f8fafc; 
     font-weight: 700; 
   }
-  ul { margin: 0; padding-left: 8px; }
-  li { margin-bottom: 0.5px; }
-  p { margin: 0.5px 0; }
+  ul { margin: 0; padding-left: 7.5px; }
+  li { margin-bottom: 0.4px; }
+  p { margin: 0.4px 0; }
 }
 @media screen {
-  body { font-family: sans-serif; font-size: 11px; line-height: 1.35; padding: 12px; max-width: 1300px; margin: 0 auto; }
+  body { font-family: sans-serif; font-size: 11px; line-height: 1.35; padding: 12px; max-width: 1350px; margin: 0 auto; }
   .grid-3col { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 10px; }
   .box { border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px; margin-bottom: 8px; }
   .box-title { font-weight: bold; background: #f1f5f9; padding: 3px 5px; margin: -6px -6px 5px -6px; }
@@ -244,7 +244,7 @@
     <div class="box-title">DẠNG 8: CHẾ ĐỘ MÃ KHỐI & MẠNG FEISTEL (DES/AES)</div>
     <p><b>A. Các chế độ hoạt động mã hóa khối (Modes of Operation):</b></p>
     <ul>
-      <li><b>ECB:</b> $C_i = E_K(P_i)$ | $P_i = D_K(C_i)$. Không dùng IV $\implies$ rò rỉ cấu trúc.</li>
+      <li><b>ECB:</b> $C_i = E_K(P_i)$ | $P_i = D_K(C_i)$. Không dùng IV $\implies$ rò rỉ mẫu.</li>
       <li><b>CBC:</b> $C_0 = \text{IV}$; $C_i = E_K(P_i \oplus C_{i-1})$. Giải mã: <span class="f">$P_i = D_K(C_i) \oplus C_{i-1}$</span>.</li>
       <li><b>CFB:</b> $C_0 = \text{IV}$; $C_i = P_i \oplus E_K(C_{i-1})$. Giải mã: <span class="f">$P_i = C_i \oplus E_K(C_{i-1})$</span>.</li>
       <li><b>OFB:</b> $S_0 = \text{IV}$; $S_i = E_K(S_{i-1})$; $C_i = P_i \oplus S_i$. Giải mã: <span class="f">$P_i = C_i \oplus S_i$</span>.</li>
@@ -252,20 +252,19 @@
     </ul>
     <p><b>B. Mạng Feistel (DES):</b> Khối 64 bit $\to (L_{i-1}, R_{i-1})$:
       <br>• Vòng $i$: <span class="f">$L_i = R_{i-1}$</span> ; <span class="f">$R_i = L_{i-1} \oplus F(R_{i-1}, K_i)$</span>.
-      <br>• Giải mã: Đảo ngược thứ tự khóa con ($K_{16} \to K_1$):
-      <br>&nbsp;&nbsp;<span class="f">$R_{i-1} = L_i$</span> ; <span class="f">$L_{i-1} = R_i \oplus F(L_i, K_i)$</span>.
+      <br>• Giải mã: Đảo ngược khóa con ($K_{16} \to K_1$): <span class="f">$R_{i-1} = L_i$</span> ; <span class="f">$L_{i-1} = R_i \oplus F(L_i, K_i)$</span>.
     </p>
   </div>
 
 </div>
 
-<!-- ==================== CỘT 3: ELGAMAL, DHKE, SHA-1, A5/1 ==================== -->
+<!-- ==================== CỘT 3: ELGAMAL, DSA, DHKE, A5/1, SHA-1 ==================== -->
 <div class="col">
 
   <!-- DẠNG 9: CHỮ KÝ SỐ ELGAMAL -->
   <div class="box">
     <div class="box-title">DẠNG 9: CHỮ KÝ SỐ ELGAMAL & CHỨNG CHỈ CA</div>
-    <p><b>Tham số CA:</b> Nguyên tố $p$, phần tử sinh $\alpha$, khóa bí mật $d \implies$ Public key: <span class="f">$\beta = \alpha^d \pmod p$</span>. Thông điệp $x$ (hoặc $x_A = x + e_A$).</p>
+    <p><b>Tham số CA:</b> Nguyên tố $p$, phần tử sinh $\alpha$, khóa bí mật $d \implies$ Public: <span class="f">$\beta = \alpha^d \pmod p$</span>. Thông điệp $x$ (hoặc $x_A = x + e_A$).</p>
     <ul>
       <li><span class="st">B1 (Kiểm tra $k_E$):</span> Tính <span class="kw">$\gcd(k_E, p - 1)$</span>.
         <br>• Nếu $\gcd \ne 1 \implies$ <b>VÔ NGHIỆM</b> (không tồn tại $k_E^{-1}$).
@@ -279,68 +278,73 @@
       </li>
       <li><span class="st">B5 (Xác thực - Verification):</span>
         <br>• Tính <span class="f">$v_1 = (\beta^r \cdot r^s) \pmod p = [(\beta^r \bmod p) \cdot (r^s \bmod p)] \pmod p$</span>.
-        <br>• Tính <span class="f">$v_2 = \alpha^x \pmod p$</span>.
-        <br>• So sánh: Nếu <span class="kw">$v_1 \equiv v_2 \pmod p$</span> $\implies$ Chữ ký hợp lệ!
+        <br>• Tính <span class="f">$v_2 = \alpha^x \pmod p$</span>. So sánh: <span class="kw">$v_1 \equiv v_2 \pmod p$</span> $\implies$ Hợp lệ!
       </li>
     </ul>
   </div>
 
-  <!-- DẠNG 10: TRAO ĐỔI KHÓA DIFFIE-HELLMAN -->
+  <!-- DẠNG 10: CHỮ KÝ SỐ DSA -->
   <div class="box">
-    <div class="box-title">DẠNG 10: TRAO ĐỔI KHÓA DIFFIE-HELLMAN (DHKE)</div>
+    <div class="box-title">DẠNG 10: CHỮ KÝ SỐ DSA (DIGITAL SIGNATURE ALGORITHM)</div>
+    <p><b>Tham số:</b> Nguyên tố $p$, ước nguyên tố $q \mid (p-1)$, phần tử sinh $\alpha$ bậc $q$ ($\alpha^q \equiv 1 \bmod p$), khóa bí mật $d \in [1, q-1] \implies$ Khóa công khai: <span class="f">$\beta = \alpha^d \pmod p$</span>. Hash $h = H(M)$.</p>
+    <ul>
+      <li><span class="st">Ký số (Signing - 4 bước):</span>
+        <br>1. Chọn ngẫu nhiên khóa tạm $k_E \in [1, q-1]$ thỏa <span class="kw">$\gcd(k_E, q) = 1$</span>.
+        <br>2. Tính <span class="f">$r = (\alpha^{k_E} \bmod p) \bmod q$</span> (nếu $r=0 \to$ chọn lại $k_E$).
+        <br>3. Tìm nghịch đảo modulo $q$: <span class="f">$k_E^{-1} \pmod q$</span> (EEA với $q$).
+        <br>4. Tính <span class="f">$s = k_E^{-1} \cdot (h + d \cdot r) \pmod q$</span> (nếu $s=0 \to$ chọn lại $k_E$).
+        <br>$\implies$ Cặp chữ ký DSA là <span class="f">$(r, s)$</span>.
+      </li>
+      <li><span class="st">Xác minh (Verification - 5 bước):</span>
+        <br>1. Kiểm tra điều kiện hợp lệ: $0 < r < q$ và $0 < s < q$.
+        <br>2. Tính nghịch đảo: <span class="f">$w = s^{-1} \pmod q$</span> (EEA với $q$).
+        <br>3. Tính: <span class="f">$u_1 = (h \cdot w) \pmod q$</span> và <span class="f">$u_2 = (r \cdot w) \pmod q$</span>.
+        <br>4. Tính: <span class="f">$v = [(\alpha^{u_1} \cdot \beta^{u_2}) \bmod p] \bmod q$</span>.
+        <br>5. So sánh: Nếu <span class="kw">$v == r$</span> $\implies$ Chữ ký hoàn toàn hợp lệ!
+      </li>
+    </ul>
+  </div>
+
+  <!-- DẠNG 11: TRAO ĐỔI KHÓA DIFFIE-HELLMAN -->
+  <div class="box">
+    <div class="box-title">DẠNG 11: TRAO ĐỔI KHÓA DIFFIE-HELLMAN (DHKE)</div>
     <ul>
       <li><span class="st">B1:</span> Tham số công khai hệ thống: Nguyên tố $p$, phần tử sinh $\alpha$.</li>
-      <li><span class="st">B2:</span> Alice chọn số bí mật $a$. Tính: <span class="f">$k_A = \alpha^a \pmod p$</span> $\to$ gửi Bob.</li>
-      <li><span class="st">B3:</span> Bob chọn số bí mật $b$. Tính: <span class="f">$k_B = \alpha^b \pmod p$</span> $\to$ gửi Alice.</li>
-      <li><span class="st">B4:</span> Tính khóa phiên chung (Session Key):
-        <br>• Alice tính: <span class="f">$k_{AB} = (k_B)^a \pmod p$</span>.
-        <br>• Bob tính: <span class="f">$k_{AB} = (k_A)^b \pmod p$</span>.
-        <br>$\implies$ Kiểm tra: <span class="f">$k_{AB} = \alpha^{a \cdot b} \pmod p$</span> (hai bên bằng nhau).
-      </li>
-      <li><span class="st">B5 (Tấn công MITM của Oscar):</span>
-        <br>• Oscar chọn $o$, gửi $k_O = \alpha^o \pmod p$ cho cả Alice và Bob.
-        <br>• Khóa Alice - Oscar: <span class="f">$k_{AO} = (k_O)^a = (k_A)^o \pmod p$</span>.
-        <br>• Khóa Bob - Oscar: <span class="f">$k_{BO} = (k_O)^b = (k_B)^o \pmod p$</span>.
+      <li><span class="st">B2:</span> Alice chọn bí mật $a \implies$ Tính <span class="f">$k_A = \alpha^a \pmod p$</span> $\to$ gửi Bob.</li>
+      <li><span class="st">B3:</span> Bob chọn bí mật $b \implies$ Tính <span class="f">$k_B = \alpha^b \pmod p$</span> $\to$ gửi Alice.</li>
+      <li><span class="st">B4:</span> Tính khóa phiên chung: Alice tính <span class="f">$k_{AB} = (k_B)^a \pmod p$</span>; Bob tính <span class="f">$k_{AB} = (k_A)^b \pmod p$</span>. Kiểm tra: <span class="f">$k_{AB} = \alpha^{a \cdot b} \pmod p$</span>.</li>
+      <li><span class="st">B5 (Tấn công MITM):</span> Oscar chặn $k_A, k_B$, gửi $k_O = \alpha^o \pmod p$:
+        <br>Khóa Alice-Oscar: <span class="f">$k_{AO} = k_O^a$</span> | Bob-Oscar: <span class="f">$k_{BO} = k_O^b$</span>.
       </li>
     </ul>
   </div>
 
-  <!-- DẠNG 11: MÃ DÒNG A5/1 -->
+  <!-- DẠNG 12: MÃ DÒNG A5/1 -->
   <div class="box">
-    <div class="box-title">DẠNG 11: MÃ DÒNG A5/1 (GSM STREAM CIPHER)</div>
-    <p><b>Cấu trúc 3 thanh ghi LFSR:</b></p>
+    <div class="box-title">DẠNG 12: MÃ DÒNG A5/1 (GSM STREAM CIPHER)</div>
+    <p><b>Cấu trúc 3 LFSR:</b> $R_1(19b, C_1=8)$, $R_2(22b, C_2=10)$, $R_3(23b, C_3=10)$.</p>
     <ul>
-      <li>$R_1$ (19 bit): Clock bit tại $C_1 = \text{bit } 8$. Tap bits: 13, 16, 17, 18.</li>
-      <li>$R_2$ (22 bit): Clock bit tại $C_2 = \text{bit } 10$. Tap bits: 20, 21.</li>
-      <li>$R_3$ (23 bit): Clock bit tại $C_3 = \text{bit } 10$. Tap bits: 7, 20, 21, 22.</li>
-    </ul>
-    <p><b>Quy trình tạo dòng khóa (Keystream Generation):</b></p>
-    <ul>
-      <li><span class="st">B1 (Đa số - Majority):</span> Tính <span class="f">$maj(C_1, C_2, C_3) = (C_1 \cdot C_2) \oplus (C_1 \cdot C_3) \oplus (C_2 \cdot C_3)$</span>.
-        <br><i>Quy tắc nhẩm:</i> Giá trị 0 hoặc 1 nào xuất hiện $\ge 2$ lần thì là $maj$.
+      <li><span class="st">B1 (Đa số - Majority):</span> <span class="f">$maj(C_1, C_2, C_3) = (C_1 C_2) \oplus (C_1 C_3) \oplus (C_2 C_3)$</span>.
+        <br><i>Nhẩm nhanh:</i> Giá trị bit 0 hoặc 1 nào xuất hiện $\ge 2$ lần thì là $maj$.
       </li>
-      <li><span class="st">B2 (Quy tắc Clock):</span>
-        <br>• Thanh ghi nào có $C_i == maj$ $\implies$ ĐƯỢC CLOCK (dịch phải 1 bit, bit mới đưa vào bit 0 là XOR các tap bits của thanh ghi đó).
-        <br>• Thanh ghi nào có $C_i \ne maj$ $\implies$ GIỮ NGUYÊN trạng thái.
-      </li>
+      <li><span class="st">B2 (Quy tắc Clock):</span> Thanh ghi nào có $C_i == maj$ $\implies$ ĐƯỢC CLOCK (dịch phải 1 bit, nạp bit 0 là XOR tap bits); $C_i \ne maj$ GIỮ NGUYÊN.</li>
       <li><span class="st">B3 (Xuất bit dòng khóa):</span> <span class="f">$s_j = R_1[\text{MSB}] \oplus R_2[\text{MSB}] \oplus R_3[\text{MSB}]$</span>.</li>
       <li><span class="st">B4:</span> Mã hóa: <span class="f">$c_j = m_j \oplus s_j$</span> | Giải mã: <span class="f">$m_j = c_j \oplus s_j$</span>.</li>
     </ul>
   </div>
 
-  <!-- DẠNG 12: ĐỆM SHA-1 & DAVIES-MEYER -->
+  <!-- DẠNG 13: ĐỆM SHA-1 & DAVIES-MEYER -->
   <div class="box">
-    <div class="box-title">DẠNG 12: ĐỆM SHA-1 & HÀM BĂM KHỐI DAVIES-MEYER</div>
+    <div class="box-title">DẠNG 13: ĐỆM SHA-1 & HÀM BĂM KHỐI DAVIES-MEYER</div>
     <ul>
       <li><span class="st">B1:</span> Chiều dài ban đầu: $l$ bits.</li>
       <li><span class="st">B2:</span> Nối 1 bit '1' vào đuôi thông điệp ($l + 1$ bits).</li>
       <li><span class="st">B3:</span> Thêm $k$ bit '0' sao cho: <span class="f">$(l + 1 + k) \equiv 448 \pmod{512}$</span>
         <br>$\implies \mathbf{k = (447 - (l \bmod 512)) \bmod 512}$ (với $0 \le k < 512$).
-        <br><i>Cách tính nhẩm:</i> Lấy $l \pmod{512} = \text{rem}$. Nếu $\text{rem} \le 447 \implies k = 447 - \text{rem}$; Nếu $\text{rem} > 447 \implies k = 447 - \text{rem} + 512$.
       </li>
-      <li><span class="st">B4:</span> Nối thêm <b>64 bit</b> biểu diễn nhị phân của chiều dài $l$ (Big-Endian).</li>
+      <li><span class="st">B4:</span> Nối 64 bit biểu diễn nhị phân của chiều dài $l$ (Big-Endian).</li>
       <li><span class="st">B5:</span> Tổng bit: <span class="f">$L = l + 1 + k + 64$</span>. Số khối 512-bit: <span class="f">$N = L / 512$</span>.</li>
-      <li><span class="st">Sơ đồ khối Davies-Meyer:</span> <span class="f">$h_i = E_{m_i}(h_{i-1}) \oplus h_{i-1}$</span> ($m_i$ là Khóa, $h_{i-1}$ là Bản rõ).
+      <li><span class="st">Davies-Meyer:</span> <span class="f">$h_i = E_{m_i}(h_{i-1}) \oplus h_{i-1}$</span> ($m_i$ là Khóa, $h_{i-1}$ là Bản rõ).
         <br>Birthday Paradox: Độ an toàn tìm va chạm hàm băm $n$-bit là <span class="kw">$\mathcal{O}(2^{n/2})$</span>.
       </li>
     </ul>
