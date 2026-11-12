@@ -19,9 +19,15 @@ def euclidean_gcd(a: int, b: int, verbose: bool = True) -> int:
     Computes gcd(a, b) using Euclidean algorithm and prints the division steps.
     """
     if verbose:
-        print(f"\n[+] Computing GCD({a}, {b}) using Euclidean Algorithm:")
-        print(f"{'Step':<6} | {'Division Equation':<35} | {'Remainder':<10}")
-        print("-" * 55)
+        print("=" * 75)
+        print("THUẬT TOÁN EUCLID TÌM ƯỚC SỐ CHUNG LỚN NHẤT (GCD)")
+        print("=" * 75)
+        print(f"[BƯỚC 1] Thiết lập bài toán & Định lý chia Euclid:")
+        print(f"    Công thức: r_{{i-1}} = q_i * r_i + r_{{i+1}} (0 <= r_{{i+1}} < r_i)")
+        print(f"    Tham số: a = {a}, b = {b}\n")
+        print(f"[BƯỚC 2] Bảng vết các bước chia có dư (Division Steps Trace):")
+        print(f"    {'Step':<6} | {'Phép chia có dư (Division Equation)':<38} | {'Số dư'}")
+        print("    " + "-" * 60)
 
     r_prev, r_curr = abs(a), abs(b)
     if r_prev < r_curr:
@@ -33,18 +39,26 @@ def euclidean_gcd(a: int, b: int, verbose: bool = True) -> int:
         r_next = r_prev % r_curr
         if verbose:
             eq = f"{r_prev} = {q} * {r_curr} + {r_next}"
-            print(f"Step {step:<2} | {eq:<35} | r_{step} = {r_next}")
+            print(f"    Step {step:<2} | {eq:<38} | r_{step} = {r_next}")
         r_prev, r_curr = r_curr, r_next
         step += 1
 
     if verbose:
-        print("-" * 55)
-        print(f"[=>] Result: gcd({a}, {b}) = {r_prev}\n")
+        print("    " + "-" * 60)
+        print(f"\n[BƯỚC 3] Kết luận ước số chung lớn nhất:")
+        print(f"    Ước số chung lớn nhất: gcd({a}, {b}) = {r_prev}")
+        print(f"    Kiểm tra nguyên tố cùng nhau (Coprime): {r_prev == 1} (gcd == 1)")
+        print(f"    ===> ƯỚC SỐ CHUNG LỚN NHẤT: gcd({a}, {b}) = {r_prev}")
+        print("=" * 75)
 
     return r_prev
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 60)
     print("CUSTOM EXAM INPUT: EUCLIDEAN GCD")
     print("=" * 60)

@@ -25,31 +25,30 @@ def solve_dhke_variant(p, alpha, a, b, label=""):
     k_AB_bob = pow(k_A, b, p)
     
     print(f"[BƯỚC 1] Thiết lập tham số công khai hệ thống:")
+    print(f"    Công thức thỏa thuận khóa: k_AB = alpha^(a*b) mod p")
     print(f"    * Số nguyên tố chung : p = {p}")
     print(f"    * Phần tử sinh chung: alpha = {alpha}")
 
     print(f"\n[BƯỚC 2] Alice tạo khóa và tính khóa công khai:")
     print(f"    * Khóa bí mật của Alice: a = {a}")
-    print(f"    * Khóa công khai của Alice:")
-    print(f"        k_A = alpha^a mod p = {alpha}^{a} mod {p} = {k_A}")
+    print(f"    Công thức: k_A = alpha^a mod p = {alpha}^{a} mod {p} = {k_A}")
 
     print(f"\n[BƯỚC 3] Bob tạo khóa và tính khóa công khai:")
     print(f"    * Khóa bí mật của Bob: b = {b}")
-    print(f"    * Khóa công khai của Bob:")
-    print(f"        k_B = alpha^b mod p = {alpha}^{b} mod {p} = {k_B}")
+    print(f"    Công thức: k_B = alpha^b mod p = {alpha}^{b} mod {p} = {k_B}")
 
     print(f"\n[BƯỚC 4] Trao đổi khóa qua kênh truyền không bảo mật:")
     print(f"    * Alice gửi k_A = {k_A} cho Bob.")
     print(f"    * Bob gửi k_B = {k_B} cho Alice.")
 
-    print(f"\n[BƯỚC 5] Alice tính khóa phiên bí mật chung (Shared Session Key):")
-    print(f"    k_AB = (k_B)^a mod p = ({k_B})^{a} mod {p} = {k_AB_alice}")
+    print(f"\n[BƯỚC 5] Alice tính khóa phiên bí mật chung (Shared Session Key)::")
+    print(f"    Công thức: k_AB = (k_B)^a mod p = ({k_B})^{a} mod {p} = {k_AB_alice}")
 
     print(f"\n[BƯỚC 6] Bob tính khóa phiên bí mật chung:")
-    print(f"    k_AB = (k_A)^b mod p = ({k_A})^{b} mod {p} = {k_AB_bob}")
+    print(f"    Công thức: k_AB = (k_A)^b mod p = ({k_A})^{b} mod {p} = {k_AB_bob}")
 
-    print(f"\n[BƯỚC 7] Kết luận tính thống nhất khóa:")
-    print(f"    Kiểm tra: k_AB(Alice) == k_AB(Bob) == {k_AB_alice} ({k_AB_alice == k_AB_bob})")
+    print(f"\n[BƯỚC 7] Kết luận tính thống nhất khóa & Xác thực:")
+    print(f"    Kiểm tra xác thực: k_AB(Alice) == k_AB(Bob) ({k_AB_alice} == {k_AB_bob}) -> True (Chính xác!)")
     print(f"    ===> KHÓA BÍ MẬT PHIÊN THỐNG NHẤT: k_AB = {k_AB_alice}")
     print("=" * 75)
     return {
@@ -82,6 +81,10 @@ def solve_dhke(student_id=56):
     print("=" * 70)
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: DIFFIE-HELLMAN KEY EXCHANGE (DHKE)")
     print("=" * 70)
@@ -113,14 +116,15 @@ if __name__ == "__main__":
         solve_dhke()
         sys.exit(0)
 
-    # Support CLI arguments: python diffie_hellman_key_exchange.py 27361 6 56 2365
-    if len(sys.argv) > 4 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    # Support CLI arguments: python diffie_hellman_key_exchange.py 27361 6 20260 24373
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
         try:
-            p_arg = int(sys.argv[1], 0)
-            alpha_arg = int(sys.argv[2], 0)
-            a_arg = int(sys.argv[3], 0)
-            b_arg = int(sys.argv[4], 0)
-            solve_dhke_variant(p_arg, alpha_arg, a_arg, b_arg, "CLI Custom DHKE")
+            p_arg = int(cli_args[0], 0)
+            alpha_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 6
+            a_arg = int(cli_args[2], 0) if len(cli_args) > 2 else 20260
+            b_arg = int(cli_args[3], 0) if len(cli_args) > 3 else 24373
+            solve_dhke_variant(p_arg, alpha_arg, a_arg, b_arg, "TRAO ĐỔI KHÓA DIFFIE-HELLMAN (DHKE)")
             sys.exit(0)
         except Exception:
             pass

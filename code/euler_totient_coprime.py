@@ -78,6 +78,10 @@ def find_coprime_pairs(numbers: List[int]) -> List[Tuple[int, int]]:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: EULER'S TOTIENT & COPRIME PAIRS")
     print("=" * 65)
@@ -167,6 +171,40 @@ def run_demo():
     print(f"Phi({student_id}) = {phi_id}")
 
 
+def solve_euler_totient_detailed(m: int):
+    print("=" * 75)
+    print("TÍNH TOÁN HÀM PHI EULER & TẬP NGUYÊN TỐ CÙNG NHAU (EULER'S TOTIENT)")
+    print("=" * 75)
+    factors = prime_factors(m)
+    print(f"[BƯỚC 1] Thiết lập bài toán & Phân tích thừa số nguyên tố:")
+    print(f"    Công thức: Phi(m) = m · ∏_{{p | m}} (1 - 1/p)")
+    print(f"    Tham số: Số nguyên m = {m}")
+    print(f"    Thừa số nguyên tố của {m}: {factors}\n")
+
+    result = m
+    steps = []
+    for p in factors:
+        result = (result * (p - 1)) // p
+        steps.append(f"(1 - 1/{p})")
+
+    formula_str = f"{m} * " + " * ".join(steps) if steps else f"{m}"
+    coprimes = [k for k in range(1, m + 1) if math.gcd(k, m) == 1]
+
+    print(f"[BƯỚC 2] Tính toán giá trị hàm phi Euler Phi(m):")
+    print(f"    Khai triển: Phi({m}) = {formula_str} = {result}")
+    print(f"    Số lượng phần tử khả nghịch: |Z_{m}*| = {len(coprimes)}")
+    if len(coprimes) <= 40:
+        print(f"    Tập các phần tử trong Z_{m}*: {coprimes}")
+    else:
+        print(f"    Tập các phần tử trong Z_{m}*: {coprimes[:20]} ... ({len(coprimes)} phần tử)")
+
+    print(f"\n[BƯỚC 3] Kết luận bậc nhóm nhân Z_m*:")
+    print(f"    Hàm phi Euler: Phi({m}) = {result}")
+    print(f"    ===> HÀM PHI EULER: Phi({m}) = {result}")
+    print("=" * 75)
+    return result
+
+
 if __name__ == "__main__":
     import sys
 
@@ -176,10 +214,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Support CLI arguments: python euler_totient_coprime.py 26
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
         try:
-            m = int(sys.argv[1], 0)
-            euler_totient(m, verbose=True)
+            m = int(cli_args[0], 0)
+            solve_euler_totient_detailed(m)
             sys.exit(0)
         except Exception:
             pass

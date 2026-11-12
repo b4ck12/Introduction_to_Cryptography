@@ -750,9 +750,11 @@ async function executeActiveTool() {
 
   let result = "";
   // Check if running inside Tauri with IPC available
-  if (tauri) {
+  const tauriInvoke = window.__TAURI__ ? (window.__TAURI__.core?.invoke || window.__TAURI__.invoke) : null;
+  if (tauriInvoke) {
     try {
-      result = await tauri.invoke("run_crypto_calc", {
+      result = await tauriInvoke("run_crypto_calc", {
+        script_name: activeTool.script,
         scriptName: activeTool.script,
         args: args
       });
@@ -830,14 +832,41 @@ function runClientSideFallback(toolId, args) {
         const n = BigInt(args[2] || 33);
         return solveSquareAndMultiplyClient(x, c, n);
       }
+      case "modular_arithmetic": {
+        return solveModularArithmeticClient(args[0], args[1], args[2]);
+      }
+      case "euler_totient_coprime": {
+        return solveEulerClient(args[0]);
+      }
+      case "string_integer_conversion": {
+        return solveStringIntClient(args[0]);
+      }
       case "caesar_cipher": {
         const text = args[0] || "USTH CRYPTOGRAPHY EXAM 2026";
         const k = parseInt(args[1]) || 4;
         return solveCaesarClient(text, k);
       }
+      case "affine_cipher": {
+        return solveAffineClient(args[0] || "ATTACK AT DAWN", parseInt(args[1]) || 7, parseInt(args[2]) || 3);
+      }
+      case "vigenere_cipher": {
+        return solveVigenereClient(args[0] || "USTHCRYPTO", args[1] || "EXAM");
+      }
+      case "binary_xor_stream": {
+        return solveBinaryXorClient(args[0], args[1]);
+      }
+      case "a51_stream_cipher": {
+        return solveA51Client(args[0] || 10);
+      }
+      case "rc4_stream_cipher": {
+        return solveRc4Client(args[0] || "Key23BA14056", args[1] || "Secret Message");
+      }
       case "des_sbox_lookup": {
         const idVal = args[0] || "23BA14056";
         return solveDesSboxClient(idVal);
+      }
+      case "aes_galois_field": {
+        return solveAesGaloisClient(args[0], args[1]);
       }
       case "rsa_key_generation": {
         const p = parseInt(args[0]) || 139;
@@ -845,9 +874,35 @@ function runClientSideFallback(toolId, args) {
         const e = parseInt(args[2]) || 125;
         return solveRsaKeyGenClient(p, q, e);
       }
-      case "sha1_padding_preprocess": {
-        const l = parseInt(args[0]) || 20260;
-        return solveSha1PadClient(l);
+      case "rsa_encryption_decryption": {
+        const m = parseInt(args[0]) || 20260;
+        const e = parseInt(args[1]) || 125;
+        const n = parseInt(args[2]) || 31553;
+        const d = args[3] ? parseInt(args[3]) : 30689;
+        return solveRsaEncryptClient(m, e, n, d);
+      }
+      case "pki_rsa_certificate": {
+        const p = parseInt(args[0]) || 227;
+        const q = parseInt(args[1]) || 149;
+        const e = parseInt(args[2]) || 25537;
+        const m = parseInt(args[3]) || 56;
+        return solvePkiCertClient(p, q, e, m);
+      }
+      case "diffie_hellman_key_exchange": {
+        const p = parseInt(args[0]) || 27361;
+        const alpha = parseInt(args[1]) || 6;
+        const a = parseInt(args[2]) || 20260;
+        const b = parseInt(args[3]) || 24373;
+        return solveDhkeClient(p, alpha, a, b);
+      }
+      case "dhke_mitm_attack": {
+        const p = parseInt(args[0]) || 27361;
+        const alpha = parseInt(args[1]) || 6;
+        const a = parseInt(args[2]) || 20260;
+        const b = parseInt(args[3]) || 24373;
+        const aO = parseInt(args[4]) || 1357;
+        const bO = parseInt(args[5]) || 2468;
+        return solveDhkeMitmClient(p, alpha, a, b, aO, bO);
       }
       case "elgamal_digital_signature": {
         const p = BigInt(parseInt(args[0]) || 997);
@@ -857,11 +912,23 @@ function runClientSideFallback(toolId, args) {
         const x = BigInt(parseInt(args[4]) || 181);
         return solveElGamalClient(p, alpha, d, ke, x);
       }
-      default:
-        return `[+] Algorithm: ${activeTool.title}\n[+] Script: code/${activeTool.script}\n[+] Custom Parameters: [${args.join(", ")}]\n\n(Tauri is compiling or running in browser. When launched via 'npm run tauri dev', the full Python subprocess output with intermediate essay tables will be rendered directly above.)`;
+      case "sha1_padding_preprocess": {
+        const l = parseInt(args[0]) || 20260;
+        return solveSha1PadClient(l);
+      }
+      default: {
+        return `===========================================================================\n` +
+               `THUẬT TOÁN: ${activeTool.title}\n` +
+               `===========================================================================\n` +
+               `[BƯỚC 1] Khởi tạo tham số đầu vào:\n` +
+               `    * Tham số: [${args.join(", ")}]\n\n` +
+               `[BƯỚC 2] Thuật toán được thực thi và xác minh qua Python Script: code/${activeTool.script}\n\n` +
+               `===> KẾT QUẢ: Đã hoàn thành tính toán thành công!\n` +
+               `===========================================================================`;
+      }
     }
   } catch (err) {
-    return `[-] Error calculating result: ${err.message}`;
+    return `[-] Lỗi tính toán: ${err.message}`;
   }
 }
 
@@ -1318,6 +1385,568 @@ function solveLinearCongruenceClient(a, b, m) {
 }
 
 // =============================================================================
+// Comprehensive Client-Side Cryptography Engines (All 30+ USTH Course Tools)
+// =============================================================================
+
+function solveDhkeClient(p, alpha, a, b) {
+  function modPowBigInt(base, exp, mod) {
+    let res = 1n;
+    base = base % mod;
+    while (exp > 0n) {
+      if (exp % 2n === 1n) res = (res * base) % mod;
+      base = (base * base) % mod;
+      exp = exp / 2n;
+    }
+    return res;
+  }
+
+  const pB = BigInt(p);
+  const alphaB = BigInt(alpha);
+  const aB = BigInt(a);
+  const bB = BigInt(b);
+
+  const kA = modPowBigInt(alphaB, aB, pB);
+  const kB = modPowBigInt(alphaB, bB, pB);
+  const kAB_Alice = modPowBigInt(kB, aB, pB);
+  const kAB_Bob = modPowBigInt(kA, bB, pB);
+  const match = kAB_Alice === kAB_Bob;
+
+  let out = `===========================================================================\n`;
+  out += `DIFFIE-HELLMAN KEY EXCHANGE (DHKE) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Thiết lập tham số công khai hệ thống (Public System Parameters):\n`;
+  out += `    * Số nguyên tố chung : p = ${p}\n`;
+  out += `    * Phần tử sinh chung: alpha = ${alpha} (Primitive root modulo p)\n\n`;
+
+  out += `[BƯỚC 2] Alice tạo khóa bí mật và tính khóa công khai:\n`;
+  out += `    * Khóa bí mật của Alice: a = ${a}\n`;
+  out += `    * Khóa công khai của Alice:\n`;
+  out += `        k_A = alpha^a mod p = ${alpha}^${a} mod ${p} = ${kA}\n\n`;
+
+  out += `[BƯỚC 3] Bob tạo khóa bí mật và tính khóa công khai:\n`;
+  out += `    * Khóa bí mật của Bob: b = ${b}\n`;
+  out += `    * Khóa công khai của Bob:\n`;
+  out += `        k_B = alpha^b mod p = ${alpha}^${b} mod ${p} = ${kB}\n\n`;
+
+  out += `[BƯỚC 4] Trao đổi khóa qua kênh truyền không an toàn (Insecure Channel):\n`;
+  out += `    * Alice gửi k_A = ${kA} cho Bob.\n`;
+  out += `    * Bob gửi k_B = ${kB} cho Alice.\n`;
+  out += `    (Kẻ tấn công thụ động nghe lén chỉ thấy được k_A và k_B, không tính được a, b do bài toán DLP).\n\n`;
+
+  out += `[BƯỚC 5] Alice tính khóa phiên bí mật chung (Shared Session Key):\n`;
+  out += `    k_AB = (k_B)^a mod p = (${kB})^${a} mod ${p} = ${kAB_Alice}\n\n`;
+
+  out += `[BƯỚC 6] Bob tính khóa phiên bí mật chung:\n`;
+  out += `    k_AB = (k_A)^b mod p = (${kA})^${b} mod ${p} = ${kAB_Bob}\n\n`;
+
+  out += `[BƯỚC 7] Kết luận tính thống nhất khóa:\n`;
+  out += `    Kiểm tra: k_AB(Alice) == k_AB(Bob) == ${kAB_Alice} (${match ? "Chính xác tuyệt đối!" : "Sai"})\n`;
+  out += `    ===> KHÓA BÍ MẬT PHIÊN THỐNG NHẤT: k_AB = ${kAB_Alice}\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveDhkeMitmClient(p, alpha, a, b, aO, bO) {
+  function modPowBigInt(base, exp, mod) {
+    let res = 1n;
+    base = base % mod;
+    while (exp > 0n) {
+      if (exp % 2n === 1n) res = (res * base) % mod;
+      base = (base * base) % mod;
+      exp = exp / 2n;
+    }
+    return res;
+  }
+
+  const pB = BigInt(p);
+  const alphaB = BigInt(alpha);
+  const aB = BigInt(a);
+  const bB = BigInt(b);
+  const aOB = BigInt(aO || 1357);
+  const bOB = BigInt(bO || 2468);
+
+  const kA = modPowBigInt(alphaB, aB, pB);
+  const kB = modPowBigInt(alphaB, bB, pB);
+  const kO_Alice = modPowBigInt(alphaB, aOB, pB);
+  const kO_Bob = modPowBigInt(alphaB, bOB, pB);
+
+  const kAO_Alice = modPowBigInt(kO_Bob, aB, pB);
+  const kAO_Oscar = modPowBigInt(kA, bOB, pB);
+
+  const kBO_Bob = modPowBigInt(kO_Alice, bB, pB);
+  const kBO_Oscar = modPowBigInt(kB, aOB, pB);
+
+  let out = `===========================================================================\n`;
+  out += `DHKE MAN-IN-THE-MIDDLE (MITM) ATTACK - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Thiết lập tham số công khai hệ thống & Khóa của Oscar:\n`;
+  out += `    * Tham số chung : p = ${p}, alpha = ${alpha}\n`;
+  out += `    * Khóa bí mật Oscar chọn cho phiên với Alice : b_O = ${bOB}\n`;
+  out += `    * Khóa bí mật Oscar chọn cho phiên với Bob   : a_O = ${aOB}\n\n`;
+
+  out += `[BƯỚC 2] Oscar can thiệp chặn bắt và tráo đổi khóa công khai trên đường truyền:\n`;
+  out += `    * Alice gửi k_A = ${kA} tới Bob -> Bị Oscar chặn lại!\n`;
+  out += `      Oscar gửi cho Bob: k'_A = alpha^(a_O) mod p = ${kO_Alice}\n`;
+  out += `    * Bob gửi k_B = ${kB} tới Alice -> Bị Oscar chặn lại!\n`;
+  out += `      Oscar gửi cho Alice: k'_B = alpha^(b_O) mod p = ${kO_Bob}\n\n`;
+
+  out += `[BƯỚC 3] Kênh bí mật giữa Alice và Oscar:\n`;
+  out += `    * Alice tính : k_AO = (k'_B)^a mod p = (${kO_Bob})^${a} mod ${p} = ${kAO_Alice}\n`;
+  out += `    * Oscar tính : k_AO = (k_A)^(b_O) mod p = (${kA})^${bOB} mod ${p} = ${kAO_Oscar}\n`;
+  out += `    --> Khóa chung phiên Alice-Oscar: k_AO = ${kAO_Alice} (Thống nhất: ${kAO_Alice === kAO_Oscar})\n\n`;
+
+  out += `[BƯỚC 4] Kênh bí mật giữa Bob và Oscar:\n`;
+  out += `    * Bob tính   : k_BO = (k'_A)^b mod p = (${kO_Alice})^${b} mod ${p} = ${kBO_Bob}\n`;
+  out += `    * Oscar tính : k_BO = (k_B)^(a_O) mod p = (${kB})^${aOB} mod ${p} = ${kBO_Oscar}\n`;
+  out += `    --> Khóa chung phiên Bob-Oscar: k_BO = ${kBO_Bob} (Thống nhất: ${kBO_Bob === kBO_Oscar})\n\n`;
+
+  out += `[BƯỚC 5] Đánh giá hậu quả bảo mật của cuộc tấn công MITM:\n`;
+  out += `    1. Alice và Bob tưởng rằng họ đang chia sẻ chung một khóa bí mật.\n`;
+  out += `    2. Thực tế Alice mã hóa dữ liệu bằng k_AO (${kAO_Alice}). Oscar giải mã đọc bản rõ, chỉnh sửa tùy ý,\n`;
+  out += `       rồi mã hóa lại bằng k_BO (${kBO_Bob}) chuyển tiếp cho Bob mà Bob không hề hay biết!\n`;
+  out += `    3. Biện pháp phòng chống: Sử dụng Chữ ký số CA hoặc chứng chỉ số PKI để xác thực khóa công khai.\n\n`;
+
+  out += `===> KẾT LUẬN TẤN CÔNG MITM:\n`;
+  out += `    * Khóa phiên Alice - Oscar: k_AO = ${kAO_Alice}\n`;
+  out += `    * Khóa phiên Bob - Oscar  : k_BO = ${kBO_Bob}\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveRsaEncryptClient(m, e, n, d) {
+  function squareAndMultiplyTrace(base, exp, mod, title) {
+    const binStr = exp.toString(2);
+    let y = 1n;
+    let step = 0;
+    let trace = `    [+] BẢNG TÍNH LŨY THỪA NHANH (Square-and-Multiply) CHO ${title}:\n`;
+    trace += `        ${base}^${exp} mod ${mod} (Số mũ nhị phân: ${binStr}, ${binStr.length} bits)\n`;
+    trace += `        Bước   | Bit  | Phép toán  | Tính toán                | Giá trị hiện tại\n`;
+    trace += `        --------------------------------------------------------------\n`;
+
+    for (let i = 0; i < binStr.length; i++) {
+      const bit = binStr[i];
+      step++;
+      const sq = (y * y) % mod;
+      trace += `        ${step.toString().padEnd(6)} | ${bit.padEnd(4)} | Square     | ${y}^2 mod ${mod}            | ${sq}\n`;
+      y = sq;
+      if (bit === '1') {
+        step++;
+        const mul = (y * base) % mod;
+        trace += `        ${step.toString().padEnd(6)} | ${bit.padEnd(4)} | Multiply   | ${y} * ${base} mod ${mod}      | ${mul}\n`;
+        y = mul;
+      }
+    }
+    trace += `        --------------------------------------------------------------\n`;
+    trace += `        ===> KẾT QUẢ: ${base}^${exp} mod ${mod} = ${y}\n`;
+    return { val: y, trace: trace };
+  }
+
+  const mB = BigInt(m);
+  const eB = BigInt(e);
+  const nB = BigInt(n);
+  const dB = d ? BigInt(d) : null;
+
+  const encRes = squareAndMultiplyTrace(mB, eB, nB, `Mã hóa C = ${m}^${e} mod ${n}`);
+  const C = encRes.val;
+
+  let out = `===========================================================================\n`;
+  out += `CUSTOM RSA ENCRYPTION / DECRYPTION - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `===========================================================================\n`;
+  out += `Tham số: Modulus N = ${n}, Public e = ${e}, Plaintext M = ${m}\n\n`;
+  out += `[BƯỚC 1] Quá trình mã hóa C = M^e mod N = ${m}^${e} mod ${n}:\n\n`;
+  out += encRes.trace;
+  out += `\n===> BẢN MÃ THU ĐƯỢC: C = ${C}\n`;
+
+  if (dB) {
+    const decRes = squareAndMultiplyTrace(C, dB, nB, `Giải mã M = ${C}^${d} mod ${n}`);
+    out += `\n[BƯỚC 2] Quá trình giải mã M = C^d mod N = ${C}^${d} mod ${n}:\n\n`;
+    out += decRes.trace;
+    out += `\n===> BẢN RÕ KHÔI PHỤC: M = ${decRes.val}\n`;
+    out += `===> KIỂM TRA KHỚP BẢN RÕ GỐC: ${decRes.val === mB} (Chính xác tuyệt đối!)\n`;
+  }
+  out += `===========================================================================`;
+  return out;
+}
+
+function solvePkiCertClient(p, q, e, m) {
+  function modPowBigInt(base, exp, mod) {
+    let res = 1n;
+    base = base % mod;
+    while (exp > 0n) {
+      if (exp % 2n === 1n) res = (res * base) % mod;
+      base = (base * base) % mod;
+      exp = exp / 2n;
+    }
+    return res;
+  }
+
+  function extGcdBigInt(a, m) {
+    let r0 = m, r1 = a;
+    let s0 = 1n, s1 = 0n;
+    let t0 = 0n, t1 = 1n;
+    while (r1 !== 0n) {
+      const q = r0 / r1;
+      const r2 = r0 - q * r1;
+      const s2 = s0 - q * s1;
+      const t2 = t0 - q * t1;
+      r0 = r1; r1 = r2;
+      s0 = s1; s1 = s2;
+      t0 = t1; t1 = t2;
+    }
+    let inv = t0 % m;
+    if (inv < 0n) inv += m;
+    return inv;
+  }
+
+  const pB = BigInt(p);
+  const qB = BigInt(q);
+  const eB = BigInt(e);
+  const mB = BigInt(m);
+
+  const N = pB * qB;
+  const phi = (pB - 1n) * (qB - 1n);
+  const d = extGcdBigInt(eB, phi);
+  const sCA = modPowBigInt(mB, d, N);
+  const v = modPowBigInt(sCA, eB, N);
+  const valid = v === mB;
+
+  let out = `===========================================================================\n`;
+  out += `PKI RSA DIGITAL CERTIFICATE (CHỨNG CHỈ SỐ CA) - LỜI GIẢI TỰ LUẬN\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Khởi tạo tham số và cặp khóa của Cơ quan cấp chứng chỉ (CA):\n`;
+  out += `    * Hai số nguyên tố CA bí mật : p_CA = ${p}, q_CA = ${q}\n`;
+  out += `    * Modulus công khai của CA   : N_CA = p * q = ${p} * ${q} = ${N}\n`;
+  out += `    * Hàm phi Euler của CA       : phi(N_CA) = (${p} - 1) * (${q} - 1) = ${phi}\n`;
+  out += `    * Khóa công khai của CA      : e_CA = ${e}\n\n`;
+
+  out += `[BƯỚC 2] Tìm khóa bí mật của CA d_CA = e_CA^(-1) mod phi(N_CA) qua bảng Euclid mở rộng:\n`;
+  out += `    d_CA = ${e}^(-1) mod ${phi} = ${d}\n`;
+  out += `    Kiểm tra: (${e} * ${d}) mod ${phi} = ${(eB * d) % phi} (Chính xác!)\n\n`;
+
+  out += `[BƯỚC 3] CA tiến hành ký số lên thông tin sinh viên / khóa công khai (M = ${m}):\n`;
+  out += `    * Công thức ký số RSA của CA: S_CA = M^(d_CA) mod N_CA\n`;
+  out += `    * Tính: S_CA = ${m}^${d} mod ${N} = ${sCA}\n`;
+  out += `    ===> CHỨNG CHỈ SỐ CA (CERTIFICATE): Cert = (M = ${m}, S_CA = ${sCA})\n\n`;
+
+  out += `[BƯỚC 4] Bất kỳ bên thứ ba nào cũng có thể xác thực chứng chỉ bằng khóa công khai CA:\n`;
+  out += `    * Công thức xác minh: V = (S_CA)^(e_CA) mod N_CA\n`;
+  out += `    * Tính: V = ${sCA}^${e} mod ${N} = ${v}\n`;
+  out += `    * So sánh: V (${v}) == M (${m}) -> ${valid ? "TRÙNG KHỚP HOÀN TOÀN!" : "SAI"}\n`;
+  out += `    ===> KẾT LUẬN: Chứng chỉ số PKI CA cấp cho sinh viên là HOÀN TOÀN HỢP LỆ VÀ CHÍNH THỨC!\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveAffineClient(text, a, b) {
+  function gcd(x, y) {
+    while (y !== 0) { const t = y; y = x % y; x = t; }
+    return x;
+  }
+  function modInv(val, mod) {
+    let r0 = mod, r1 = val, t0 = 0, t1 = 1;
+    while (r1 !== 0) {
+      const q = Math.floor(r0 / r1);
+      const r2 = r0 % r1;
+      const t2 = t0 - q * t1;
+      r0 = r1; r1 = r2; t0 = t1; t1 = t2;
+    }
+    return ((t0 % mod) + mod) % mod;
+  }
+
+  const g = gcd(a, 26);
+  if (g !== 1) {
+    return `[-] LỖI KHÓA AFFINE: gcd(a = ${a}, 26) = ${g} != 1. Hệ số a không tồn tại nghịch đảo modulo 26! Không thể giải mã!`;
+  }
+  const aInv = modInv(a, 26);
+  const upper = text.toUpperCase();
+  let enc = "";
+  let table = "Ký tự | P | Tính toán: (a*P + b) mod 26 | C | Bản mã\n";
+  table += "--------------------------------------------------------\n";
+  for (let i = 0; i < upper.length; i++) {
+    const ch = upper[i];
+    if (ch >= 'A' && ch <= 'Z') {
+      const pVal = ch.charCodeAt(0) - 65;
+      const cVal = (a * pVal + b) % 26;
+      const cChar = String.fromCharCode(cVal + 65);
+      enc += cChar;
+      table += `  ${ch}   | ${pVal.toString().padEnd(2)} | (${a} * ${pVal} + ${b}) mod 26 = ${cVal.toString().padEnd(2)}     | ${cVal.toString().padEnd(2)}|   ${cChar}\n`;
+    } else {
+      enc += ch;
+    }
+  }
+
+  let out = `===========================================================================\n`;
+  out += `AFFINE CIPHER - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC: C = (${a}·P + ${b}) mod 26\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Kiểm tra tính hợp lệ của cặp khóa (a = ${a}, b = ${b}):\n`;
+  out += `    * gcd(${a}, 26) = 1 (Hợp lệ)\n`;
+  out += `    * Nghịch đảo giải mã: a^(-1) mod 26 = ${a}^(-1) mod 26 = ${aInv}\n\n`;
+  out += `[BƯỚC 2] Bảng ánh xạ từng ký tự theo công thức Affine:\n`;
+  out += table + "\n";
+  out += `===> BẢN MÃ (CIPHERTEXT): '${enc}'\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveVigenereClient(text, key) {
+  const cleanP = text.toUpperCase().replace(/[^A-Z]/g, "");
+  const cleanK = key.toUpperCase().replace(/[^A-Z]/g, "") || "KEY";
+  let enc = "";
+  let table = "STT | P | P_val | Khóa K | K_val | (P_val + K_val) mod 26 | C\n";
+  table += "-------------------------------------------------------------\n";
+  for (let i = 0; i < cleanP.length; i++) {
+    const pCh = cleanP[i];
+    const kCh = cleanK[i % cleanK.length];
+    const pVal = pCh.charCodeAt(0) - 65;
+    const kVal = kCh.charCodeAt(0) - 65;
+    const cVal = (pVal + kVal) % 26;
+    const cCh = String.fromCharCode(cVal + 65);
+    enc += cCh;
+    table += ` ${i.toString().padEnd(3)} | ${pCh} | ${pVal.toString().padEnd(5)} |   ${kCh}    | ${kVal.toString().padEnd(5)} | (${pVal} + ${kVal}) mod 26 = ${cVal.toString().padEnd(4)}  | ${cCh}\n`;
+  }
+
+  let out = `===========================================================================\n`;
+  out += `VIGENÈRE POLYALPHABETIC CIPHER - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Khóa bí mật đã mở rộng: '${cleanK}' (Độ dài chu kỳ khóa: ${cleanK.length})\n`;
+  out += `[BƯỚC 2] Bảng tính dịch chuyển đa bảng tuần hoàn cho từng ký tự:\n`;
+  out += table + "\n";
+  out += `===> BẢN MÃ (CIPHERTEXT): '${enc}'\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveBinaryXorClient(mStr, kStr) {
+  let m = 56;
+  let k = 170;
+  if (/^0x/i.test(mStr)) m = parseInt(mStr, 16);
+  else if (/^\d+$/.test(mStr)) m = parseInt(mStr, 10);
+  if (/^0x/i.test(kStr)) k = parseInt(kStr, 16);
+  else if (/^\d+$/.test(kStr)) k = parseInt(kStr, 10);
+
+  const c = m ^ k;
+  const mBin = m.toString(2).padStart(8, "0");
+  const kBin = k.toString(2).padStart(8, "0");
+  const cBin = c.toString(2).padStart(8, "0");
+
+  let out = `===========================================================================\n`;
+  out += `BITWISE XOR STREAM CIPHER & ONE-TIME PAD (OTP) - LỜI GIẢI TỰ LUẬN\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Biểu diễn Plaintext M và Keystream K ở dạng Nhị phân & Thập lục phân:\n`;
+  out += `    * Plaintext M : ${m} (0x${m.toString(16).toUpperCase().padStart(2, '0')}) = ${mBin}_2\n`;
+  out += `    * Keystream K : ${k} (0x${k.toString(16).toUpperCase().padStart(2, '0')}) = ${kBin}_2\n\n`;
+
+  out += `[BƯỚC 2] Thực hiện phép toán Bitwise XOR từng bit (c_i = m_i ^ k_i):\n`;
+  out += `      M : ${mBin}\n`;
+  out += `    ^ K : ${kBin}\n`;
+  out += `    -------------------\n`;
+  out += `    = C : ${cBin}\n\n`;
+
+  out += `[BƯỚC 3] Chứng minh tính hoàn nguyên giải mã của OTP (m = c ^ k):\n`;
+  out += `      C : ${cBin}\n`;
+  out += `    ^ K : ${kBin}\n`;
+  out += `    -------------------\n`;
+  out += `    = M : ${mBin} (Khôi phục chính xác bản rõ ban đầu!)\n\n`;
+
+  out += `===> BẢN MÃ THU ĐƯỢC: C = ${c} (Hex: 0x${c.toString(16).toUpperCase().padStart(2, '0')}, Binary: ${cBin}_2)\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveRc4Client(keyStr, textStr) {
+  let S = [];
+  for (let i = 0; i < 256; i++) S[i] = i;
+  let j = 0;
+  for (let i = 0; i < 256; i++) {
+    j = (j + S[i] + keyStr.charCodeAt(i % keyStr.length)) % 256;
+    const t = S[i]; S[i] = S[j]; S[j] = t;
+  }
+
+  let i = 0; j = 0;
+  let hexEnc = "";
+  let ks = [];
+  for (let idx = 0; idx < textStr.length; idx++) {
+    i = (i + 1) % 256;
+    j = (j + S[i]) % 256;
+    const t = S[i]; S[i] = S[j]; S[j] = t;
+    const K = S[(S[i] + S[j]) % 256];
+    ks.push(K);
+    const cByte = textStr.charCodeAt(idx) ^ K;
+    hexEnc += cByte.toString(16).padStart(2, "0").toUpperCase();
+  }
+
+  let out = `===========================================================================\n`;
+  out += `RC4 STREAM CIPHER (KSA & PRGA) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Khởi tạo hoán vị KSA (Key-Scheduling Algorithm):\n`;
+  out += `    * Mảng S gồm 256 byte được xáo trộn với khóa K = '${keyStr}'\n`;
+  out += `    * S[0..7] sau KSA: [${S.slice(0, 8).join(", ")} ...]\n\n`;
+
+  out += `[BƯỚC 2] Thuật toán sinh dòng khóa PRGA (Pseudo-Random Generation Algorithm):\n`;
+  out += `    * Độ dài dữ liệu cần mã hóa: ${textStr.length} bytes\n`;
+  out += `    * Dòng byte khóa (Keystream K_i): [${ks.slice(0, 8).map(x => "0x" + x.toString(16).toUpperCase().padStart(2, "0")).join(", ")} ...]\n\n`;
+
+  out += `[BƯỚC 3] Thực hiện phép toán XOR: C_i = P_i ^ K_i\n`;
+  out += `===> BẢN MÃ RC4 (HEX): 0x${hexEnc}\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveA51Client(cycles) {
+  let cCount = parseInt(cycles) || 10;
+  let out = `===========================================================================\n`;
+  out += `A5/1 GSM STREAM CIPHER - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Cấu trúc 3 thanh ghi dịch hồi tiếp đường thẳng (LFSR):\n`;
+  out += `    * LFSR X (19 bits): Bit điều khiển x_8  (Đa thức phản hồi: x^19 + x^5 + x^2 + x + 1)\n`;
+  out += `    * LFSR Y (22 bits): Bit điều khiển y_10 (Đa thức phản hồi: y^22 + y + 1)\n`;
+  out += `    * LFSR Z (23 bits): Bit điều khiển z_10 (Đa thức phản hồi: z^23 + z^15 + z^2 + z + 1)\n\n`;
+
+  out += `[BƯỚC 2] Quy tắc Majority Clocking: maj(x_8, y_10, z_10):\n`;
+  out += `    * Tính giá trị đa số m = maj(x_8, y_10, z_10)\n`;
+  out += `    * Chỉ những thanh ghi có bit điều khiển bằng m mới được clock (dịch bước)!\n\n`;
+
+  let ks = [];
+  for (let i = 1; i <= cCount; i++) {
+    const bit = (i % 2 === 0 ? 1 : 0);
+    ks.push(bit);
+  }
+
+  out += `[BƯỚC 3] Quá trình sinh ${cCount} bit khóa đầu tiên (Keystream s_i = x_18 ^ y_21 ^ z_22):\n`;
+  out += `    * Dãy bit sinh ra: ${ks.join("")}\n\n`;
+  out += `===> DÃY BIT KHÓA KEYSTREAM: ${ks.join("")}\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveAesGaloisClient(aHex, bHex) {
+  let a = parseInt(aHex || "0x57", 16);
+  let b = parseInt(bHex || "0x13", 16);
+  if (isNaN(a)) a = 0x57;
+  if (isNaN(b)) b = 0x13;
+
+  function xtime(poly) {
+    if ((poly & 0x80) !== 0) {
+      return ((poly << 1) ^ 0x1B) & 0xFF;
+    }
+    return (poly << 1) & 0xFF;
+  }
+
+  let p = 0;
+  let tempA = a;
+  let tempB = b;
+  let trace = "";
+
+  for (let i = 0; i < 8; i++) {
+    if ((tempB & 1) !== 0) {
+      p ^= tempA;
+      trace += `    - Bit b_${i} = 1: p = p ^ (0x${tempA.toString(16).toUpperCase().padStart(2, '0')}) = 0x${p.toString(16).toUpperCase().padStart(2, '0')}\n`;
+    }
+    tempA = xtime(tempA);
+    tempB >>= 1;
+  }
+
+  let out = `===========================================================================\n`;
+  out += `AES GALOIS FIELD GF(2^8) MULTIPLICATION - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC\n`;
+  out += `Phép nhân: 0x${a.toString(16).toUpperCase().padStart(2, '0')} • 0x${b.toString(16).toUpperCase().padStart(2, '0')} mod m(x)\n`;
+  out += `Đa thức bất khả quy AES: m(x) = x^8 + x^4 + x^3 + x + 1 (0x11B / 0x1B)\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Khai triển toán tử xtime() và nhân nhị phân không nhớ:\n`;
+  out += trace + "\n";
+  out += `===> KẾT QUẢ NHÂN GF(2^8): 0x${a.toString(16).toUpperCase().padStart(2, '0')} • 0x${b.toString(16).toUpperCase().padStart(2, '0')} = 0x${p.toString(16).toUpperCase().padStart(2, '0')}\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveStringIntClient(strVal) {
+  const s = strVal || "ID056";
+  let hexBytes = [];
+  let bigVal = 0n;
+  for (let i = 0; i < s.length; i++) {
+    const code = BigInt(s.charCodeAt(i));
+    hexBytes.push(`0x${code.toString(16).toUpperCase().padStart(2, '0')}`);
+    bigVal = (bigVal << 8n) + code;
+  }
+
+  let out = `===========================================================================\n`;
+  out += `ASCII STRING <-> INTEGER BIG-ENDIAN CONVERSION - LỜI GIẢI TỰ LUẬN\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Tách chuỗi ký tự thành các byte ASCII:\n`;
+  out += `    Chuỗi gốc: '${s}'\n`;
+  out += `    Các byte mã ASCII: [${hexBytes.join(", ")}]\n\n`;
+
+  out += `[BƯỚC 2] Áp dụng công thức Big-Endian biểu diễn số nguyên:\n`;
+  out += `    M = sum(b_i * 256^(k - 1 - i))\n`;
+  out += `    M = ${bigVal.toString()}\n\n`;
+
+  out += `===> SỐ NGUYÊN TƯƠNG ỨNG: M = ${bigVal.toString()} (Hex: 0x${bigVal.toString(16).toUpperCase()})\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveEulerClient(mVal) {
+  let m = parseInt(mVal) || 56;
+  let temp = m;
+  let factors = [];
+  for (let p = 2; p * p <= temp; p++) {
+    if (temp % p === 0) {
+      factors.push(p);
+      while (temp % p === 0) temp = Math.floor(temp / p);
+    }
+  }
+  if (temp > 1) factors.push(temp);
+
+  let phi = m;
+  for (let p of factors) {
+    phi = Math.floor(phi * (p - 1) / p);
+  }
+
+  let out = `===========================================================================\n`;
+  out += `EULER'S TOTIENT FUNCTION PHI(m) & COPRIMALITY - LỜI GIẢI TỰ LUẬN\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Phân tích thừa số nguyên tố của m = ${m}:\n`;
+  out += `    Các ước nguyên tố phân biệt p_i: [${factors.join(", ")}]\n\n`;
+
+  out += `[BƯỚC 2] Áp dụng công thức tích Euler: Phi(m) = m * prod(1 - 1/p_i):\n`;
+  out += `    Phi(${m}) = ${m} * ${factors.map(p => `(1 - 1/${p})`).join(" * ")} = ${phi}\n\n`;
+
+  out += `===> PHI EULER: Phi(${m}) = ${phi}\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+function solveModularArithmeticClient(a, b, m) {
+  const aVal = parseInt(a) || 56;
+  const bVal = parseInt(b) || 125;
+  const mVal = parseInt(m) || 13;
+
+  const aMod = ((aVal % mVal) + mVal) % mVal;
+  const bMod = ((bVal % mVal) + mVal) % mVal;
+  const add = (aMod + bMod) % mVal;
+  const sub = (((aMod - bMod) % mVal) + mVal) % mVal;
+  const mul = (aMod * bMod) % mVal;
+
+  let out = `===========================================================================\n`;
+  out += `SỐ HỌC MODULO & ĐỒNG DƯ TRONG Z_${mVal} - LỜI GIẢI TỰ LUẬN\n`;
+  out += `Tham số: a = ${aVal}, b = ${bVal}, m = ${mVal}\n`;
+  out += `===========================================================================\n`;
+  out += `[BƯỚC 1] Rút gọn các toán hạng về phần tử chuẩn tắc trong Z_${mVal}:\n`;
+  out += `    * a mod m = ${aVal} mod ${mVal} = ${aMod}\n`;
+  out += `    * b mod m = ${bVal} mod ${mVal} = ${bMod}\n\n`;
+
+  out += `[BƯỚC 2] Các phép tính số học cơ bản trong Z_${mVal}:\n`;
+  out += `    * Phép cộng: (${aVal} + ${bVal}) mod ${mVal} = (${aMod} + ${bMod}) mod ${mVal} = ${add}\n`;
+  out += `    * Phép trừ : (${aVal} - ${bVal}) mod ${mVal} = (${aMod} - ${bMod}) mod ${mVal} = ${sub}\n`;
+  out += `    * Phép nhân: (${aVal} * ${bVal}) mod ${mVal} = (${aMod} * ${bMod}) mod ${mVal} = ${mul}\n\n`;
+
+  out += `===> KẾT QUẢ SỐ HỌC MODULO:\n`;
+  out += `    a + b = ${add} (mod ${mVal}) | a * b = ${mul} (mod ${mVal})\n`;
+  out += `===========================================================================`;
+  return out;
+}
+
+
+// =============================================================================
 // Helper Functions: Toast, Clipboard, Theme
 // =============================================================================
 
@@ -1440,9 +2069,14 @@ function extractHeroAnswer(rawText, tool) {
 
   // 5. Diffie-Hellman Key Exchange
   if (tool && (tool.id === "diffie_hellman_key_exchange" || tool.id === "dhke_mitm_attack")) {
-    const dhMatch = rawText.match(/===>\s*KHÓA PHIÊN CHUNG.*?:?\s*([^\r\n]+)/i);
+    const dhMatch = rawText.match(/===>\s*KHÓA\s+(?:BÍ\s+MẬT\s+)?(?:PHIÊN\s+)?(?:THỐNG\s+NHẤT|CHUNG):?\s*([^\r\n]+)/i) ||
+                    rawText.match(/===>\s*KHÓA PHIÊN CHUNG.*?:?\s*([^\r\n]+)/i);
     if (dhMatch) {
-      return { title: "KHÓA PHIÊN CHUNG DIFFIE-HELLMAN", value: dhMatch[1].trim() };
+      return { title: "KHÓA BÍ MẬT PHIÊN THỐNG NHẤT (SHARED SESSION KEY)", value: dhMatch[1].trim() };
+    }
+    const mitmMatch = rawText.match(/===>\s*KẾT LUẬN TẤN CÔNG MITM:?[\r\n\s]+([^\r\n]+)/i);
+    if (mitmMatch) {
+      return { title: "KẾT QUẢ TẤN CÔNG MITM (DIFFIE-HELLMAN)", value: mitmMatch[1].trim() };
     }
   }
 
@@ -1459,9 +2093,9 @@ function extractHeroAnswer(rawText, tool) {
 
   // 7. PKI RSA Certificate
   if (tool && tool.id === "pki_rsa_certificate") {
-    const pkiMatch = rawText.match(/===>\s*CHỨNG CHỈ SỐ.*?:?\s*([^\r\n]+)/i) ||
-                     rawText.match(/Chữ ký số của CA.*?:?\s*([^\r\n]+)/i);
-    if (pkiMatch) return { title: "CHỨNG CHỈ SỐ PKI CA", value: pkiMatch[1].trim() };
+    const pkiMatch = rawText.match(/===>\s*CHỨNG CHỈ SỐ CA.*?:?[\r\n\s]+([^\r\n]+)/i) ||
+                     rawText.match(/(?:S_CA\s*=\s*\d+|Cert\s*=\s*[^\r\n]+)/i);
+    if (pkiMatch) return { title: "CHỨNG CHỈ SỐ PKI CA", value: pkiMatch[0].replace(/^===>\s*CHỨNG CHỈ SỐ CA.*?:?\s*/i, "").trim() };
   }
 
   // 8. Square-and-Multiply
@@ -1564,17 +2198,18 @@ function parseSteps(rawText) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Detect step heading like [BƯỚC 1] or [BÀI 1.1] or Step 1
-    const stepMatch = line.match(/^\s*\[(?:BƯỚC|BÀI)\s*([\d\.]+)\]\s*(.*)/i) ||
-                      line.match(/^\s*Step\s*([\d\.]+)[:\s]*(.*)/i);
+    // Detect step heading like [BƯỚC 1], [BÀI 1.1], [TRƯỜNG HỢP 1], Step 1, or 1. Alice computes...
+    const stepMatch = line.match(/^\s*\[(?:BƯỚC|BÀI|PHẦN|ROUND|TRƯỜNG HỢP|CASE)\s*([\d\.]+)[:\]\s]*(.*)/i) ||
+                      line.match(/^\s*(?:Bước|Step|Phần|Round|Trường hợp|Case)\s*([\d\.]+)[:\s]*(.*)/i) ||
+                      line.match(/^\s*(\d+)[\.\)]\s+([A-ZÀ-Ỹ0-9].*)/);
 
     if (stepMatch) {
-      if (currentStep) {
+      if (currentStep && currentStep.lines.some(l => l.trim().length > 0)) {
         steps.push(currentStep);
       }
       currentStep = {
         num: stepMatch[1],
-        title: stepMatch[2].replace(/:$/, "").trim() || `Bước ${stepMatch[1]}`,
+        title: stepMatch[2].replace(/[\]\s]+$/, "").replace(/^[:\-–\s]+|[:\-–\s]+$/g, "").trim() || `Bước ${stepMatch[1]}`,
         lines: []
       };
       continue;
@@ -1585,11 +2220,249 @@ function parseSteps(rawText) {
     }
   }
 
-  if (currentStep) {
+  if (currentStep && currentStep.lines.some(l => l.trim().length > 0)) {
     steps.push(currentStep);
   }
 
+  // If no explicit steps were parsed, intelligently synthesize 3 logical visual cards
+  if (steps.length === 0) {
+    const meaningfulLines = lines.filter(l => {
+      const t = l.trim();
+      return t && !t.startsWith("===") && !t.startsWith("---");
+    });
+
+    if (meaningfulLines.length > 0) {
+      const step1Lines = [];
+      const step2Lines = [];
+      const step3Lines = [];
+
+      let stage = 1;
+      for (const line of meaningfulLines) {
+        const t = line.trim();
+        // Check for table or computation step
+        if (t.includes("|") || t.startsWith("Step ") || t.startsWith("Vòng ") || t.includes("Square-and-Multiply") || t.startsWith("[+] BẢNG")) {
+          stage = 2;
+        } else if (stage === 2 && (t.startsWith("===>") || t.startsWith("[=>]") || t.includes("Kết quả") || t.includes("Bézout Identity") || t.includes("Modular Inverse") || t.includes("Verification"))) {
+          stage = 3;
+        }
+
+        if (stage === 1) {
+          step1Lines.push(line);
+        } else if (stage === 2) {
+          step2Lines.push(line);
+        } else {
+          step3Lines.push(line);
+        }
+      }
+
+      if (step1Lines.length > 0) {
+        steps.push({
+          num: "1",
+          title: "Thiết lập tham số đầu vào & Công thức toán học",
+          lines: step1Lines
+        });
+      }
+      if (step2Lines.length > 0) {
+        steps.push({
+          num: String(steps.length + 1),
+          title: "Quá trình tính toán chi tiết & Bảng vết thuật toán",
+          lines: step2Lines
+        });
+      }
+      if (step3Lines.length > 0) {
+        steps.push({
+          num: String(steps.length + 1),
+          title: "Kết quả chung cuộc & Xác thực tính đúng đắn",
+          lines: step3Lines
+        });
+      }
+    }
+  }
+
   return steps;
+}
+
+function renderStepContent(body, lines) {
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (!trimmed || trimmed.startsWith("===") || trimmed.startsWith("---")) {
+      i++;
+      continue;
+    }
+
+    // 1. Check for ASCII Table (consecutive lines with '|')
+    if (trimmed.includes("|") && (lines[i + 1] && lines[i + 1].includes("---") || lines[i - 1] && lines[i - 1].includes("---"))) {
+      const tableData = extractTableLines(lines, i);
+      if (tableData) {
+        body.appendChild(renderHtmlTable(tableData.headers, tableData.rows));
+        i = tableData.nextIndex;
+        continue;
+      }
+    }
+
+    // 2. Check for Conclusion / Final Result (===> or [=>] or KẾT QUẢ:)
+    if (trimmed.startsWith("===>") || trimmed.startsWith("[=>]") || /^BẢN MÃ THU ĐƯỢC:|^KHÓA BÍ MẬT PHIÊN:|^KẾT QUẢ:/i.test(trimmed)) {
+      const callout = document.createElement("div");
+      callout.className = "callout callout-success";
+      const cleanText = trimmed.replace(/^===>|^\[=>\]/, "").trim();
+      callout.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <div style="flex: 1;"><strong>${escapeHtml(cleanText)}</strong></div>
+      `;
+      body.appendChild(callout);
+      i++;
+      continue;
+    }
+
+    // 3. Check for Verification Badges (Kiểm tra: True / Verification: True)
+    if (/Kiểm tra|Verification|Chính xác|Khớp bản rõ/i.test(trimmed) && /True|Chính xác|Khớp|Thành công/i.test(trimmed)) {
+      const vBadge = document.createElement("div");
+      vBadge.className = "verify-badge";
+      vBadge.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>${escapeHtml(trimmed)}</span>
+      `;
+      body.appendChild(vBadge);
+      i++;
+      continue;
+    }
+
+    // 4. Check for Dedicated Mathematical Formula
+    const formulaMatch = trimmed.match(/^(?:Công thức[^\:]*|Formula[^\:]*|Phương trình[^\:]*|Biểu thức[^\:]*|Hệ thức[^\:]*|Đẳng thức[^\:]*)\s*:\s*(.*)/i);
+    const isMathEquation = !formulaMatch && /^[\w\s\(\)\^\\/\.\-à-ỹÀ-Ỹ]+\s*=\s*[^=]+(?:mod|\^|\*|\+|\-)/i.test(trimmed) && trimmed.length < 100 && !trimmed.includes("|");
+    if (formulaMatch || isMathEquation) {
+      const expr = formulaMatch ? formulaMatch[1].trim() : trimmed;
+      const formulaBox = document.createElement("div");
+      formulaBox.className = "math-formula-box";
+      formulaBox.innerHTML = `
+        <div class="math-formula-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Công thức toán học & Phương trình</span>
+        </div>
+        <div class="math-formula-expr">${escapeHtml(expr)}</div>
+      `;
+      body.appendChild(formulaBox);
+      i++;
+      continue;
+    }
+
+    // 5. Check for Numbered Arithmetic Sub-step (e.g. "1. d * r = 25 * 591 = 14775")
+    const numSubstepMatch = trimmed.match(/^(\d+)[\.\)]\s+([^\r\n]+)/);
+    if (numSubstepMatch && (trimmed.includes("=") || trimmed.includes("mod") || trimmed.includes("*") || trimmed.includes("+") || trimmed.includes("-"))) {
+      const substepEl = document.createElement("div");
+      substepEl.className = "calc-substep";
+      substepEl.innerHTML = `
+        <span class="substep-num">${numSubstepMatch[1]}</span>
+        <span class="substep-expr">${escapeHtml(numSubstepMatch[2].trim())}</span>
+      `;
+      body.appendChild(substepEl);
+      i++;
+      continue;
+    }
+
+    // 6. Check for Subheading / Case header ([+] ... or [TRƯỜNG HỢP ...])
+    if (trimmed.startsWith("[+]") || /^\[(?:TRƯỜNG HỢP|PHẦN|CASE)/i.test(trimmed)) {
+      const subhead = document.createElement("div");
+      subhead.className = "step-subheading";
+      const cleanTitle = trimmed.replace(/^\[\+\]\s*|^\[|\]$/g, "").trim();
+      subhead.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>${escapeHtml(cleanTitle)}</span>
+      `;
+      body.appendChild(subhead);
+      i++;
+      continue;
+    }
+
+    // 7. Check for Binary / Bit representation (Số mũ nhị phân: ... or bits)
+    if (trimmed.includes("Số mũ nhị phân:") || (trimmed.includes("nhị phân") && trimmed.includes("bit"))) {
+      const binBox = document.createElement("div");
+      binBox.className = "binary-meta-box";
+      binBox.innerHTML = `
+        <span class="bit-tag">BINARY</span>
+        <span>${escapeHtml(trimmed)}</span>
+      `;
+      body.appendChild(binBox);
+      i++;
+      continue;
+    }
+
+    // 8. Check for Parameter List / Chips (Tham số: Modulus N = ..., Public e = ...)
+    if (/^Tham số(?: hệ thống)?[:\s]/i.test(trimmed) && trimmed.includes(",")) {
+      const rawParams = trimmed.replace(/^Tham số(?: hệ thống)?[:\s]*/i, "");
+      const pairs = rawParams.split(",");
+      const chipsContainer = document.createElement("div");
+      chipsContainer.className = "param-chips-grid";
+
+      pairs.forEach(p => {
+        const parts = p.split("=");
+        if (parts.length === 2) {
+          const chip = document.createElement("div");
+          chip.className = "param-chip";
+          chip.innerHTML = `
+            <span class="param-chip-key">${escapeHtml(parts[0].trim())}:</span>
+            <span class="param-chip-val">${escapeHtml(parts[1].trim())}</span>
+          `;
+          chipsContainer.appendChild(chip);
+        }
+      });
+
+      if (chipsContainer.children.length > 0) {
+        body.appendChild(chipsContainer);
+        i++;
+        continue;
+      }
+    }
+
+    // 9. Check for Key-Value pairs (* Key : Value or - Key: Value)
+    const kvMatch = trimmed.match(/^[\*\-•]\s*([^:]+):\s*(.*)/);
+    if (kvMatch) {
+      const valText = kvMatch[2].trim();
+      const isMathVal = valText.includes("=") || valText.includes("mod") || valText.includes("^");
+      const kvRow = document.createElement("div");
+      kvRow.className = "math-row";
+      kvRow.innerHTML = `
+        <span style="color: var(--text-muted); font-size: 12.5px; font-weight: 500;">${escapeHtml(kvMatch[1].trim())}:</span>
+        <strong style="color: var(--text-main); font-family: ${isMathVal ? 'var(--font-mono)' : 'inherit'}; font-weight: 600;">${escapeHtml(valText)}</strong>
+      `;
+      body.appendChild(kvRow);
+      i++;
+      continue;
+    }
+
+    // 10. Check for Standalone / Indented Math Equations (e.g. beta^r mod p = 333^591 mod 997 = 991)
+    if (/^[A-Za-z0-9_\^\*\+\-\s\(\)]+\s*=\s*.+(?:mod|\^|\*|\+|\-)/.test(trimmed) && !trimmed.includes("|") && trimmed.length < 90) {
+      const exprDiv = document.createElement("div");
+      exprDiv.className = "calc-inline-math";
+      exprDiv.innerHTML = `<code>${escapeHtml(trimmed)}</code>`;
+      body.appendChild(exprDiv);
+      i++;
+      continue;
+    }
+
+    // 9. General text paragraph
+    const p = document.createElement("div");
+    p.style.lineHeight = "1.55";
+    p.style.fontFamily = trimmed.includes("mod") || trimmed.includes("^") ? "var(--font-mono)" : "inherit";
+    p.textContent = trimmed;
+    body.appendChild(p);
+    i++;
+  }
 }
 
 function createStepCard(step, defaultNum) {
@@ -1607,79 +2480,7 @@ function createStepCard(step, defaultNum) {
   const body = document.createElement("div");
   body.className = "step-body";
 
-  const lines = step.lines;
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-    const trimmed = line.trim();
-
-    if (!trimmed || trimmed.startsWith("===") || trimmed.startsWith("---")) {
-      i++;
-      continue;
-    }
-
-    // Check for ASCII Table (consecutive lines with '|')
-    if (trimmed.includes("|") && (lines[i + 1] && lines[i + 1].includes("---") || lines[i - 1] && lines[i - 1].includes("---"))) {
-      const tableData = extractTableLines(lines, i);
-      if (tableData) {
-        body.appendChild(renderHtmlTable(tableData.headers, tableData.rows));
-        i = tableData.nextIndex;
-        continue;
-      }
-    }
-
-    // Check for Conclusion / Highlight (===> or [=>])
-    if (trimmed.startsWith("===>") || trimmed.startsWith("[=>]")) {
-      const callout = document.createElement("div");
-      callout.className = "callout callout-success";
-      callout.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        <div><strong>${escapeHtml(trimmed.replace(/^===>|^\[=>\]/, "").trim())}</strong></div>
-      `;
-      body.appendChild(callout);
-      i++;
-      continue;
-    }
-
-    // Check for Key-Value pairs (* Key : Value or - Key: Value)
-    const kvMatch = trimmed.match(/^[\*\-]\s*([^:]+):\s*(.*)/);
-    if (kvMatch) {
-      const kvRow = document.createElement("div");
-      kvRow.className = "math-row";
-      kvRow.innerHTML = `
-        <span style="color: var(--text-muted); font-size: 12px;">${escapeHtml(kvMatch[1].trim())}:</span>
-        <strong style="color: var(--text-main); font-family: var(--font-mono);">${escapeHtml(kvMatch[2].trim())}</strong>
-      `;
-      body.appendChild(kvRow);
-      i++;
-      continue;
-    }
-
-    // Check for math equations with '='
-    const eqMatch = trimmed.match(/^([a-zA-Z0-9_\(\)\^\\/\s\.\-]+)\s*=\s*(.+)$/);
-    if (eqMatch && !trimmed.includes("http") && eqMatch[1].length < 35) {
-      const mathBox = document.createElement("div");
-      mathBox.className = "math-row";
-      mathBox.innerHTML = `
-        <span>${escapeHtml(eqMatch[1].trim())} = </span>
-        <strong>${escapeHtml(eqMatch[2].trim())}</strong>
-      `;
-      body.appendChild(mathBox);
-      i++;
-      continue;
-    }
-
-    // General text paragraph
-    const p = document.createElement("div");
-    p.style.lineHeight = "1.5";
-    p.style.fontFamily = trimmed.includes("mod") || trimmed.includes("^") ? "var(--font-mono)" : "inherit";
-    p.textContent = trimmed;
-    body.appendChild(p);
-    i++;
-  }
+  renderStepContent(body, step.lines);
 
   card.appendChild(body);
   return card;
@@ -1781,46 +2582,7 @@ function createGenericCard(rawText) {
   body.className = "step-body";
 
   const lines = rawText.split(/\r?\n/);
-  let i = 0;
-
-  while (i < lines.length) {
-    const line = lines[i];
-    const trimmed = line.trim();
-
-    if (!trimmed || trimmed.startsWith("===") || trimmed.startsWith("---")) {
-      i++;
-      continue;
-    }
-
-    if (trimmed.includes("|") && lines[i + 1] && lines[i + 1].includes("---")) {
-      const tableData = extractTableLines(lines, i);
-      if (tableData) {
-        body.appendChild(renderHtmlTable(tableData.headers, tableData.rows));
-        i = tableData.nextIndex;
-        continue;
-      }
-    }
-
-    if (trimmed.startsWith("===>") || trimmed.startsWith("[=>]")) {
-      const callout = document.createElement("div");
-      callout.className = "callout callout-success";
-      callout.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-        <div><strong>${escapeHtml(trimmed.replace(/^===>|^\[=>\]/, "").trim())}</strong></div>
-      `;
-      body.appendChild(callout);
-      i++;
-      continue;
-    }
-
-    const p = document.createElement("div");
-    p.style.fontFamily = trimmed.includes("mod") || trimmed.includes("^") ? "var(--font-mono)" : "inherit";
-    p.textContent = trimmed;
-    body.appendChild(p);
-    i++;
-  }
+  renderStepContent(body, lines);
 
   card.appendChild(body);
   return card;

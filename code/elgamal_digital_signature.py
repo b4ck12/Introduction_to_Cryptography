@@ -174,6 +174,10 @@ def solve_session7_slide8_elgamal():
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
+
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: ELGAMAL DIGITAL SIGNATURE")
     print("=" * 70)
@@ -189,12 +193,8 @@ def custom_input():
         val_x = input("Enter message x to sign [default 181]: ").strip()
         x = int(val_x, 0) if val_x else 181
         custom_elgamal_sign(p, alpha, d, ke, x)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def verify_elgamal_signature(p: int, alpha: int, beta: int, x: int, r: int, s: int):
@@ -239,6 +239,8 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    import os
+
     if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
@@ -262,34 +264,19 @@ if __name__ == "__main__":
                 sys.exit(1)
 
     # Extract non-flag arguments
-    cli_args = [a for a in sys.argv[1:] if not a.startswith("-")]
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
 
-    # If running in non-TTY mode (Tauri GUI subprocess, pipe, automated tests)
-    # NEVER call input() to prevent EOFError!
-    if not sys.stdin.isatty():
+    # If running in GUI_MODE, non-interactive shell, or ANY CLI arguments are provided:
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            p_arg = int(cli_args[0], 0) if len(cli_args) > 0 and cli_args[0].strip() else 997
-            alpha_arg = int(cli_args[1], 0) if len(cli_args) > 1 and cli_args[1].strip() else 6
-            d_arg = int(cli_args[2], 0) if len(cli_args) > 2 and cli_args[2].strip() else 25
-            ke_arg = int(cli_args[3], 0) if len(cli_args) > 3 and cli_args[3].strip() else 185
-            x_arg = int(cli_args[4], 0) if len(cli_args) > 4 and cli_args[4].strip() else 181
+            p_arg = int(cli_args[0], 0) if len(cli_args) > 0 else 997
+            alpha_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 6
+            d_arg = int(cli_args[2], 0) if len(cli_args) > 2 else 25
+            ke_arg = int(cli_args[3], 0) if len(cli_args) > 3 else 185
+            x_arg = int(cli_args[4], 0) if len(cli_args) > 4 else 181
             custom_elgamal_sign(p_arg, alpha_arg, d_arg, ke_arg, x_arg)
         except Exception as e:
-            print(f"[-] Input parsing error: {e}")
             run_demo()
         sys.exit(0)
-
-    # If running interactively in CLI and arguments were passed
-    if len(cli_args) >= 5:
-        try:
-            p_arg = int(cli_args[0], 0)
-            alpha_arg = int(cli_args[1], 0)
-            d_arg = int(cli_args[2], 0)
-            ke_arg = int(cli_args[3], 0)
-            x_arg = int(cli_args[4], 0)
-            custom_elgamal_sign(p_arg, alpha_arg, d_arg, ke_arg, x_arg)
-            sys.exit(0)
-        except Exception:
-            pass
 
     custom_input()

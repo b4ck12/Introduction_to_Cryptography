@@ -169,6 +169,10 @@ def run_demo():
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 75)
     print("SLIDE EXERCISES SELECTOR")
     print("=" * 75)

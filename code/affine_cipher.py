@@ -71,6 +71,10 @@ def affine_decrypt(ciphertext: str, a: int, b: int) -> str:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: AFFINE CIPHER CALCULATOR (e(x) = a*x + b mod 26)")
     print("=" * 65)
@@ -139,6 +143,59 @@ def run_demo():
     print(f"    Match     : {decrypted == msg}")
 
 
+def solve_affine_detailed(txt: str, a: int, b: int):
+    print("=" * 75)
+    print("MÃ HÓA AFFINE (AFFINE CIPHER) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
+    print("=" * 75)
+    gcd_val = math.gcd(a, 26)
+    print(f"[BƯỚC 1] Kiểm tra điều kiện khả nghịch & Tìm nghịch đảo a^(-1) mod 26:")
+    print(f"    Công thức mã hóa: c = (a * m + b) mod 26")
+    print(f"    Công thức giải mã: m = a^(-1) * (c - b) mod 26")
+    print(f"    Tham số: Hệ số nhân a = {a}, Độ dịch b = {b}, Chuỗi đầu vào = '{txt}'")
+    print(f"    Kiểm tra nguyên tố cùng nhau: gcd({a}, 26) = {gcd_val} == 1 ({gcd_val == 1} - Hợp lệ!)")
+
+    if gcd_val != 1:
+        print(f"[-] LỖI: Hệ số a = {a} không khả nghịch theo modulo 26 vì gcd({a}, 26) = {gcd_val} != 1!")
+        print("=" * 75)
+        return
+
+    inv_a = mod_inverse_26(a)
+    print(f"    Nghịch đảo modulo: a^(-1) mod 26 = {inv_a}")
+    print(f"    Kiểm tra: ({a} * {inv_a}) mod 26 = {(a * inv_a) % 26} == 1 (True - Chính xác!)\n")
+
+    print(f"[BƯỚC 2] Bảng tính mã hóa chi tiết từng ký tự:")
+    print(f"    {'Ký tự':<6} | {'Mã m':<6} | {'Phép tính (' + str(a) + '*m + ' + str(b) + ') mod 26':<28} | {'Mã c':<6} | {'Ký tự mã hóa'}")
+    print("    " + "-" * 65)
+
+    cipher_chars = []
+    for ch in txt:
+        if ch.isupper():
+            m_val = ord(ch) - ord('A')
+            c_val = (a * m_val + b) % 26
+            c_char = chr(c_val + ord('A'))
+            calc = f"({a}*{m_val} + {b}) mod 26 = {c_val}"
+            print(f"    {ch:<6} | {m_val:<6} | {calc:<28} | {c_val:<6} | {c_char}")
+            cipher_chars.append(c_char)
+        elif ch.islower():
+            m_val = ord(ch) - ord('a')
+            c_val = (a * m_val + b) % 26
+            c_char = chr(c_val + ord('a'))
+            calc = f"({a}*{m_val} + {b}) mod 26 = {c_val}"
+            print(f"    {ch:<6} | {m_val:<6} | {calc:<28} | {c_val:<6} | {c_char}")
+            cipher_chars.append(c_char)
+        else:
+            print(f"    {ch:<6} | {'-':<6} | {'Ký tự giữ nguyên':<28} | {'-':<6} | {ch}")
+            cipher_chars.append(ch)
+
+    cipher = "".join(cipher_chars)
+    print("    " + "-" * 65)
+    print(f"\n[BƯỚC 3] Kết luận bản mã thu được:")
+    print(f"    Bản rõ gốc : '{txt}'")
+    print(f"    Khóa (a, b): ({a}, {b})")
+    print(f"    ===> BẢN MÃ THU ĐƯỢC: '{cipher}'")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -148,11 +205,12 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Support CLI arguments: python affine_cipher.py "HELLO" 7 4
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        txt = sys.argv[1]
-        a = int(sys.argv[2], 0) if len(sys.argv) > 2 else 7
-        b = int(sys.argv[3], 0) if len(sys.argv) > 3 else 4
-        print(f"Encrypted: {affine_encrypt(txt, a, b)}")
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
+        txt = cli_args[0]
+        a = int(cli_args[1], 0) if len(cli_args) > 1 else 7
+        b = int(cli_args[2], 0) if len(cli_args) > 2 else 4
+        solve_affine_detailed(txt, a, b)
         sys.exit(0)
 
     # Default: Open directly into Custom Exam Input prompt

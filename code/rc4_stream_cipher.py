@@ -62,6 +62,10 @@ class RC4:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: RC4 STREAM CIPHER")
     print("=" * 65)
@@ -125,12 +129,57 @@ def run_demo():
     print(f"[+] Verification Match: {decrypted == message}")
 
 
+def solve_rc4_detailed(key_str: str, n_bytes: int = 8):
+    key_bytes = key_str.encode('utf-8')
+    rc4 = RC4(key_bytes)
+    print("=" * 75)
+    print("MÃ HÓA DÒNG RC4 (RC4 STREAM CIPHER) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Khởi tạo mảng trạng thái S và Thuật toán sinh khóa KSA:")
+    print(f"    Công thức KSA: j = (j + S[i] + K[i mod key_len]) mod 256; swap(S[i], S[j])")
+    print(f"    Công thức PRGA: i = (i+1) mod 256, j = (j+S[i]) mod 256, t = (S[i]+S[j]) mod 256, k = S[t]")
+    print(f"    Tham số: Key = '{key_str}', Key bytes = {[b for b in key_bytes]}, Số byte dòng khóa = {n_bytes}\n")
+
+    print(f"[BƯỚC 2] Bảng vết sinh dòng khóa PRGA (Pseudo-Random Generation Algorithm):")
+    print(f"    {'Byte':<5} | {'i = (i+1) mod 256':<18} | {'j = (j+S[i]) mod 256':<20} | {'t = (S[i]+S[j]) mod 256':<22} | {'Keystream Byte'}")
+    print("    " + "-" * 75)
+
+    S = list(rc4.S)
+    i = 0
+    j = 0
+    keystream = []
+    for step in range(1, n_bytes + 1):
+        i = (i + 1) % 256
+        j = (j + S[i]) % 256
+        S[i], S[j] = S[j], S[i]
+        t = (S[i] + S[j]) % 256
+        k_byte = S[t]
+        keystream.append(k_byte)
+        print(f"    {step:<5} | i = {i:<14} | j = {j:<16} | t = {t:<18} | 0x{k_byte:02X} ({k_byte})")
+
+    print("    " + "-" * 75)
+    hex_str = " ".join(f"{b:02X}" for b in keystream)
+    print(f"\n[BƯỚC 3] Kết luận dòng khóa keystream sinh ra:")
+    print(f"    Dòng khóa (Hex)     : {hex_str}")
+    print(f"    Dòng khóa (Decimals): {[b for b in keystream]}")
+    print(f"    ===> DÒNG KHÓA RC4: {hex_str}")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
 
     # Run demo test suite only if explicitly requested or in non-interactive test pipe
     if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
         run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python rc4_stream_cipher.py "USTH" 8
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
+        key_arg = cli_args[0]
+        n_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 8
+        solve_rc4_detailed(key_arg, n_arg)
         sys.exit(0)
 
     # Default: Open directly into Custom Exam Input prompt

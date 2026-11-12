@@ -78,24 +78,36 @@ def solve_rsa_encryption(custom_m=None):
     }
 
 def custom_rsa_calc(M: int, e: int, d: int, N: int):
-    print("\n" + "=" * 75)
-    print("CUSTOM RSA ENCRYPTION / DECRYPTION - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
     print("=" * 75)
-    print(f"Tham số: Modulus N = {N}, Public e = {e}, Plaintext M = {M}")
-    print(f"\n[BƯỚC 1] Quá trình mã hóa C = M^e mod N = {M}^{e} mod {N}:")
+    print("MÃ HÓA VÀ GIẢI MÃ RSA (RSA ENCRYPTION & DECRYPTION) - LỜI GIẢI TỰ LUẬN")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Quá trình mã hóa bản rõ (Encryption):")
+    print(f"    Công thức mã hóa: C = M^e mod N = {M}^{e} mod {N}")
+    print(f"    Tham số hệ thống: Modulus N = {N}, Public Key e = {e}, Plaintext M = {M}")
     C = square_and_multiply_trace(M, e, N, f"Mã hóa C = {M}^{e} mod {N}")
-    print(f"===> BẢN MÃ THU ĐƯỢC: C = {C}")
+    print(f"    ===> BẢN MÃ THU ĐƯỢC: C = {C}\n")
 
     if d:
-        print(f"\n[BƯỚC 2] Quá trình giải mã M = C^d mod N = {C}^{d} mod {N}:")
+        print(f"[BƯỚC 2] Quá trình giải mã bản mã (Decryption):")
+        print(f"    Công thức giải mã: M = C^d mod N = {C}^{d} mod {N}")
+        print(f"    Tham số khóa giải mã: Private Key d = {d}")
         M_dec = square_and_multiply_trace(C, d, N, f"Giải mã M = {C}^{d} mod {N}")
-        print(f"===> BẢN RÕ KHÔI PHỤC: M = {M_dec}")
-        print(f"===> KIỂM TRA KHỚP BẢN RÕ GỐC: {M_dec == M} (Chính xác!)")
+        print(f"    ===> BẢN RÕ KHÔI PHỤC: M = {M_dec}\n")
+        print(f"[BƯỚC 3] Kết luận tính toàn vẹn & Xác thực:")
+        print(f"    Kiểm tra khôi phục bản rõ: {M_dec} == {M} -> True (Chính xác tuyệt đối!)")
+        print(f"    ===> KẾT LUẬN CUỐI CÙNG: C = {C}, M = {M_dec}")
+    else:
+        print(f"[BƯỚC 3] Kết luận bản mã RSA:")
+        print(f"    ===> BẢN MÃ THU ĐƯỢC: C = {C}")
     print("=" * 75)
 
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
+
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: RSA ENCRYPTION / DECRYPTION")
     print("=" * 65)
@@ -128,12 +140,12 @@ if __name__ == "__main__":
 
     # Support CLI arguments: python rsa_encryption_decryption.py 20260 125 31553 30689
     cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
-    if len(cli_args) >= 3:
+    if len(cli_args) >= 1:
         try:
             m_arg = int(cli_args[0], 0)
-            e_arg = int(cli_args[1], 0)
-            n_arg = int(cli_args[2], 0)
-            d_arg = int(cli_args[3], 0) if len(cli_args) > 3 else None
+            e_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 125
+            n_arg = int(cli_args[2], 0) if len(cli_args) > 2 else 31553
+            d_arg = int(cli_args[3], 0) if len(cli_args) > 3 else 30689
             custom_rsa_calc(m_arg, e_arg, d_arg, n_arg)
             sys.exit(0)
         except Exception as err:

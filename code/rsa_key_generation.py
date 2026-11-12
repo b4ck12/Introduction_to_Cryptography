@@ -212,6 +212,9 @@ def custom_rsa_keygen(p: int, q: int, candidates=None):
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: RSA KEY GENERATION")
     print("=" * 65)
@@ -226,39 +229,31 @@ def custom_input():
         else:
             cands = [122, 123, 124, 125]
         custom_rsa_keygen(p, q, cands)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 run_demo = solve_rsa_keygen
 
 
 if __name__ == "__main__":
+    import os
     import sys
 
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+    if "--demo" in sys.argv:
         solve_rsa_keygen()
         sys.exit(0)
 
     # Support CLI arguments: python rsa_key_generation.py 139 227 125
-    if len(sys.argv) > 2 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            p_arg = int(sys.argv[1], 0)
-            q_arg = int(sys.argv[2], 0)
-            e_arg = [int(sys.argv[3], 0)] if len(sys.argv) > 3 else [65537, 3, 17, 125]
+            p_arg = int(cli_args[0], 0) if len(cli_args) > 0 else 139
+            q_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 227
+            e_arg = [int(cli_args[2], 0)] if len(cli_args) > 2 else [125]
             custom_rsa_keygen(p_arg, q_arg, e_arg)
-            sys.exit(0)
         except Exception:
-            pass
-
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
-        try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
             run_demo()
+        sys.exit(0)
+
+    custom_input()

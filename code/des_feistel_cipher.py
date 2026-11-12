@@ -116,6 +116,9 @@ def run_feistel_decipher(ciphertext_64: int, keys: List[int], verbose: bool = Tr
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: 16-ROUND FEISTEL CIPHER")
     print("=" * 65)
@@ -128,12 +131,8 @@ def custom_input():
         c = run_feistel_cipher(pt, keys, verbose=True)
         dec = run_feistel_decipher(c, keys, verbose=True)
         print(f"[=>] Invertibility: {dec == pt}")
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():
@@ -160,14 +159,23 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    import os
     import sys
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+
+    if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
+
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
+            pt = int(cli_args[0], 16) if len(cli_args) > 0 else 0x0123456789ABCDEF
+            sid = int(cli_args[1], 0) if len(cli_args) > 1 else 56
+            keys = [((sid * 104729 + i * 7919) & 0xFFFFFFFF) for i in range(16)]
+            c = run_feistel_cipher(pt, keys, verbose=True)
+            run_feistel_decipher(c, keys, verbose=True)
+        except Exception:
             run_demo()
+        sys.exit(0)
+
+    custom_input()

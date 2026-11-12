@@ -21,56 +21,53 @@ This repository provides an end-to-end companion for theoretical lectures, labor
 
 ---
 
-## 🚀 Quick Start & Exam Solver Modes
+## 🚀 Quick Start & Hướng dẫn Sử dụng Nhanh
 
-### 0. Modern Flat Desktop GUI (Tauri v2)
-For the most intuitive exam calculation experience, launch the modern flat desktop app built with **Tauri v2 + Rust**:
-```bash
-# Launch GUI in development mode
-npm run gui
-
-# Or run the compiled standalone desktop executable directly:
-./gui/src-tauri/target/debug/gui.exe
+### 0. Cách Chạy Ngay Lập Tức (Không cần cài đặt, Clone về là chạy)
+Ngay tại thư mục gốc của repository đã có sẵn file thực thi độc lập:
+* **Cách 1**: Double-click trực tiếp vào file **`USTH_Cryptography_Tool.exe`** (hoặc chạy **`Run_App.bat`**).
+* **Cách 2**: Chạy từ Command Prompt / PowerShell:
+```powershell
+.\USTH_Cryptography_Tool.exe
 ```
-- **Design**: Clean, flat, modern minimalist interface (no AI icons, clean mathematical line SVGs).
-- **2-Panel Split Workspace**: Left panel dynamically loads parameter input fields; right panel renders formatted step-by-step written essay traces (`[BƯỚC 1]`, `[BƯỚC 2]`, ... with tables).
-- **Features**:
-  - Instant Search across all 29 algorithms.
-  - **"Load Exam Defaults"** button: instantly populates parameters for Student ID `23BA14056` ($x = 56$).
-  - **"Copy for Exam"** button: 1-click copy formatted written essay solutions to clipboard.
-  - Dark/Light mode theme toggle.
-  - Built-in Master Test Runner button (29/29 verified).
+> [!TIP]
+> Ứng dụng là phiên bản **Release tối ưu hóa (chỉ 4.5 MB)**, khởi động tức thì, hoạt động 100% offline, không yêu cầu Node.js hay Rust để chạy. Chỉ cần máy có Python tiêu chuẩn (sẵn có trên Windows/Linux/macOS).
 
 ---
 
-### 1. Interactive Exam Calculator (All-in-One CLI)
-When taking an exam or working on problem sets with custom numbers, launch the master interactive dashboard:
-```bash
-python code/exam_calculator.py
-```
-This launches a menu of 29 algorithms. Enter the corresponding number to solve your exact exam problem with custom inputs!
+### 1. Hướng Dẫn Sử Dụng Giao Diện Desktop GUI
+1. **Tìm kiếm & Chọn Thuật Toán:**
+   * Dùng thanh tìm kiếm ở góc trên bên trái (hoặc bấm danh mục ở cột bên trái: *Modular Arithmetic, Classical Ciphers, Stream Ciphers, Block Ciphers, Asymmetric Cryptography, Signatures & Hash*).
+   * Hỗ trợ tìm kiếm nhanh theo tên tiếng Anh lẫn tiếng Việt (ví dụ: `rsa`, `dhke`, `elgamal`, `sbox`, `euclid`, `modulo`).
+2. **Nạp Tham Số Đầu Vào:**
+   * Bấm nút **"Load Defaults"** để tự động điền sẵn tham số đề thi USTH chuẩn cho Mã sinh viên `23BA14056` ($x = 56$).
+   * Hoặc bấm vào các nút **Quick Presets / Solvers** ở dưới cùng để nạp tức thì các bộ số của Đề thi 2025–2026, Đề thi 2023–2024, Slide bài giảng.
+   * Có thể tự do sửa bất kỳ số nào theo đề bài thi thực tế.
+3. **Xem Lời Giải Chi Tiết Từng Bước (Visual Steps) & Đáp Án Nhanh:**
+   * Bấm **"Calculate & Solve"** (hoặc Enter).
+   * **Hero Answer Card (Banner trên cùng):** Hiển thị ngay đáp số cốt lõi (ví dụ: Bản mã $C$, Khóa phiên $k_{AB}$, Cặp chữ ký $(r, s)$) cùng nút **"Copy Answer"** để tra soát nhanh cuối giờ thi.
+   * **Visual Steps (Từng bước chi tiết):** Hiển thị công thức toán học (`.math-formula-box`), các bước tính nhẩm trung gian (`.calc-substep`), bảng vết thuật toán (`.calc-table` cho Euclid mở rộng, Square-and-Multiply) và huy hiệu xác minh (`.verify-badge`).
+   * **Tab "Raw Essay Text":** Xem toàn bộ văn bản thuần để chép vào bài thi tự luận.
+   * **Nút "Copy for Exam":** Copy 1-click toàn bộ bài giải chi tiết vào clipboard.
 
-### 2. Standalone Script Interactive Mode (Direct Custom Input by Default)
-Every individual script in `code/` is tuned for exams: **running any script directly immediately opens custom input prompts** with zero delay or clutter, and outputs step-by-step intermediate calculations (`[BƯỚC 1]`, `[BƯỚC 2]`, ...) ready to write onto exam papers:
-```bash
-# Method A: Run directly in terminal (opens Custom Exam Input prompts immediately!)
-python code/rsa_key_generation.py
-python code/square_and_multiply.py
-python code/extended_euclidean.py
+---
 
-# Method B: Pass custom parameters directly as command-line arguments
-python code/euclidean_gcd.py 61430 52698
-python code/square_and_multiply.py 5 23 33
-python code/rsa_key_generation.py 139 227 125
+### 2. Chạy Bằng Dòng Lệnh Python (CLI) Cho Từng Bài Thi
+Toàn bộ 31 thuật toán trong thư mục `code/` đều chạy độc lập không cần thư viện ngoài:
+```powershell
+# Chạy tương tác (tự hỏi nhập tham số nếu không truyền đối số):
+python code/rsa_encryption_decryption.py
 
-# Method C: Run the course verification demo suite
-python code/rsa_key_generation.py --demo
-python code/des_sbox_lookup.py --demo
-```
+# Truyền trực tiếp tham số đề bài (Ví dụ: M=20260, e=125, N=31553, d=30689):
+python code/rsa_encryption_decryption.py 20260 125 31553 30689
 
-### 3. Run the Automated Master Test Suite
-Execute all 29 cryptographic algorithm scripts with automated self-testing (< 1.0s runtime):
-```bash
+# Tính Diffie-Hellman (p=27361, alpha=6, a=20260, b=24372):
+python code/diffie_hellman_key_exchange.py 27361 6 20260 24372
+
+# Tính Chữ ký ElGamal (p=997, alpha=6, d=25, k_E=185, x=181):
+python code/elgamal_digital_signature.py 997 6 25 185 181
+
+# Chạy kiểm thử toàn bộ 31 thuật toán (Verify All Tests):
 python code/run_all_crypto_algorithms.py
 ```
 *Expected Output:*

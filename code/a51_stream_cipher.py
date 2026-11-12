@@ -22,14 +22,19 @@ def run_a51(x_dec=513365, y_dec=3355443, z_dec=7401712, n=10, output_first=True)
     convention_name = "Output First, Then Step (Standard USTH Hardware Convention)" if output_first else "Step First, Then Output (Textbook Convention)"
     print("=" * 75)
     print("A5/1 STREAM CIPHER KEY GENERATION (LAB 1 - EXERCISE 4)")
-    print(f"Convention: {convention_name}")
     print("=" * 75)
-    print(f"Initial X (19 bits): {x_dec} -> {''.join(map(str, X))} (clock x8={X[8]}, tail x18={X[18]})")
-    print(f"Initial Y (22 bits): {y_dec} -> {''.join(map(str, Y))} (clock y10={Y[10]}, tail y21={Y[21]})")
-    print(f"Initial Z (23 bits): {z_dec} -> {''.join(map(str, Z))} (clock z10={Z[10]}, tail z22={Z[22]})")
-    print("\n" + "-" * 75)
-    print(f"{'Cycle':<6} | {'Tail (x18, y21, z22)':<22} | {'Out s_t':<8} | {'Clock (x8,y10,z10)':<19} | {'maj':<4} | {'Stepped':<8}")
-    print("-" * 75)
+    print("MÃ HÓA DÒNG A5/1 (GSM LFSR STREAM CIPHER) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Khởi tạo các thanh ghi LFSR & Cơ chế điều khiển xung nhịp:")
+    print(f"    Công thức Majority: maj(x8, y10, z10) = (x&y) | (y&z) | (x&z)")
+    print(f"    Công thức sinh bit khóa: s_t = x18 ^ y21 ^ z22")
+    print(f"    Tham số: Initial X = {x_dec} (19 bits), Y = {y_dec} (22 bits), Z = {z_dec} (23 bits), Số chu kỳ = {n}")
+    print(f"    Trạng thái X: {''.join(map(str, X))} (clock x8={X[8]}, tail x18={X[18]})")
+    print(f"    Trạng thái Y: {''.join(map(str, Y))} (clock y10={Y[10]}, tail y21={Y[21]})")
+    print(f"    Trạng thái Z: {''.join(map(str, Z))} (clock z10={Z[10]}, tail z22={Z[22]})\n")
+    print(f"[BƯỚC 2] Bảng vết chu kỳ xung nhịp A5/1 (Clock Cycles Trace Table):")
+    print(f"    {'Cycle':<6} | {'Tail (x18, y21, z22)':<22} | {'Out s_t':<8} | {'Clock (x8,y10,z10)':<19} | {'maj':<4} | {'Stepped':<8}")
+    print("    " + "-" * 75)
     
     keystream = []
     for t in range(1, n + 1):
@@ -53,7 +58,7 @@ def run_a51(x_dec=513365, y_dec=3355443, z_dec=7401712, n=10, output_first=True)
             if c_y == m: Y = [fb_y] + Y[:-1]; stepped.append('Y')
             if c_z == m: Z = [fb_z] + Z[:-1]; stepped.append('Z')
             
-            print(f"{t:<6} | {str(cur_tails):<22} | {s_t:<8} | ({c_x}, {c_y}, {c_z}){'':<7} | {m:<4} | {','.join(stepped):<8}")
+            print(f"    {t:<6} | {str(cur_tails):<22} | {s_t:<8} | ({c_x}, {c_y}, {c_z}){'':<7} | {m:<4} | {','.join(stepped):<8}")
         else:
             c_x, c_y, c_z = X[8], Y[10], Z[10]
             m = maj(c_x, c_y, c_z)
@@ -67,7 +72,15 @@ def run_a51(x_dec=513365, y_dec=3355443, z_dec=7401712, n=10, output_first=True)
             cur_tails = (X[18], Y[21], Z[22])
             s_t = X[18] ^ Y[21] ^ Z[22]
             keystream.append(s_t)
-            print(f"{t:<6} | {str(cur_tails):<22} | {s_t:<8} | ({c_x}, {c_y}, {c_z}){'':<7} | {m:<4} | {','.join(stepped):<8}")
+            print(f"    {t:<6} | {str(cur_tails):<22} | {s_t:<8} | ({c_x}, {c_y}, {c_z}){'':<7} | {m:<4} | {','.join(stepped):<8}")
+
+    print("    " + "-" * 75)
+    ks_str = "".join(map(str, keystream))
+    print(f"\n[BƯỚC 3] Kết luận chuỗi dòng khóa sinh ra:")
+    print(f"    Dòng khóa nhị phân (Binary): {ks_str}")
+    print(f"    ===> DÒNG KHÓA A5/1: {ks_str}")
+    print("=" * 75)
+    return keystream
             
     ks_str = "".join(map(str, keystream))
     print("-" * 75)
@@ -77,6 +90,10 @@ def run_a51(x_dec=513365, y_dec=3355443, z_dec=7401712, n=10, output_first=True)
     return keystream, ks_str
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 75)
     print("CUSTOM EXAM INPUT: A5/1 STREAM CIPHER")
     print("=" * 75)
@@ -123,6 +140,19 @@ if __name__ == "__main__":
     if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
         run_demo()
         sys.exit(0)
+
+    # Support CLI arguments: python a51_stream_cipher.py 0x12345 0x234567 0x345678 16
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 3:
+        try:
+            r1_arg = int(cli_args[0], 0)
+            r2_arg = int(cli_args[1], 0)
+            r3_arg = int(cli_args[2], 0)
+            steps_arg = int(cli_args[3], 0) if len(cli_args) > 3 else 16
+            simulate_a51(r1_arg, r2_arg, r3_arg, n=steps_arg, output_first=True, convention_name="CLI Custom Input")
+            sys.exit(0)
+        except Exception:
+            pass
 
     # Default: Open directly into Custom Exam Input prompt
     if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():

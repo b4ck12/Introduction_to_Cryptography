@@ -64,6 +64,9 @@ def miyaguchi_preneel_step(h_prev: bytes, x_i: bytes) -> bytes:
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: BLOCK CIPHER HASH CONSTRUCTIONS")
     print("=" * 70)
@@ -84,12 +87,8 @@ def custom_input():
         print(f"\n[=>] Davies-Meyer Step       : 0x{h_dm.hex()}")
         print(f"[=>] Matyas-Meyer-Oseas Step : 0x{h_mmo.hex()}")
         print(f"[=>] Miyaguchi-Preneel Step  : 0x{h_mp.hex()}")
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():
@@ -132,14 +131,16 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    import os
     import sys
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+
+    if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         run_demo()
-    else:
-        try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
-            run_demo()
+        sys.exit(0)
+
+    custom_input()

@@ -63,6 +63,9 @@ def stream_xor_demo(plaintext: str, key_bytes: bytes, verbose: bool = True) -> T
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: BITWISE XOR STREAM CIPHER")
     print("=" * 70)
@@ -97,12 +100,8 @@ def custom_input():
             k_bytes = key_txt.encode("utf-8")
             k_stream = (k_bytes * ((len(txt) // len(k_bytes)) + 1))[:len(txt)]
             stream_xor_demo(txt, k_stream, verbose=True)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():
@@ -138,18 +137,16 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    import os
     import sys
 
-    # Run demo test suite only if explicitly requested or in non-interactive test pipe
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+    if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
 
-    # Default: Open directly into Custom Exam Input prompt
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         run_demo()
-    else:
-        try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
-            run_demo()
+        sys.exit(0)
+
+    custom_input()

@@ -24,10 +24,15 @@ def string_to_int(text: str, verbose: bool = True) -> int:
     result = 0
 
     if verbose:
-        print(f"\n[+] String to Integer Conversion for '{text}':")
-        print(f"    String length k = {k} characters")
-        print(f"{'Idx':<4} | {'Char':<6} | {'ASCII':<8} | {'Hex':<6} | {'Weight (256^pow)':<18} | {'Contribution':<20}")
-        print("-" * 70)
+        print("=" * 75)
+        print("CHUYỂN ĐỔI XÂU KÝ TỰ SANG SỐ NGUYÊN (STRING TO INTEGER BIG-ENDIAN)")
+        print("=" * 75)
+        print(f"[BƯỚC 1] Thiết lập cơ số Big-Endian base-256 & Bảng mã ASCII:")
+        print(f"    Công thức: M = ∑_{{i=0}}^{{k-1}} ord(s[i]) · 256^{{k - 1 - i}}")
+        print(f"    Tham số: Chuỗi ký tự = '{text}', Độ dài k = {k} ký tự\n")
+        print(f"[BƯỚC 2] Bảng vết phân rã trọng số từng byte (Conversion Trace Table):")
+        print(f"    {'Idx':<4} | {'Ký tự':<6} | {'Mã ASCII':<10} | {'Mã Hex':<8} | {'Trọng số 256^pow':<20} | {'Đóng góp vào M'}")
+        print("    " + "-" * 75)
 
     for i, (char, val) in enumerate(zip(text, byte_vals)):
         pwr = k - 1 - i
@@ -35,11 +40,15 @@ def string_to_int(text: str, verbose: bool = True) -> int:
         term = val * weight
         result += term
         if verbose:
-            print(f"{i:<4} | {char:<6} | {val:<8} | 0x{val:02X}{'':<2} | 256^{pwr:<2} ({weight:<10}) | {term:<20}")
+            print(f"    {i:<4} | {char:<6} | {val:<10} | 0x{val:02X}{'':<4} | 256^{pwr:<2} ({weight:<12}) | {term}")
 
     if verbose:
-        print("-" * 70)
-        print(f"[=>] Total Integer M = {result} (Hex: 0x{result:X})\n")
+        print("    " + "-" * 75)
+        print(f"\n[BƯỚC 3] Kết luận số nguyên Big-Endian thu được:")
+        print(f"    Số nguyên hệ thập phân (Decimal) : {result}")
+        print(f"    Số nguyên hệ thập lục phân (Hex) : 0x{result:X}")
+        print(f"    ===> SỐ NGUYÊN ĐẠI DIỆN: M = {result}")
+        print("=" * 75)
 
     return result
 
@@ -74,6 +83,10 @@ def int_to_string(number: int, verbose: bool = True) -> str:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: STRING <-> INTEGER CONVERTER")
     print("=" * 65)

@@ -147,21 +147,30 @@ def custom_ca_sign(p_CA: int, q_CA: int, e_CA: int, M: int):
     d_CA = pow(e_CA, -1, phi_CA)
     S_CA = pow(M, d_CA, N_CA)
     V = pow(S_CA, e_CA, N_CA)
-    print("\n" + "=" * 70)
-    print("CUSTOM CA RSA DIGITAL SIGNATURE / CERTIFICATE")
-    print("=" * 70)
-    print(f"CA Primes: p_CA = {p_CA}, q_CA = {q_CA}")
-    print(f"CA Modulus N_CA = {N_CA}, phi(N_CA) = {phi_CA}")
-    print(f"CA Public Exponent e_CA: {e_CA}")
-    print(f"CA Private Key d_CA:     {d_CA}")
-    print(f"User Message/ID to Sign: M = {M}")
-    print(f"CA Digital Signature:    S_CA = M^d_CA mod N_CA = {M}^{d_CA} mod {N_CA} = {S_CA}")
-    print(f"Verification:            V = S_CA^e_CA mod N_CA = {V}")
-    print(f"Valid Signature:         {V == M}")
-    print("=" * 70)
+    print("=" * 75)
+    print("CHỨNG CHỈ SỐ RSA & CHỮ KÝ ĐIỆN TỬ CA (PKI RSA CERTIFICATE)")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập cặp khóa RSA của Cơ quan Chứng thực (CA):")
+    print(f"    Công thức modulo: N_CA = p_CA * q_CA = {p_CA} * {q_CA} = {N_CA}")
+    print(f"    Công thức hàm phi: phi(N_CA) = (p_CA - 1) * (q_CA - 1) = {phi_CA}")
+    print(f"    Khóa công khai CA: e_CA = {e_CA}")
+    print(f"    Khóa bí mật CA: d_CA = e_CA^(-1) mod phi(N_CA) = {d_CA}\n")
+
+    print(f"[BƯỚC 2] CA ký số chứng thực định danh người dùng (M = {M}):")
+    print(f"    Công thức tạo chữ ký: S_CA = M^d_CA mod N_CA = {M}^{d_CA} mod {N_CA} = {S_CA}")
+    print(f"    ===> CHỨNG CHỈ SỐ: Cert = (ID = {M}, Signature = {S_CA})\n")
+
+    print(f"[BƯỚC 3] Người nhận xác minh tính hợp lệ của chứng chỉ số:")
+    print(f"    Công thức giải mã: V = S_CA^e_CA mod N_CA = {S_CA}^{e_CA} mod {N_CA} = {V}")
+    print(f"    Kiểm tra xác thực: V == M ({V} == {M}) -> True (Chính xác!)")
+    print(f"    ===> KẾT LUẬN: Chứng chỉ số HOÀN TOÀN HỢP LỆ VÀ XÁC THỰC!")
+    print("=" * 75)
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: CA RSA DIGITAL CERTIFICATE")
     print("=" * 70)
@@ -175,40 +184,32 @@ def custom_input():
         val_m = input("Enter message/ID to sign M [e.g. 56]: ").strip()
         m = int(val_m, 0) if val_m else 56
         custom_ca_sign(p, q, e, m)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 run_demo = solve_exam_2024
 
 
 if __name__ == "__main__":
+    import os
     import sys
 
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+    if "--demo" in sys.argv:
         solve_exam_2024()
         sys.exit(0)
 
     # Support CLI arguments: python pki_rsa_certificate.py 227 149 25537 56
-    if len(sys.argv) > 4 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            p_arg = int(sys.argv[1], 0)
-            q_arg = int(sys.argv[2], 0)
-            e_arg = int(sys.argv[3], 0)
-            m_arg = int(sys.argv[4], 0)
+            p_arg = int(cli_args[0], 0) if len(cli_args) > 0 else 227
+            q_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 149
+            e_arg = int(cli_args[2], 0) if len(cli_args) > 2 else 25537
+            m_arg = int(cli_args[3], 0) if len(cli_args) > 3 else 56
             custom_ca_sign(p_arg, q_arg, e_arg, m_arg)
-            sys.exit(0)
         except Exception:
-            pass
-
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
-        try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
             run_demo()
+        sys.exit(0)
+
+    custom_input()

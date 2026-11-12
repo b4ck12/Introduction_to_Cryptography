@@ -203,6 +203,9 @@ def solve_chinese_remainder_theorem(remainders: list, moduli: list):
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 75)
     print("CUSTOM EXAM INPUT: BỘ CÔNG CỤ TÌM x QUA MODULO & PHƯƠNG TRÌNH ĐỒNG DƯ")
     print("=" * 75)
@@ -240,12 +243,8 @@ def custom_input():
             val_id = input("Nhập mã sinh viên [mặc định: 23BA14056]: ").strip()
             sid = val_id if val_id else "23BA14056"
             reduce_student_id_all(sid)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():

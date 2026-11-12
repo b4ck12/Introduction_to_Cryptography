@@ -11,9 +11,7 @@ fn find_code_dir() -> PathBuf {
 
     for c in &candidates {
         if c.is_dir() {
-            if let Ok(abs) = c.canonicalize() {
-                return abs;
-            }
+            return c.clone();
         }
     }
 
@@ -23,9 +21,7 @@ fn find_code_dir() -> PathBuf {
             exe.pop();
             let c = exe.join("code");
             if c.is_dir() {
-                if let Ok(abs) = c.canonicalize() {
-                    return abs;
-                }
+                return c;
             }
         }
     }
@@ -46,24 +42,35 @@ fn find_python() -> String {
 }
 
 #[tauri::command]
-fn run_crypto_calc(script_name: String, args: Vec<String>) -> Result<String, String> {
+#[allow(non_snake_case)]
+fn run_crypto_calc(
+    script_name: Option<String>,
+    scriptName: Option<String>,
+    args: Option<Vec<String>>,
+) -> Result<String, String> {
+    let script = script_name
+        .or(scriptName)
+        .ok_or_else(|| "Missing script name parameter".to_string())?;
+
+    let args_list = args.unwrap_or_default();
     let code_dir = find_code_dir();
-    let script_path = code_dir.join(&script_name);
+    let script_path = code_dir.join(&script);
 
     if !script_path.is_file() {
         return Err(format!(
             "Script file not found: {} (searched in {})",
-            script_name,
+            script,
             code_dir.display()
         ));
     }
 
     let python = find_python();
     let mut cmd = Command::new(&python);
-    cmd.arg(&script_path);
+    // When current_dir is code_dir, script should be referenced by filename
+    cmd.arg(&script);
 
     // Pass valid CLI arguments, filtering out empty or whitespace-only arguments
-    for arg in &args {
+    for arg in &args_list {
         let trimmed = arg.trim();
         if !trimmed.is_empty() {
             cmd.arg(trimmed);
@@ -105,7 +112,11 @@ fn run_crypto_calc(script_name: String, args: Vec<String>) -> Result<String, Str
 
 #[tauri::command]
 fn run_all_tests() -> Result<String, String> {
-    run_crypto_calc("run_all_crypto_algorithms.py".to_string(), vec!["--demo".to_string()])
+    run_crypto_calc(
+        Some("run_all_crypto_algorithms.py".to_string()),
+        None,
+        Some(vec!["--demo".to_string()]),
+    )
 }
 
 #[tauri::command]
@@ -129,4 +140,27 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_run_dhke() {
+        let res = run_crypto_calc(
+            Some("diffie_hellman_key_exchange.py".to_string()),
+            None,
+            Some(vec![
+                "27361".to_string(),
+                "6".to_string(),
+                "20260".to_string(),
+                "24372".to_string(),
+            ]),
+        );
+        println!("RESULT: {:?}", res);
+        assert!(res.is_ok());
+        let out = res.unwrap();
+        assert!(out.contains("k_AB = 1682"));
+    }
 }

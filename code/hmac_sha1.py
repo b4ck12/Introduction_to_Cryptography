@@ -64,6 +64,9 @@ def hmac_sha1_manual(key: bytes, message: bytes, verbose: bool = True) -> bytes:
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: HMAC-SHA1 AUTHENTICATION CODE")
     print("=" * 65)
@@ -74,12 +77,8 @@ def custom_input():
         m_b = raw_msg.encode("utf-8") if raw_msg else b"hello world"
         mac = hmac_sha1_manual(k_b, m_b, verbose=True)
         print(f"[=>] Final HMAC-SHA1 Tag: 0x{mac.hex()}")
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():
@@ -88,8 +87,6 @@ def run_demo():
     print("=" * 65)
 
     # 1. RFC 2202 Test Vector 2:
-    # Key = "Jefe", Data = "what do ya want for nothing?"
-    # Expected: effcdf6ae5eb2fa2d27416d5f184df9c259a7c79
     key_rfc = b"Jefe"
     data_rfc = b"what do ya want for nothing?"
     expected_rfc = "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79"
@@ -106,7 +103,6 @@ def run_demo():
     student_msg = b"Transaction: Transfer 56 USD to USTH Account"
     
     mac_student = hmac_sha1_manual(student_key, student_msg, verbose=False)
-    # Verify with standard hmac module
     std_mac = hmac.new(student_key, student_msg, hashlib.sha1).digest()
     print(f"Student Message: '{student_msg.decode()}'")
     print(f"Manual HMAC-SHA1  : 0x{mac_student.hex()}")
@@ -115,14 +111,21 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    import os
     import sys
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+
+    if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
+
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
+            k = cli_args[0].encode("utf-8") if len(cli_args) > 0 else b"Jefe"
+            m = cli_args[1].encode("utf-8") if len(cli_args) > 1 else b"what do ya want for nothing?"
+            hmac_sha1_manual(k, m, verbose=True)
+        except Exception:
             run_demo()
+        sys.exit(0)
+
+    custom_input()

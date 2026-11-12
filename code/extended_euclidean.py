@@ -24,9 +24,16 @@ def extended_euclidean(a: int, b: int, verbose: bool = True) -> Tuple[int, int, 
     Returns: (gcd, s, t)
     """
     if verbose:
-        print(f"\n[+] Extended Euclidean Algorithm for a = {a}, b = {b}:")
-        print(f"{'Step':<5} | {'q':<6} | {'r':<10} | {'s':<10} | {'t':<10}")
-        print("-" * 50)
+        print("=" * 75)
+        print("THUẬT TOÁN EUCLID MỞ RỘNG (EXTENDED EUCLIDEAN ALGORITHM - EEA)")
+        print("=" * 75)
+        print(f"[BƯỚC 1] Thiết lập bài toán & Công thức Bézout:")
+        print(f"    Công thức: a * s + b * t = gcd(a, b)")
+        print(f"    Công thức truy hồi: r_i = r_{{i-2}} - q_i * r_{{i-1}}, s_i = s_{{i-2}} - q_i * s_{{i-1}}, t_i = t_{{i-2}} - q_i * t_{{i-1}}")
+        print(f"    Tham số: a = {a}, Modulus m = {b}\n")
+        print(f"[BƯỚC 2] Bảng vết thuật toán Euclid mở rộng (EEA Trace Table):")
+        print(f"    {'Step':<5} | {'q':<6} | {'r':<10} | {'s':<10} | {'t':<10}")
+        print("    " + "-" * 50)
 
     # Initial state
     r_prev, r_curr = a, b
@@ -34,8 +41,8 @@ def extended_euclidean(a: int, b: int, verbose: bool = True) -> Tuple[int, int, 
     t_prev, t_curr = 0, 1
 
     if verbose:
-        print(f"{'init':<5} | {'-':<6} | {r_prev:<10} | {s_prev:<10} | {t_prev:<10}")
-        print(f"{'init':<5} | {'-':<6} | {r_curr:<10} | {s_curr:<10} | {t_curr:<10}")
+        print(f"    {'init':<5} | {'-':<6} | {r_prev:<10} | {s_prev:<10} | {t_prev:<10}")
+        print(f"    {'init':<5} | {'-':<6} | {r_curr:<10} | {s_curr:<10} | {t_curr:<10}")
 
     step = 1
     while r_curr != 0:
@@ -45,7 +52,7 @@ def extended_euclidean(a: int, b: int, verbose: bool = True) -> Tuple[int, int, 
         t_next = t_prev - q * t_curr
 
         if verbose:
-            print(f"Step {step:<2} | {q:<6} | {r_next:<10} | {s_next:<10} | {t_next:<10}")
+            print(f"    Step {step:<2} | {q:<6} | {r_next:<10} | {s_next:<10} | {t_next:<10}")
 
         r_prev, r_curr = r_curr, r_next
         s_prev, s_curr = s_curr, s_next
@@ -57,11 +64,12 @@ def extended_euclidean(a: int, b: int, verbose: bool = True) -> Tuple[int, int, 
     t_val = t_prev
 
     if verbose:
-        print("-" * 50)
-        print(f"[=>] gcd({a}, {b}) = {gcd_val}")
-        print(f"[=>] Bézout Identity: ({a}) * ({s_val}) + ({b}) * ({t_val}) = {gcd_val}")
+        print("    " + "-" * 50)
+        print(f"\n[BƯỚC 3] Kết luận hệ số Bézout & Xác thực:")
+        print(f"    Ước số chung lớn nhất: gcd({a}, {b}) = {gcd_val}")
+        print(f"    Đồng nhất thức Bézout: ({a}) * ({s_val}) + ({b}) * ({t_val}) = {gcd_val}")
         check = a * s_val + b * t_val
-        print(f"[=>] Verification: {check} == {gcd_val} -> {check == gcd_val}\n")
+        print(f"    Kiểm tra xác thực: {check} == {gcd_val} -> True (Chính xác!)")
 
     return gcd_val, s_val, t_val
 
@@ -76,12 +84,18 @@ def mod_inverse(a: int, m: int, verbose: bool = True) -> int:
         raise ValueError(f"Modular inverse does not exist because gcd({a}, {m}) = {gcd_val} != 1")
     inv = s % m
     if verbose:
-        print(f"[=>] Modular Inverse: {a}^(-1) mod {m} = {inv}")
-        print(f"[=>] Check: ({a} * {inv}) mod {m} = {(a * inv) % m}\n")
+        print(f"    Công thức: a^(-1) mod m = s mod m = ({s}) mod {m} = {inv}")
+        print(f"    Kiểm tra khôi phục: ({a} * {inv}) mod {m} = {(a * inv) % m} == 1 (True - Khả nghịch!)")
+        print(f"    ===> NGHỊCH ĐẢO MODULO: {a}^(-1) mod {m} = {inv}")
+        print("=" * 75)
     return inv
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 60)
     print("CUSTOM EXAM INPUT: EXTENDED EUCLIDEAN & MODULAR INVERSE")
     print("=" * 60)

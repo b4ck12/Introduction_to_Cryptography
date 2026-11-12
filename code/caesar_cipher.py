@@ -48,6 +48,10 @@ def caesar_brute_force(ciphertext: str) -> List[Tuple[int, str]]:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: CAESAR CIPHER CALCULATOR")
     print("=" * 65)
@@ -128,6 +132,45 @@ def run_demo():
         print(f"k = {k:<2}  | {text}{flag}")
 
 
+def solve_caesar_detailed(txt: str, key: int):
+    k = key % 26
+    cipher = caesar_encrypt(txt, k)
+    print("=" * 75)
+    print("MÃ HÓA CAESAR (CAESAR SHIFT CIPHER) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập khóa dịch mã & Bảng ánh xạ Z_26:")
+    print(f"    Công thức mã hóa: c_i = (p_i + k) mod 26")
+    print(f"    Công thức giải mã: p_i = (c_i - k) mod 26")
+    print(f"    Tham số: Chuỗi đầu vào = '{txt}', Khóa dịch k = {key} (k mod 26 = {k})\n")
+
+    print(f"[BƯỚC 2] Quá trình mã hóa chi tiết từng ký tự:")
+    print(f"    {'Ký tự':<6} | {'Mã p_i':<8} | {'Phép tính (p_i + k) mod 26':<28} | {'Mã c_i':<8} | {'Ký tự mã hóa'}")
+    print("    " + "-" * 65)
+
+    for ch in txt:
+        if ch.isupper():
+            p_val = ord(ch) - ord('A')
+            c_val = (p_val + k) % 26
+            c_char = chr(c_val + ord('A'))
+            calc = f"({p_val} + {k}) mod 26 = {c_val}"
+            print(f"    {ch:<6} | {p_val:<8} | {calc:<28} | {c_val:<8} | {c_char}")
+        elif ch.islower():
+            p_val = ord(ch) - ord('a')
+            c_val = (p_val + k) % 26
+            c_char = chr(c_val + ord('a'))
+            calc = f"({p_val} + {k}) mod 26 = {c_val}"
+            print(f"    {ch:<6} | {p_val:<8} | {calc:<28} | {c_val:<8} | {c_char}")
+        else:
+            print(f"    {ch:<6} | {'-':<8} | {'Ký tự không đổi':<28} | {'-':<8} | {ch}")
+
+    print("    " + "-" * 65)
+    print(f"\n[BƯỚC 3] Kết luận xâu bản mã hoàn chỉnh:")
+    print(f"    Bản rõ gốc : '{txt}'")
+    print(f"    Khóa dịch  : k = {k}")
+    print(f"    ===> BẢN MÃ THU ĐƯỢC: '{cipher}'")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -137,10 +180,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Support CLI arguments: python caesar_cipher.py "HELLO" 3
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        txt = sys.argv[1]
-        k = int(sys.argv[2], 0) if len(sys.argv) > 2 else 3
-        print(f"Encrypted: {caesar_encrypt(txt, k)}")
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
+        txt = cli_args[0]
+        k = int(cli_args[1], 0) if len(cli_args) > 1 else 3
+        solve_caesar_detailed(txt, k)
         sys.exit(0)
 
     # Default: Open directly into Custom Exam Input prompt

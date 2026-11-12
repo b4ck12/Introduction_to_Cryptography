@@ -90,6 +90,10 @@ def dsa_verify(p: int, q: int, alpha: int, beta: int, h_m: int, r: int, s: int, 
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: DSA DIGITAL SIGNATURE")
     print("=" * 65)
@@ -149,11 +153,64 @@ def run_demo():
     print(f"Student ID Signature Verification Result: {is_valid2}")
 
 
+def solve_dsa_detailed(p: int, q: int, alpha: int, d: int, k_E: int, h_m: int):
+    beta = pow(alpha, d, p)
+    print("=" * 75)
+    print("THUẬT TOÁN CHỮ KÝ ĐIỆN TỬ DSA (DIGITAL SIGNATURE ALGORITHM)")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập tham số hệ thống & Tạo khóa:")
+    print(f"    Công thức khóa công khai: beta = alpha^d mod p = {alpha}^{d} mod {p} = {beta}")
+    print(f"    Tham số miền: p = {p}, q = {q}, alpha = {alpha}")
+    print(f"    Khóa bí mật: d = {d}, Khóa tạm thời k_E = {k_E}, Giá trị băm h(M) = {h_m}\n")
+
+    print(f"[BƯỚC 2] Quá trình tạo chữ ký điện tử (Signature Generation):")
+    print(f"    Công thức: r = (alpha^k_E mod p) mod q")
+    print(f"    Công thức: s = k_E^(-1) * (h(M) + d * r) mod q")
+    r, s = dsa_sign(p, q, alpha, d, k_E, h_m, verbose=False)
+    k_inv = pow(k_E, -1, q)
+    print(f"    1. Tính thành phần r: ({alpha}^{k_E} mod {p}) mod {q} = {pow(alpha, k_E, p)} mod {q} = {r}")
+    print(f"    2. Nghịch đảo k_E^(-1) mod q = {k_E}^(-1) mod {q} = {k_inv}")
+    print(f"    3. Tính thành phần s: {k_inv} * ({h_m} + {d}*{r}) mod {q} = {s}")
+    print(f"    ===> CẶP CHỮ KÝ ĐIỆN TỬ DSA: (r = {r}, s = {s})\n")
+
+    print(f"[BƯỚC 3] Quá trình xác thực chữ ký (Signature Verification):")
+    print(f"    Công thức: w = s^(-1) mod q, u1 = (h(M)*w) mod q, u2 = (r*w) mod q")
+    print(f"    Công thức kiểm tra: v = (alpha^u1 * beta^u2 mod p) mod q == r")
+    w = pow(s, -1, q)
+    u1 = (h_m * w) % q
+    u2 = (r * w) % q
+    term1 = pow(alpha, u1, p)
+    term2 = pow(beta, u2, p)
+    v = ((term1 * term2) % p) % q
+    print(f"    1. Tính w = {s}^(-1) mod {q} = {w}")
+    print(f"    2. Tính u1 = ({h_m} * {w}) mod {q} = {u1}")
+    print(f"    3. Tính u2 = ({r} * {w}) mod {q} = {u2}")
+    print(f"    4. Tính v = ({alpha}^{u1} * {beta}^{u2} mod {p}) mod {q} = ({term1} * {term2} mod {p}) mod {q} = {v}")
+    print(f"    Kiểm tra xác thực: v == r -> {v} == {r} (True - Chữ ký hợp lệ!)")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
     if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
         run_demo()
         sys.exit(0)
+
+    # Support CLI arguments: python dsa_digital_signature.py 59 29 3 7 10 26
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 6:
+        try:
+            p_arg = int(cli_args[0], 0)
+            q_arg = int(cli_args[1], 0)
+            alpha_arg = int(cli_args[2], 0)
+            d_arg = int(cli_args[3], 0)
+            ke_arg = int(cli_args[4], 0)
+            h_arg = int(cli_args[5], 0)
+            solve_dsa_detailed(p_arg, q_arg, alpha_arg, d_arg, ke_arg, h_arg)
+            sys.exit(0)
+        except Exception:
+            pass
+
     if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
     else:

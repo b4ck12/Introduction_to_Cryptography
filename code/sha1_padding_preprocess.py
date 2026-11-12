@@ -85,6 +85,9 @@ def solve_sha1_padding(custom_l=None):
     print("=" * 70)
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: SHA-1 PADDING PREPROCESS")
     print("=" * 70)
@@ -103,37 +106,29 @@ def custom_input():
             val_l = input("Enter message bit length l [e.g. 20260]: ").strip()
             l_bits = int(val_l, 0) if val_l else 20260
             solve_sha1_padding_for_len(l_bits, f"Custom Bit Length l = {l_bits}")
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 run_demo = solve_sha1_padding
 
 
 if __name__ == "__main__":
+    import os
     import sys
 
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+    if "--demo" in sys.argv:
         solve_sha1_padding()
         sys.exit(0)
 
     # Support CLI arguments: python sha1_padding_preprocess.py 20260
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            l_arg = int(sys.argv[1], 0)
-            solve_sha1_padding_for_len(l_arg, f"CLI Custom Bit Length l = {l_arg}")
-            sys.exit(0)
+            l_arg = int(cli_args[0], 0) if len(cli_args) > 0 else 20260
+            solve_sha1_padding_for_len(l_arg, f"CLI Bit Length l = {l_arg}")
         except Exception:
-            pass
-
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
-        try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
             run_demo()
+        sys.exit(0)
+
+    custom_input()

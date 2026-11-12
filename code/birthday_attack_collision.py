@@ -108,6 +108,10 @@ def run_demo():
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: BIRTHDAY ATTACK & COLLISION BOUND")
     print("=" * 65)
@@ -133,11 +137,51 @@ def custom_input():
             pass
 
 
+def solve_birthday_detailed(m: int, prob: float = 0.5):
+    print("=" * 75)
+    print("TẤN CÔNG SINH NHẬT & GIỚI HẠN VA CHẠM HÀM BĂM (BIRTHDAY ATTACK)")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập bài toán & Công thức xấp xỉ Birthday Paradox:")
+    print(f"    Công thức: k ≈ √(2 · ln(1 / (1 - λ))) · 2^(m/2)")
+    print(f"    Độ phức tạp kháng va chạm: C_hash = 2^(m/2) phép tính băm")
+    print(f"    Tham số: Độ dài băm m = {m} bits, Xác suất va chạm mục tiêu λ = {prob}\n")
+
+    coeff = math.sqrt(2 * math.log(1 / (1 - prob))) if prob < 1.0 else 0
+    k_bound = coeff * (2 ** (m / 2))
+    n_space = 2 ** m
+
+    print(f"[BƯỚC 2] Bảng tính số lượng mẫu thử nghiệm cần thiết (Sample Complexity):")
+    print(f"    {'Thông số':<30} | {'Giá trị tính toán'}")
+    print("    " + "-" * 60)
+    print(f"    {'Không gian đầu ra n = 2^m':<30} | 2^{m} (~ {n_space:.3e})")
+    print(f"    {'Hệ số √(2·ln(1/(1-λ)))':<30} | {coeff:.4f}")
+    print(f"    {'Độ an toàn hiệu dụng (Bits)':<30} | {m // 2} bits")
+    print(f"    {'Số mẫu k cần băm (xấp xỉ)':<30} | {k_bound:.3e} ({int(k_bound):,} bản tin)")
+    print("    " + "-" * 60)
+
+    print(f"\n[BƯỚC 3] Kết luận giới hạn bảo mật hàm băm:")
+    print(f"    Số lượng bản tin cần thiết để va chạm với xác suất {prob * 100:.1f}% là k ≈ {k_bound:.3e}")
+    print(f"    ===> GIỚI HẠN SỐ MẪU CẦN BĂM: k ≈ {k_bound:.3e} (2^{m//2} bits)")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
     if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
         run_demo()
         sys.exit(0)
+
+    # CLI argument support: python birthday_attack_collision.py 64 0.5
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
+        try:
+            m_arg = int(cli_args[0], 0)
+            p_arg = float(cli_args[1]) if len(cli_args) > 1 else 0.5
+            solve_birthday_detailed(m_arg, p_arg)
+            sys.exit(0)
+        except Exception:
+            pass
+
     if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
         run_demo()
     else:

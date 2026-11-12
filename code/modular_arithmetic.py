@@ -116,6 +116,10 @@ def main():
     print("=" * 70)
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 70)
     print("CUSTOM EXAM INPUT: MODULAR ARITHMETIC CALCULATOR")
     print("=" * 70)
@@ -173,6 +177,37 @@ def run_demo():
     main()
 
 
+def solve_modular_arithmetic_detailed(a: int, b: int, m: int):
+    add_val = mod_add(a, b, m)
+    sub_val = mod_sub(a, b, m)
+    mul_val = mod_mul(a, b, m)
+    pow_val = mod_pow(a, b, m)
+    g = math.gcd(a, m)
+    inv_str = str(pow(a, -1, m)) if g == 1 else f"Không tồn tại (gcd={g} != 1)"
+
+    print("=" * 75)
+    print(f"CÁC PHÉP TOÁN SỐ HỌC TRÊN VÀNH MODULO Z_{m}")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập vành Z_{m} & Tham số đầu vào:")
+    print(f"    Công thức: a ⊕ b = (a + b) mod m, a ⊗ b = (a · b) mod m, a^b mod m")
+    print(f"    Tham số: Toán hạng a = {a}, Toán hạng b = {b}, Modulus m = {m}\n")
+
+    print(f"[BƯỚC 2] Bảng vết tính toán chi tiết từng phép toán (Arithmetic Trace Table):")
+    print(f"    {'Phép toán':<18} | {'Biểu thức tính toán':<32} | {'Kết quả trong Z_' + str(m)}")
+    print("    " + "-" * 70)
+    print(f"    {'Cộng (Add)':<18} | ({a} + {b}) mod {m} = {a+b} mod {m:<15} | {add_val}")
+    print(f"    {'Trừ (Subtract)':<18} | ({a} - {b}) mod {m} = {a-b} mod {m:<15} | {sub_val}")
+    print(f"    {'Nhân (Multiply)':<18} | ({a} * {b}) mod {m} = {a*b} mod {m:<15} | {mul_val}")
+    print(f"    {'Lũy thừa (Power)':<18} | {a}^{b} mod {m:<28} | {pow_val}")
+    print(f"    {'Nghịch đảo a^-1':<18} | {a}^(-1) mod {m:<26} | {inv_str}")
+    print("    " + "-" * 70)
+
+    print(f"\n[BƯỚC 3] Kết luận các giá trị đại số trong Z_{m}:")
+    print(f"    Kiểm tra nguyên tố cùng nhau: gcd({a}, {m}) = {g} (Khả nghịch: {g == 1})")
+    print(f"    ===> KẾT QUẢ SỐ HỌC MODULO: a+b={add_val}, a*b={mul_val}, a^b={pow_val}")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -182,21 +217,13 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Support CLI arguments from GUI or terminal: python modular_arithmetic.py 56 139 26
-    if len(sys.argv) > 3 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    cli_args = [x for x in sys.argv[1:] if x.strip() and not x.startswith("-")]
+    if len(cli_args) >= 3:
         try:
-            a = int(sys.argv[1], 0)
-            b = int(sys.argv[2], 0)
-            m = int(sys.argv[3], 0)
-            print(f"\n[=>] Results in Z_{m}:")
-            print(f"    ({a} + {b}) mod {m}  = {mod_add(a, b, m)}")
-            print(f"    ({a} - {b}) mod {m}  = {mod_sub(a, b, m)}")
-            print(f"    ({a} * {b}) mod {m}  = {mod_mul(a, b, m)}")
-            print(f"    ({a} ^ {b}) mod {m}  = {mod_pow(a, b, m)}")
-            g = math.gcd(a, m)
-            if g == 1:
-                print(f"    ({a}^(-1)) mod {m}   = {pow(a, -1, m)}")
-            else:
-                print(f"    Modular inverse {a}^(-1) mod {m} does not exist (gcd={g} != 1)")
+            a = int(cli_args[0], 0)
+            b = int(cli_args[1], 0)
+            m = int(cli_args[2], 0)
+            solve_modular_arithmetic_detailed(a, b, m)
             sys.exit(0)
         except Exception:
             pass

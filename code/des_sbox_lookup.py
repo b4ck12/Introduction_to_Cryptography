@@ -68,6 +68,9 @@ def solve_des_s1(student_id_str="23BA14056"):
     }
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 60)
     print("CUSTOM EXAM INPUT: DES S1-BOX LOOKUP")
     print("=" * 60)
@@ -76,12 +79,8 @@ def custom_input():
         if not user_in:
             user_in = "23BA14056"
         solve_des_s1(user_in)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():
@@ -89,23 +88,16 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    import os
     import sys
 
-    # Run demo test suite only if explicitly requested or in non-interactive test pipe
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+    if "--demo" in sys.argv:
         solve_des_s1("23BA14056")
         sys.exit(0)
 
-    # If CLI arg provided: python des_sbox_lookup.py 23BA14099
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        solve_des_s1(sys.argv[1])
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
+        solve_des_s1(cli_args[0] if len(cli_args) > 0 else "23BA14056")
         sys.exit(0)
 
-    # Default: Open directly into Custom Exam Input prompt
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
-        try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
-            run_demo()
+    custom_input()

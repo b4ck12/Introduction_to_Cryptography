@@ -110,6 +110,10 @@ def aes_mix_single_column(col: List[int]) -> List[int]:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: AES GF(2^8) & S-BOX CALCULATOR")
     print("=" * 65)
@@ -195,6 +199,45 @@ def run_demo():
     print(f"   Match        : {mixed_col == expected_mixed}")
 
 
+def solve_aes_gf_detailed(a: int, b: int):
+    print("=" * 75)
+    print("PHÉP NHÂN TRƯỜNG HỮU HẠN GF(2^8) (AES GALOIS FIELD MULTIPLICATION)")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập trường hữu hạn GF(2^8) & Đa thức bất khả quy:")
+    print(f"    Công thức: m(x) = x^8 + x^4 + x^3 + x + 1 (0x11B)")
+    print(f"    Công thức xtime: xtime(b) = ((b << 1) ^ 0x1B) & 0xFF (nếu MSB=1) else (b << 1)")
+    print(f"    Tham số: a = 0x{a:02X} ({bin(a)}), b = 0x{b:02X} ({bin(b)})\n")
+
+    print(f"[BƯỚC 2] Bảng vết thuật toán nhân đa thức qua phép xtime (Trace Table):")
+    print(f"    {'Bit b_i':<8} | {'Trọng số x^i':<14} | {'Giá trị a · x^i':<18} | {'Tích lũy kết quả (XOR)'}")
+    print("    " + "-" * 65)
+
+    res = 0
+    temp_a = a & 0xFF
+    temp_b = b & 0xFF
+    i = 0
+    while temp_b > 0 or i == 0:
+        bit = temp_b & 1
+        if bit:
+            res ^= temp_a
+            action = f"XOR 0x{temp_a:02X} -> 0x{res:02X}"
+        else:
+            action = f"Bỏ qua (bit=0)"
+        print(f"    bit {i:<4} | x^{i:<11} | 0x{temp_a:02X}             | {action}")
+        temp_a = xtime(temp_a)
+        temp_b >>= 1
+        i += 1
+        if temp_b == 0:
+            break
+
+    print("    " + "-" * 65)
+    print(f"\n[BƯỚC 3] Kết luận phép nhân trên trường GF(2^8):")
+    print(f"    Toán hạng a : 0x{a:02X}")
+    print(f"    Toán hạng b : 0x{b:02X}")
+    print(f"    ===> KẾT QUẢ GF(2^8): 0x{a:02X} * 0x{b:02X} = 0x{res:02X}")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -203,11 +246,12 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Support CLI arguments: python aes_galois_field.py 0x57 0x83
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
         try:
-            a = int(sys.argv[1], 0)
-            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0x02
-            print(f"0x{a:02X} * 0x{b:02X} = 0x{gf_multiply(a, b):02X}")
+            a_arg = int(cli_args[0], 0)
+            b_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 0x02
+            solve_aes_gf_detailed(a_arg, b_arg)
             sys.exit(0)
         except Exception:
             pass

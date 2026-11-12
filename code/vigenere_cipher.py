@@ -78,6 +78,10 @@ def vigenere_decrypt(ciphertext: str, key: str, verbose: bool = True) -> str:
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: VIGENÈRE CIPHER CALCULATOR")
     print("=" * 65)
@@ -125,6 +129,46 @@ def run_demo():
     print(f"[=>] Verification Match: {recovered == message}")
 
 
+def solve_vigenere_detailed(plaintext: str, key: str):
+    clean_text = [c.upper() for c in plaintext if c.isalpha()]
+    clean_key = [c.upper() for c in key if c.isalpha()]
+    if not clean_key:
+        clean_key = ["K", "E", "Y"]
+
+    m = len(clean_key)
+    ciphertext = []
+
+    print("=" * 75)
+    print("MÃ HÓA VIGENÈRE (POLYALPHABETIC CIPHER) - LỜI GIẢI TỰ LUẬN TỪNG BƯỚC")
+    print("=" * 75)
+    print(f"[BƯỚC 1] Thiết lập dòng khóa chu kỳ & Bảng ký tự Z_26:")
+    print(f"    Công thức mã hóa: c_i = (p_i + k_{{i mod m}}) mod 26")
+    print(f"    Công thức giải mã: p_i = (c_i - k_{{i mod m}}) mod 26")
+    print(f"    Tham số: Chuỗi bản rõ = '{plaintext}', Từ khóa = '{''.join(clean_key)}' (Độ dài chu kỳ m = {m})\n")
+
+    print(f"[BƯỚC 2] Bảng vết khớp khóa và mã hóa chi tiết từng ký tự:")
+    print(f"    {'Vị trí':<6} | {'Ký tự p_i':<10} | {'Khóa k_i':<8} | {'Mã p_i':<6} | {'Mã k_i':<6} | {'Phép tính (p_i + k_i) mod 26':<28} | {'Bản mã c_i'}")
+    print("    " + "-" * 75)
+
+    for i, p_char in enumerate(clean_text):
+        k_char = clean_key[i % m]
+        m_val = ord(p_char) - ord('A')
+        k_val = ord(k_char) - ord('A')
+        c_val = (m_val + k_val) % 26
+        c_char = chr(c_val + ord('A'))
+        ciphertext.append(c_char)
+        calc = f"({m_val:>2} + {k_val:>2}) mod 26 = {c_val:>2}"
+        print(f"    {i:<6} | {p_char:<10} | {k_char:<8} | {m_val:<6} | {k_val:<6} | {calc:<28} | {c_char}")
+
+    cipher_res = "".join(ciphertext)
+    print("    " + "-" * 75)
+    print(f"\n[BƯỚC 3] Kết luận xâu bản mã Vigenère hoàn chỉnh:")
+    print(f"    Bản rõ  : '{''.join(clean_text)}'")
+    print(f"    Từ khóa : '{''.join(clean_key)}'")
+    print(f"    ===> BẢN MÃ THU ĐƯỢC: '{cipher_res}'")
+    print("=" * 75)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -134,10 +178,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # Support CLI arguments: python vigenere_cipher.py "USTH" "KEY"
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        txt = sys.argv[1]
-        kw = sys.argv[2] if len(sys.argv) > 2 else "KEY"
-        print(f"Encrypted: {vigenere_encrypt(txt, kw, verbose=False)}")
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if len(cli_args) >= 1:
+        txt = cli_args[0]
+        kw = cli_args[1] if len(cli_args) > 1 else "KEY"
+        solve_vigenere_detailed(txt, kw)
         sys.exit(0)
 
     # Default: Open directly into Custom Exam Input prompt

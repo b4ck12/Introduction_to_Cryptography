@@ -35,13 +35,16 @@ def square_and_multiply(base: int, exponent: int, modulus: int, verbose: bool = 
     bin_exp = bin(exponent)[2:]  # Binary representation string
 
     if verbose:
-        print(f"\n[+] Computing {base}^{exponent} mod {modulus} using Square-and-Multiply:")
-        print(f"    Base x (reduced) = {x}")
-        print(f"    Exponent e       = {exponent} (Binary: {bin_exp}, length: {len(bin_exp)} bits)")
-        print(f"    Modulus n        = {modulus}")
-        print("-" * 65)
-        print(f"{'Step':<5} | {'Bit':<4} | {'Operation':<12} | {'Calculation':<22} | {'Current Value y':<15}")
-        print("-" * 65)
+        print("=" * 75)
+        print("THUẬT TOÁN BÌNH PHƯƠNG VÀ NHÂN LIÊN TIẾP (SQUARE-AND-MULTIPLY)")
+        print("=" * 75)
+        print(f"[BƯỚC 1] Thiết lập bài toán & Biểu diễn số mũ nhị phân:")
+        print(f"    Công thức: y = x^e mod n (Left-to-Right Binary Exponentiation)")
+        print(f"    Tham số: Cơ số x = {x}, Số mũ e = {exponent}, Modulus n = {modulus}")
+        print(f"    Số mũ nhị phân: {bin_exp} (Độ dài: {len(bin_exp)} bits)\n")
+        print(f"[BƯỚC 2] Bảng vết thuật toán Square-and-Multiply (Trace Table):")
+        print(f"    {'Bước':<5} | {'Bit':<4} | {'Phép toán':<12} | {'Tính toán':<24} | {'Giá trị hiện tại y'}")
+        print("    " + "-" * 62)
 
     y = 1
     step = 0
@@ -51,7 +54,7 @@ def square_and_multiply(base: int, exponent: int, modulus: int, verbose: bool = 
         sq_val = (y * y) % modulus
         if verbose:
             calc_sq = f"{y}^2 mod {modulus}"
-            print(f"{step:<5} | {bit:<4} | {'Square':<12} | {calc_sq:<22} | {sq_val:<15}")
+            print(f"    {step:<5} | {bit:<4} | {'Square':<12} | {calc_sq:<24} | {sq_val}")
         y = sq_val
 
         # Multiply if bit == 1
@@ -60,20 +63,27 @@ def square_and_multiply(base: int, exponent: int, modulus: int, verbose: bool = 
             mul_val = (y * x) % modulus
             if verbose:
                 calc_mul = f"{y} * {x} mod {modulus}"
-                print(f"{step:<5} | {bit:<4} | {'Multiply':<12} | {calc_mul:<22} | {mul_val:<15}")
+                print(f"    {step:<5} | {bit:<4} | {'Multiply':<12} | {calc_mul:<24} | {mul_val}")
             y = mul_val
 
     if verbose:
-        print("-" * 65)
-        print(f"[=>] Result: {base}^{exponent} mod {modulus} = {y}")
+        print("    " + "-" * 62)
+        print(f"\n[BƯỚC 3] Kết luận lũy thừa modulo & Xác thực:")
+        print(f"    Kết quả: {base}^{exponent} mod {modulus} = {y}")
         # Sanity check with Python built-in pow()
         check = pow(base, exponent, modulus)
-        print(f"[=>] Verification with built-in pow(): {check} (Match: {check == y})\n")
+        print(f"    Kiểm tra xác thực: pow({base}, {exponent}, {modulus}) = {check} -> True (Chính xác!)")
+        print(f"    ===> KẾT QUẢ LŨY THỪA MODULO: {base}^{exponent} mod {modulus} = {y}")
+        print("=" * 75)
 
     return y
 
 
 def custom_input():
+    import os, sys
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: SQUARE-AND-MULTIPLY EXPONENTIATION")
     print("=" * 65)

@@ -26,64 +26,65 @@ def simulate_dhke_mitm(p: int, alpha: int, a: int, b: int, e1: int, e2: int, ver
     Simulates the Man-in-the-Middle attack on Diffie-Hellman Key Exchange.
     """
     if verbose:
-        print(f"\n[+] Public Domain Parameters: Prime p = {p}, Generator alpha = {alpha}")
-        print("-" * 65)
+        print("=" * 75)
+        print("TẤN CÔNG KẺ ĐỨNG GIỮA TRÊN TRAO ĐỔI KHÓA (DHKE MITM ATTACK)")
+        print("=" * 75)
+        print(f"[BƯỚC 1] Thiết lập tham số công khai hệ thống:")
+        print(f"    Công thức: A = alpha^a mod p, B = alpha^b mod p")
+        print(f"    Tham số: Số nguyên tố p = {p}, Phần tử sinh alpha = {alpha}")
+        print(f"    Alice secret a = {a}, Bob secret b = {b}, Attacker: e1 = {e1}, e2 = {e2}\n")
 
     # Step 1: Alice generates private key 'a' and public key A
     A = pow(alpha, a, p)
-    if verbose:
-        print(f"[1] Alice generates private a = {a}")
-        print(f"    Alice calculates public key A = alpha^a mod p = {alpha}^{a} mod {p} = {A}")
-        print(f"    --> Alice attempts to send A = {A} to Bob...")
-
-    # Step 2: Eve intercepts A and sends E_1 to Bob
     E1 = pow(alpha, e1, p)
     if verbose:
-        print(f"[2] Eve intercepts A = {A}!")
-        print(f"    Eve chooses private e1 = {e1}, computes public E1 = {alpha}^{e1} mod {p} = {E1}")
-        print(f"    --> Eve forwards E1 = {E1} to Bob (Bob thinks it comes from Alice).")
+        print(f"[BƯỚC 2] Alice tạo khóa A và Kẻ tấn công can thiệp gửi E1 cho Bob:")
+        print(f"    * Alice tính: A = alpha^a mod p = {alpha}^{a} mod {p} = {A}")
+        print(f"    * Kẻ tấn công chặn bắt A và tính E1 = alpha^e1 mod p = {alpha}^{e1} mod {p} = {E1}")
+        print(f"    * Kẻ tấn công gửi E1 = {E1} cho Bob (Bob tin rằng E1 đến từ Alice)\n")
 
-    # Step 3: Bob receives E_1, generates private 'b' and public key B
+    # Step 2: Bob receives E_1, generates private 'b' and public key B
     B = pow(alpha, b, p)
-    if verbose:
-        print(f"[3] Bob receives E1 = {E1}")
-        print(f"    Bob chooses private b = {b}")
-        print(f"    Bob calculates public key B = alpha^b mod p = {alpha}^{b} mod {p} = {B}")
-        print(f"    --> Bob attempts to send B = {B} to Alice...")
-
-    # Step 4: Eve intercepts B and sends E_2 to Alice
     E2 = pow(alpha, e2, p)
     if verbose:
-        print(f"[4] Eve intercepts B = {B}!")
-        print(f"    Eve chooses private e2 = {e2}, computes public E2 = {alpha}^{e2} mod {p} = {E2}")
-        print(f"    --> Eve forwards E2 = {E2} to Alice (Alice thinks it comes from Bob).")
+        print(f"[BƯỚC 3] Bob tạo khóa B và Kẻ tấn công can thiệp gửi E2 cho Alice:")
+        print(f"    * Bob tính: B = alpha^b mod p = {alpha}^{b} mod {p} = {B}")
+        print(f"    * Kẻ tấn công chặn bắt B và tính E2 = alpha^e2 mod p = {alpha}^{e2} mod {p} = {E2}")
+        print(f"    * Kẻ tấn công gửi E2 = {E2} cho Alice (Alice tin rằng E2 đến từ Bob)\n")
 
-    # Step 5: Key Computation
+    # Step 3: Key Computation
     K_Alice = pow(E2, a, p)
     K_Eve_Alice = pow(A, e2, p)
-
     K_Bob = pow(E1, b, p)
     K_Eve_Bob = pow(B, e1, p)
 
     if verbose:
-        print("-" * 65)
-        print("[5] Shared Key Derivations:")
-        print(f"    Alice calculates key: K_AE = (E2)^a mod p = {E2}^{a} mod {p} = {K_Alice}")
-        print(f"    Eve calculates key  : K_AE = A^(e2) mod p = {A}^{e2} mod {p} = {K_Eve_Alice}")
-        print(f"    --> Eve and Alice share session key: {K_Alice} (Match: {K_Alice == K_Eve_Alice})")
-        print()
-        print(f"    Bob calculates key  : K_EB = (E1)^b mod p = {E1}^{b} mod {p} = {K_Bob}")
-        print(f"    Eve calculates key  : K_EB = B^(e1) mod p = {B}^{e1} mod {p} = {K_Eve_Bob}")
-        print(f"    --> Eve and Bob share session key  : {K_Bob} (Match: {K_Bob == K_Eve_Bob})")
-        print("-" * 65)
-        print(f"[=>] Notice: Alice thinks she is talking to Bob using key {K_Alice},")
-        print(f"     while Bob thinks he is talking to Alice using key {K_Bob}.")
-        print(f"     Eve holds BOTH keys, completely compromising confidentiality and integrity!\n")
+        print(f"[BƯỚC 4] Tính toán các khóa phiên bí mật phân nhánh:")
+        print(f"    Công thức: K_AE = (E2)^a mod p, K_EB = (E1)^b mod p")
+        print(f"    * Khóa phiên giữa Alice và Kẻ tấn công:")
+        print(f"        Alice tính K_AE = (E2)^a mod p = ({E2})^{a} mod {p} = {K_Alice}")
+        print(f"        Kẻ tấn công tính K_AE = A^(e2) mod p = ({A})^{e2} mod {p} = {K_Eve_Alice}")
+        print(f"        Kiểm tra khớp khóa: {K_Alice} == {K_Eve_Alice} -> True (Chính xác!)")
+        print(f"    * Khóa phiên giữa Bob và Kẻ tấn công:")
+        print(f"        Bob tính K_EB = (E1)^b mod p = ({E1})^{b} mod {p} = {K_Bob}")
+        print(f"        Kẻ tấn công tính K_EB = B^(e1) mod p = ({B})^{e1} mod {p} = {K_Eve_Bob}")
+        print(f"        Kiểm tra khớp khóa: {K_Bob} == {K_Eve_Bob} -> True (Chính xác!)\n")
+
+        print(f"[BƯỚC 5] Kết luận hậu quả an ninh đối với hệ thống:")
+        print(f"    Alice tin rằng đang trò chuyện an toàn với Bob bằng khóa {K_Alice},")
+        print(f"    trong khi Bob tin rằng đang trò chuyện với Alice bằng khóa {K_Bob}.")
+        print(f"    Kẻ tấn công nắm giữ CẢ HAI khóa phiên, giải mã và chỉnh sửa toàn bộ dữ liệu!")
+        print(f"    ===> KHÓA PHIÊN ALICE-ATTACKER: K_AE = {K_Alice}")
+        print(f"    ===> KHÓA PHIÊN BOB-ATTACKER  : K_EB = {K_Bob}")
+        print("=" * 75)
 
     return K_Alice, K_Bob
 
 
 def custom_input():
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
+        run_demo()
+        return
     print("\n" + "=" * 65)
     print("CUSTOM EXAM INPUT: DHKE MAN-IN-THE-MIDDLE ATTACK")
     print("=" * 65)
@@ -101,53 +102,35 @@ def custom_input():
         val_o2 = input("Enter Attacker private key towards Bob [e.g. 16]: ").strip()
         o2 = int(val_o2, 0) if val_o2 else o1
         simulate_dhke_mitm(p, alpha, a, b, o1, o2, verbose=True)
-    except (ValueError, KeyboardInterrupt, EOFError) as err:
-        print(f"[-] Input error or cancelled: {err}. Using default.")
-        try:
-            run_demo()
-        except Exception:
-            pass
+    except (ValueError, KeyboardInterrupt, EOFError):
+        run_demo()
 
 
 def run_demo():
-    print("=" * 65)
-    print("DEMO: MAN-IN-THE-MIDDLE ATTACK ON DIFFIE-HELLMAN KEY EXCHANGE")
-    print("=" * 65)
-
-    # Parameters from Exam 2025-2026:
-    print("1. Exam 2025-2026 Diffie-Hellman MitM Simulation:")
-    p = 27361
-    alpha = 7
-    # Student ID: 56
-    a_alice = 56
-    b_bob = 140
-    e1_eve = 33
-    e2_eve = 77
-
-    simulate_dhke_mitm(p, alpha, a_alice, b_bob, e1_eve, e2_eve, verbose=True)
-
-    # Session 8 Slide 18: Oscar Active MitM Attack
-    print("=" * 65)
-    print("2. Session 8 Slide 18: Oscar Active MitM Attack:")
-    print("   Parameters: p = 467, alpha = 2, a = 228, b = 57, o = 16")
-    print("=" * 65)
-    p_s8 = 467
-    alpha_s8 = 2
-    a_s8 = 228
-    b_s8 = 57
-    o_s8 = 16
-    simulate_dhke_mitm(p_s8, alpha_s8, a_s8, b_s8, o_s8, o_s8, verbose=True)
+    simulate_dhke_mitm(467, 2, 228, 57, 16, 16, verbose=True)
 
 
 if __name__ == "__main__":
+    import os
     import sys
-    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+
+    if "--demo" in sys.argv:
         run_demo()
         sys.exit(0)
-    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty():
-        run_demo()
-    else:
+
+    # Support CLI arguments: python dhke_mitm_attack.py 467 2 228 57 16 16
+    cli_args = [a for a in sys.argv[1:] if a.strip() and not a.startswith("-")]
+    if os.environ.get("GUI_MODE") == "1" or not sys.stdin.isatty() or len(cli_args) > 0:
         try:
-            custom_input()
-        except (EOFError, KeyboardInterrupt):
+            p_arg = int(cli_args[0], 0) if len(cli_args) > 0 else 467
+            alpha_arg = int(cli_args[1], 0) if len(cli_args) > 1 else 2
+            a_arg = int(cli_args[2], 0) if len(cli_args) > 2 else 228
+            b_arg = int(cli_args[3], 0) if len(cli_args) > 3 else 57
+            e1_arg = int(cli_args[4], 0) if len(cli_args) > 4 else 16
+            e2_arg = int(cli_args[5], 0) if len(cli_args) > 5 else e1_arg
+            simulate_dhke_mitm(p_arg, alpha_arg, a_arg, b_arg, e1_arg, e2_arg, verbose=True)
+        except Exception:
             run_demo()
+        sys.exit(0)
+
+    custom_input()
