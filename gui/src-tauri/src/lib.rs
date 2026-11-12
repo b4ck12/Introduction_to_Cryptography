@@ -1,44 +1,72 @@
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::OnceLock;
 
-/// Locate the `code` directory containing the standalone python scripts.
-fn find_code_dir() -> PathBuf {
-    let candidates = [
-        PathBuf::from("code"),
-        PathBuf::from("../code"),
-        PathBuf::from("../../code"),
-    ];
+static PYTHON_CACHE: OnceLock<String> = OnceLock::new();
+static CODE_DIR_CACHE: OnceLock<PathBuf> = OnceLock::new();
 
-    for c in &candidates {
-        if c.is_dir() {
-            return c.clone();
-        }
-    }
+/// Locate the `code` directory containing the standalone python scripts (cached).
+fn find_code_dir() -> &'static PathBuf {
+    CODE_DIR_CACHE.get_or_init(|| {
+        let candidates = [
+            PathBuf::from("code"),
+            PathBuf::from("../code"),
+            PathBuf::from("../../code"),
+        ];
 
-    // Fallback: search relative to executable location
-    if let Ok(mut exe) = std::env::current_exe() {
-        for _ in 0..5 {
-            exe.pop();
-            let c = exe.join("code");
+        for c in &candidates {
             if c.is_dir() {
-                return c;
+                return c.clone();
             }
         }
-    }
 
-    PathBuf::from("code")
+        // Fallback: search relative to executable location
+        if let Ok(mut exe) = std::env::current_exe() {
+            for _ in 0..5 {
+                exe.pop();
+                let c = exe.join("code");
+                if c.is_dir() {
+                    return c;
+                }
+            }
+        }
+
+        PathBuf::from("code")
+    })
 }
 
-/// Detect available Python command on the host machine.
-fn find_python() -> String {
-    for py in &["python", "py", "python3"] {
-        if let Ok(out) = Command::new(py).arg("--version").output() {
-            if out.status.success() {
-                return py.to_string();
+/// Detect and cache available Python command on the host machine.
+fn find_python() -> &'static str {
+    PYTHON_CACHE.get_or_init(|| {
+        // 1. Direct check on common Windows install paths (bypasses slow MS Store shim)
+        #[cfg(target_os = "windows")]
+        {
+            let fast_candidates = [
+                "C:\\Python311\\python.exe",
+                "C:\\Python312\\python.exe",
+                "C:\\Python310\\python.exe",
+                "C:\\Program Files\\Python311\\python.exe",
+                "C:\\Program Files\\Python312\\python.exe",
+                "C:\\Program Files\\Python310\\python.exe",
+            ];
+            for p in &fast_candidates {
+                if std::path::Path::new(p).is_file() {
+                    return p.to_string();
+                }
             }
         }
-    }
-    "python".to_string()
+
+        // 2. Query PATH
+        for py in &["python", "py", "python3"] {
+            if let Ok(out) = Command::new(py).arg("--version").output() {
+                if out.status.success() {
+                    return py.to_string();
+                }
+            }
+        }
+
+        "python".to_string()
+    })
 }
 
 #[tauri::command]
@@ -65,7 +93,10 @@ fn run_crypto_calc(
     }
 
     let python = find_python();
-    let mut cmd = Command::new(&python);
+    let mut cmd = Command::new(python);
+    // Fast flags: -B (no pyc bytecode write) and -u (unbuffered)
+    cmd.arg("-B");
+    cmd.arg("-u");
     // When current_dir is code_dir, script should be referenced by filename
     cmd.arg(&script);
 
@@ -77,7 +108,7 @@ fn run_crypto_calc(
         }
     }
 
-    cmd.current_dir(&code_dir);
+    cmd.current_dir(code_dir);
 
     // Completely isolate stdin to prevent Python from inheriting parent console stdin
     cmd.stdin(std::process::Stdio::null());

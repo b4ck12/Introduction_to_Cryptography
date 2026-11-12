@@ -751,8 +751,6 @@ function loadActiveToolDefaults() {
 
 async function executeActiveTool() {
   const startTime = performance.now();
-  if (executionBadgeEl) executionBadgeEl.classList.add("computing");
-  executionTimeEl.textContent = "Computing...";
 
   // Gather arguments
   const args = [];
@@ -767,30 +765,49 @@ async function executeActiveTool() {
     });
   }
 
-  let result = "";
-  // Check if running inside Tauri with IPC available
+  // 1. Instant optimistic calculation (0ms latency, zero wait)
+  let hasInstant = false;
+  try {
+    const instantRes = runClientSideFallback(activeTool.id, args);
+    if (instantRes && !instantRes.startsWith("[-]")) {
+      outputContentEl.textContent = instantRes;
+      renderVisualOutput(instantRes, activeTool, args);
+      executionTimeEl.textContent = "Instant (<1ms)";
+      if (executionBadgeEl) executionBadgeEl.classList.remove("computing");
+      hasInstant = true;
+    }
+  } catch (e) {
+    // ignore, fall back to Tauri
+  }
+
+  if (!hasInstant) {
+    if (executionBadgeEl) executionBadgeEl.classList.add("computing");
+    executionTimeEl.textContent = "Computing...";
+  }
+
+  // 2. Tauri IPC background process verification
   const tauriInvoke = window.__TAURI__ ? (window.__TAURI__.core?.invoke || window.__TAURI__.invoke) : null;
   if (tauriInvoke) {
     try {
-      result = await tauriInvoke("run_crypto_calc", {
+      const pyResult = await tauriInvoke("run_crypto_calc", {
         script_name: activeTool.script,
         scriptName: activeTool.script,
         args: args
       });
+      if (pyResult && pyResult.trim()) {
+        const elapsed = Math.round(performance.now() - startTime);
+        outputContentEl.textContent = pyResult;
+        renderVisualOutput(pyResult, activeTool, args);
+        executionTimeEl.textContent = `Completed in ${elapsed}ms`;
+      }
     } catch (err) {
-      console.warn("Tauri invoke error, falling back to client-side engine:", err);
-      result = runClientSideFallback(activeTool.id, args);
+      console.warn("Tauri invoke fallback:", err);
+    } finally {
+      if (executionBadgeEl) executionBadgeEl.classList.remove("computing");
     }
   } else {
-    // Fallback: Client-Side Instant Math Engine for Browser & Demo
-    result = runClientSideFallback(activeTool.id, args);
+    if (executionBadgeEl) executionBadgeEl.classList.remove("computing");
   }
-
-  const elapsed = Math.round(performance.now() - startTime);
-  if (executionBadgeEl) executionBadgeEl.classList.remove("computing");
-  outputContentEl.textContent = result;
-  renderVisualOutput(result, activeTool, args);
-  executionTimeEl.textContent = `Completed in ${elapsed}ms`;
 }
 
 async function runAllTestsSuite() {
