@@ -79,19 +79,25 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
+def run_demo():
+    solve_des_s1("23BA14056")
+
+
 if __name__ == "__main__":
-    # Support direct interactive flag: python des_sbox_lookup.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        solve_des_s1("23BA14056")
         sys.exit(0)
 
-    sid = sys.argv[1] if len(sys.argv) > 1 else "23BA14056"
-    solve_des_s1(sid)
+    # If CLI arg provided: python des_sbox_lookup.py 23BA14099
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        solve_des_s1(sys.argv[1])
+        sys.exit(0)
 
-    # Interactive prompt if user runs directly in terminal
+    # Default: Open directly into Custom Exam Input prompt
     if sys.stdin.isatty():
-        print("-" * 60)
-        c = input("[?] Enter custom Student ID for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
-
+        custom_input()
+    else:
+        run_demo()

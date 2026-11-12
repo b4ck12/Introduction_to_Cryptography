@@ -57,24 +57,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python euclidean_gcd.py 61430 52698
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        try:
-            a = int(sys.argv[1], 0)
-            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0
-            euclidean_gcd(a, b, verbose=True)
-            sys.exit(0)
-        except Exception:
-            pass
-
-    # Support direct interactive flag: python euclidean_gcd.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 60)
     print("DEMO: EUCLIDEAN ALGORITHM FOR GCD")
     print("=" * 60)
@@ -91,10 +74,27 @@ if __name__ == "__main__":
     print("3. Student ID check (x=56): gcd(31188, 56):")
     g3 = euclidean_gcd(31188, 56)
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 60)
-        choice = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
-        if choice in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python euclidean_gcd.py 61430 52698
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0
+            euclidean_gcd(a, b, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

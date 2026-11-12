@@ -178,20 +178,32 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
+run_demo = solve_exam_2024
+
+
 if __name__ == "__main__":
     import sys
 
-    # Direct interactive flag: python pki_rsa_certificate.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        solve_exam_2024()
         sys.exit(0)
 
-    solve_exam_2024()
+    # Support CLI arguments: python pki_rsa_certificate.py 227 149 25537 56
+    if len(sys.argv) > 4 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            p_arg = int(sys.argv[1], 0)
+            q_arg = int(sys.argv[2], 0)
+            e_arg = int(sys.argv[3], 0)
+            m_arg = int(sys.argv[4], 0)
+            custom_ca_sign(p_arg, q_arg, e_arg, m_arg)
+            sys.exit(0)
+        except Exception:
+            pass
 
-    # Interactive prompt if user runs directly in terminal
     if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom CA parameters for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+        custom_input()
+
+    else:
+
+        run_demo()

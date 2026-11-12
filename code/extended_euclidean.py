@@ -105,24 +105,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python extended_euclidean.py 125 31188
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        try:
-            a = int(sys.argv[1], 0)
-            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 26
-            mod_inverse(a, b, verbose=True)
-            sys.exit(0)
-        except Exception:
-            pass
-
-    # Direct interactive flag: python extended_euclidean.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 60)
     print("DEMO: EXTENDED EUCLIDEAN ALGORITHM & MODULAR INVERSE")
     print("=" * 60)
@@ -147,10 +130,27 @@ if __name__ == "__main__":
     a_inv = mod_inverse(7, 26)
     print(f"Result: a^(-1) = {a_inv}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 60)
-        choice = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
-        if choice in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python extended_euclidean.py 125 31188
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 26
+            mod_inverse(a, b, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

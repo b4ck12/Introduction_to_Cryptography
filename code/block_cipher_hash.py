@@ -87,14 +87,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Direct interactive flag: python block_cipher_hash.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 70)
     print("DEMO: BLOCK-CIPHER-BASED HASH CONSTRUCTIONS")
     print("=" * 70)
@@ -132,10 +125,13 @@ if __name__ == "__main__":
         print(f"   Step {idx}: h_{idx} = 0x{h_mp.hex()}")
     print(f"   [=>] Final Miyaguchi-Preneel Digest: 0x{h_mp.hex()}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

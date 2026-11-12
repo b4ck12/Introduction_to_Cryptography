@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>USTH Cryptography Suite</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="brand-row">
+            <div class="brand-title">
+              <!-- Geometric Lock SVG -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0110 0v4"></path>
+              </svg>
+              <span>USTH Cryptography</span>
+            </div>
+          </div>
+          <div class="student-badge">
+            <!-- Terminal Symbol SVG -->
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            <span>ID: 23BA14056 (x = 56)</span>
+          </div>
+        </div>
+
+        <div class="sidebar-search">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="tool-search" class="search-input" placeholder="Search 30 algorithms..." />
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" id="sidebar-menu">
+          <!-- Dynamic tool categories & items rendered by JS -->
+        </nav>
+
+        <div class="sidebar-footer">
+          <button id="btn-run-tests" class="btn-ghost-sm" title="Run all 30 automated test cases">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Test Suite (30/30)</span>
+          </button>
+          <button id="btn-toggle-theme" class="btn-ghost-sm" title="Toggle Dark/Light Theme">
+            <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Interactive Content Area -->
+      <main class="main-content">
+        <!-- Unified Master Top Bar -->
+        <header class="top-bar">
+          <div class="top-bar-left">
+            <h1 class="tool-title" id="active-tool-title">Extended Euclidean Algorithm (EEA)</h1>
+            <span class="tool-formula" id="active-tool-formula">gcd(a, m) = a·s + m·t</span>
+          </div>
+
+          <div class="top-bar-right">
+            <!-- Action Buttons for Input & Execution -->
+            <button id="btn-load-defaults" class="btn-top-util" title="Load default parameters for Student ID 23BA14056">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              <span>Load Defaults</span>
+            </button>
+
+            <button id="btn-solve" class="btn-primary-solve" title="Calculate & Solve (Enter)">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Calculate & Solve</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Two-Panel Workspace -->
+        <div class="workspace-panels">
+          <!-- Left: Input Form Panel -->
+          <section class="panel-input">
+            <div class="pane-header">
+              <div class="pane-header-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="4" y1="21" x2="4" y2="14"></line>
+                  <line x1="4" y1="10" x2="4" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12" y2="3"></line>
+                  <line x1="20" y1="21" x2="20" y2="16"></line>
+                  <line x1="20" y1="12" x2="20" y2="3"></line>
+                </svg>
+                <span>Input Parameters</span>
+              </div>
+            </div>
+
+            <div class="panel-input-body">
+              <div id="dynamic-inputs" class="form-container">
+                <!-- Dynamic form fields injected by JS -->
+              </div>
+              <div class="form-group presets-container" style="margin-top: auto;">
+                <div class="panel-section-title">Quick Presets / Solvers</div>
+                <div class="preset-pills" id="preset-pills">
+                  <!-- Preset pills injected by JS -->
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right: Output Trace / Written Exam Essay -->
+          <section class="panel-output">
+            <div class="pane-header">
+              <div class="view-tabs">
+                <button id="tab-visual" class="tab-btn active" title="Visual Step-by-Step Flow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                  </svg>
+                  <span>Visual Steps</span>
+                </button>
+                <button id="tab-raw" class="tab-btn" title="Raw Essay Text for Exam Paper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="4" y1="6" x2="20" y2="6"></line>
+                    <line x1="4" y1="12" x2="20" y2="12"></line>
+                    <line x1="4" y1="18" x2="20" y2="18"></line>
+                  </svg>
+                  <span>Raw Essay Text</span>
+                </button>
+              </div>
+
+              <div class="pane-header-actions">
+                <!-- Execution Status Pill Badge -->
+                <div class="status-badge" id="execution-badge" title="Algorithm Execution Time">
+                  <span class="status-dot"></span>
+                  <span class="output-status" id="execution-time">Ready</span>
+                </div>
+
+                <!-- Copy Essay -->
+                <button id="btn-copy-essay" class="btn-top-util" title="Copy full essay text for exam submission">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                  </svg>
+                  <span>Copy for Exam</span>
+                </button>
+
+                <!-- Clear Output -->
+                <button id="btn-clear-output" class="btn-top-util btn-icon-only" title="Clear console output">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Visual Step-by-Step Flow Container -->
+            <div class="output-view" id="visual-view">
+              <div id="visual-content" class="visual-steps-wrapper">
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                      <line x1="8" y1="6" x2="16" y2="6"></line>
+                      <line x1="16" y1="14" x2="16" y2="18"></line>
+                      <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"></path>
+                    </svg>
+                  </div>
+                  <h3>Select an algorithm & click "Calculate & Solve"</h3>
+                  <p>Step-by-step mathematical calculations, trace tables, and exam solutions will appear here in visual card format.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Raw Essay Text Container (Hidden by default) -->
+            <div class="output-view" id="raw-view" style="display: none;">
+              <pre id="output-content">Select an algorithm on the left and click "Calculate & Solve" or "Load Exam Defaults" to generate the full step-by-step written exam essay.</pre>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Toast Notification Element -->
+    <div id="toast" class="toast">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      <span id="toast-message">Copied to clipboard!</span>
+    </div>
+
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

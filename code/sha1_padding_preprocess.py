@@ -106,20 +106,29 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
+run_demo = solve_sha1_padding
+
+
 if __name__ == "__main__":
     import sys
 
-    # Direct interactive flag: python sha1_padding_preprocess.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        solve_sha1_padding()
         sys.exit(0)
 
-    solve_sha1_padding()
+    # Support CLI arguments: python sha1_padding_preprocess.py 20260
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            l_arg = int(sys.argv[1], 0)
+            solve_sha1_padding_for_len(l_arg, f"CLI Custom Bit Length l = {l_arg}")
+            sys.exit(0)
+        except Exception:
+            pass
 
-    # Interactive prompt if user runs directly in terminal
     if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom bit length l for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+        custom_input()
+
+    else:
+
+        run_demo()

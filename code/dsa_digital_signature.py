@@ -115,14 +115,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Direct interactive flag: python dsa_digital_signature.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: DSA DIGITAL SIGNATURE (SLIDE 12 TEST VECTOR & STUDENT ID)")
     print("=" * 65)
@@ -150,10 +143,13 @@ if __name__ == "__main__":
     is_valid2 = dsa_verify(p1, q1, alpha1, beta1, h_student, r2, s2, verbose=True)
     print(f"Student ID Signature Verification Result: {is_valid2}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

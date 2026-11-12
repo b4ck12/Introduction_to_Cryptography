@@ -164,20 +164,40 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
+def run_demo():
+    main()
+
+
 if __name__ == "__main__":
     import sys
 
-    # Support direct interactive flag: python modular_arithmetic.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe with <= 1 arg
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        main()
         sys.exit(0)
 
-    main()
+    # Support CLI arguments from GUI or terminal: python modular_arithmetic.py 56 139 26
+    if len(sys.argv) > 3 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0)
+            m = int(sys.argv[3], 0)
+            print(f"\n[=>] Results in Z_{m}:")
+            print(f"    ({a} + {b}) mod {m}  = {mod_add(a, b, m)}")
+            print(f"    ({a} - {b}) mod {m}  = {mod_sub(a, b, m)}")
+            print(f"    ({a} * {b}) mod {m}  = {mod_mul(a, b, m)}")
+            print(f"    ({a} ^ {b}) mod {m}  = {mod_pow(a, b, m)}")
+            g = math.gcd(a, m)
+            if g == 1:
+                print(f"    ({a}^(-1)) mod {m}   = {pow(a, -1, m)}")
+            else:
+                print(f"    Modular inverse {a}^(-1) mod {m} does not exist (gcd={g} != 1)")
+            sys.exit(0)
+        except Exception:
+            pass
 
-    # Interactive prompt if user runs directly in terminal
+    # Default: Open directly into Custom Exam Input prompt
     if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
-
+        custom_input()
+    else:
+        run_demo()

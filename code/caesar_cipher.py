@@ -79,21 +79,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python caesar_cipher.py "HELLO" 3
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        txt = sys.argv[1]
-        k = int(sys.argv[2], 0) if len(sys.argv) > 2 else 3
-        print(f"Encrypted: {caesar_encrypt(txt, k)}")
-        sys.exit(0)
-
-    # Direct interactive flag: python caesar_cipher.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: CAESAR CIPHER (ENCRYPTION, DECRYPTION, BRUTE-FORCE)")
     print("=" * 65)
@@ -115,12 +101,10 @@ if __name__ == "__main__":
     print(f"[+] Matches Original: {decrypted == msg}\n")
 
     # 2. Session 2 Slide 15 Example:
-    # plaintext = "ictlab", ciphertext = "lfwode". What is the rule?
     print("-" * 65)
     print("2. Session 2 Slide 15 Example: Determine Shift Rule:")
     p_slide = "ictlab"
     c_slide = "lfwode"
-    # Find shift: (ord(c) - ord(p)) % 26
     shift_rule = (ord(c_slide[0]) - ord(p_slide[0])) % 26
     print(f"   Plaintext : '{p_slide}'")
     print(f"   Ciphertext: '{c_slide}'")
@@ -138,9 +122,24 @@ if __name__ == "__main__":
         flag = " <== CORRECT KEY" if k == key else ""
         print(f"k = {k:<2}  | {text}{flag}")
 
-    # Interactive prompt if user runs directly in terminal
+
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python caesar_cipher.py "HELLO" 3
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        txt = sys.argv[1]
+        k = int(sys.argv[2], 0) if len(sys.argv) > 2 else 3
+        print(f"Encrypted: {caesar_encrypt(txt, k)}")
+        sys.exit(0)
+
+    # Default: Open directly into Custom Exam Input prompt
     if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom text/key for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
+        custom_input()
+    else:
+        run_demo()

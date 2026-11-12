@@ -1,0 +1,23 @@
+{
+  "name": "usth-cryptography",
+  "version": "1.0.0",
+  "description": "Introduction to Cryptography (USTH) - Algorithm Suite & Tauri GUI",
+  "scripts": {
+    "gui": "npm --prefix gui run tauri dev",
+    "gui:build": "npm --prefix gui run tauri build",
+    "test": "python code/run_all_crypto_algorithms.py"
+  },
+  "keywords": [
+    "cryptography",
+    "usth",
+    "tauri",
+    "algorithms",
+    "rsa",
+    "diffie-hellman",
+    "des",
+    "aes",
+    "sha1"
+  ],
+  "author": "USTH Student (23BA14056)",
+  "license": "MIT"
+}

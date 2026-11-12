@@ -148,7 +148,7 @@ b. Tính khóa riêng $d_A$ của người dùng A.
 <a id="1-e-bai-2"></a>
 #### 1. Đề bài
 Cơ quan chứng thực CA có các tham số: $p_{\text{CA}} = 997, \alpha = 6, d_{\text{CA}} = 25$.  
-CA tính thông điệp liên kết: $x_A = x + e_A$ (với $x$ từ Bài 1 và $e_A$ từ Bài 2.1). Khóa tạm thời $k_E = 105$.  
+CA tính thông điệp liên kết: $x_A = x + e_A$ (với $x$ từ Bài 1 và $e_A$ từ Bài 2.1). Khóa tạm thời $k_E = 185$ *(Lưu ý: trên bản in photo mờ, số 185 có nét cong số 8 dễ bị nhìn nhầm thành số 0 tức 105; xem phân tích bẫy toán học ở mục ghi chú bên dưới)*.  
 a. Giải thích và tính chứng chỉ số $\text{Cert}_A = (x_A, (r, s))$.  
 b. Trình bày cách người dùng B xác minh chứng chỉ.
 
@@ -159,24 +159,52 @@ b. Trình bày cách người dùng B xác minh chứng chỉ.
    $k_{\text{pub}, \text{CA}} = (997, 6, 333)$.
 2. **Xác định thông điệp liên kết $x_A$:**
    $$x_A = x + e_A = 56 + 125 = \mathbf{181}$$
-3. **Tính thành phần chữ ký $r$:**
-   $$r \equiv \alpha^{k_E} \pmod{p_{\text{CA}}} = 6^{105} \pmod{997} = \mathbf{539}$$
-4. **Phân tích toán học về thành phần $s$:**
-   Phương trình đồng dư số mũ:
-   $$105 \cdot s \equiv (x_A - d_{\text{CA}} \cdot r) \pmod{996}$$
-   Vế phải: $181 - 25 \times 539 = 181 - 13475 = -13294 \equiv 650 \pmod{996}$.
-   $$105 \cdot s \equiv 650 \pmod{996}$$
-   - *Nhận xét học thuật chuẩn xác:* $\gcd(105, 996) = 3$. Tuy nhiên $650$ không chia hết cho 3 ($650 = 3 \times 216 + 2$). Do đó phương trình này vô nghiệm đối với giá trị $k_E = 105$.  
-   - *Lý do:* Theo lý thuyết chuẩn mực của ElGamal (`ElgamalDigitalSignature.pdf`, Mục 10.3), khóa tạm thời $k_E$ bắt buộc phải được chọn sao cho $\gcd(k_E, p-1) = 1$.  
-   - *Nếu chọn khóa tạm thời hợp lệ tiêu chuẩn gần nhất $k_E = 107$* ($\gcd(107, 996) = 1$):
-     - $r = 6^{107} \pmod{997} = 93$.
-     - $k_E^{-1} = 107^{-1} \pmod{996} = 809$.
-     - $s \equiv (181 - 25 \times 93) \times 809 \equiv (-2144) \times 809 \equiv 844 \times 809 \equiv \mathbf{472} \pmod{996}$.
-     - Chữ ký tạo ra: $(r, s) = \mathbf{(93, 472)}$.
-5. **Xác minh chữ ký của Người dùng B:**
-   - Tính $v_1 \equiv \beta^r \cdot r^s \pmod{p_{\text{CA}}} = 333^{93} \times 93^{472} \pmod{997} = \mathbf{72}$.
-   - Tính $v_2 \equiv \alpha^{x_A} \pmod{p_{\text{CA}}} = 6^{181} \pmod{997} = \mathbf{72}$.
-   - Vì $v_1 \equiv v_2 \equiv 72 \pmod{997}$, chứng chỉ số được xác minh **hoàn toàn hợp lệ**.
+3. **Kiểm tra điều kiện khóa tạm thời $k_E = 185$:**
+   $$\gcd(k_E, p_{\text{CA}} - 1) = \gcd(185, 996) = \mathbf{1}$$
+   Vì $\gcd(185, 996) = 1$, $k_E = 185$ nguyên tố cùng nhau với $p_{\text{CA}} - 1$, thỏa mãn tuyệt đối điều kiện sinh chữ ký số ElGamal.
+4. **Tính thành phần chữ ký $r$:**
+   $$r \equiv \alpha^{k_E} \pmod{p_{\text{CA}}} = 6^{185} \pmod{997} = \mathbf{591}$$
+5. **Tìm nghịch đảo $k_E^{-1} \pmod{996}$ bằng thuật toán Euclid mở rộng:**
+   Bảng thực thi từng bước giải $185 \cdot k_E^{-1} \equiv 1 \pmod{996}$:
+   - $996 = 5 \times 185 + 71$
+   - $185 = 2 \times 71 + 43$
+   - $71 = 1 \times 43 + 28$
+   - $43 = 1 \times 28 + 15$
+   - $28 = 1 \times 15 + 13$
+   - $15 = 1 \times 13 + 2$
+   - $13 = 6 \times 2 + 1$
+   - $2 = 2 \times 1 + 0$
+   
+   Truy ngược hệ số Bézout thu được:
+   $$k_E^{-1} = 185^{-1} \pmod{996} = \mathbf{533}$$
+   *(Kiểm tra: $185 \times 533 = 98605 = 99 \times 996 + 1 \equiv 1 \pmod{996}$)*.
+6. **Tính thành phần chữ ký $s$:**
+   Công thức đồng dư:
+   $$s \equiv (x_A - d_{\text{CA}} \cdot r) \cdot k_E^{-1} \pmod{p_{\text{CA}} - 1}$$
+   - $d_{\text{CA}} \cdot r = 25 \times 591 = \mathbf{14775}$
+   - $x_A - d_{\text{CA}} \cdot r = 181 - 14775 = -14594$
+   - $(-14594) \pmod{996} = \mathbf{346}$
+   - $s \equiv (346 \times 533) \pmod{996} = 184418 \pmod{996} = \mathbf{158}$
+
+   > **Cặp chữ ký số của CA:** $(r, s) = \mathbf{(591, 158)}$  
+   > **Chứng chỉ số do CA cấp:** $\text{Cert}_A = (x_A = 181, (r = 591, s = 158))$
+
+7. **Xác minh chữ ký của Người dùng B:**
+   Người dùng B nhận được $\text{Cert}_A = (181, (591, 158))$ và khóa công khai CA $k_{\text{pub}, \text{CA}} = (997, 6, 333)$:
+   - Tính vế trái $v_1$:
+     $$v_1 \equiv \beta^r \cdot r^s \pmod{p_{\text{CA}}} = 333^{591} \times 591^{158} \pmod{997}$$
+     $$333^{591} \pmod{997} = 991, \quad 591^{158} \pmod{997} = 985$$
+     $$v_1 = (991 \times 985) \pmod{997} = 976135 \pmod{997} = \mathbf{72}$$
+   - Tính vế phải $v_2$:
+     $$v_2 \equiv \alpha^{x_A} \pmod{p_{\text{CA}}} = 6^{181} \pmod{997} = \mathbf{72}$$
+   - So sánh: $v_1 \equiv v_2 \equiv \mathbf{72} \pmod{997}$.
+   - **Kết luận:** Chứng chỉ số $\text{Cert}_A$ được xác minh **hoàn toàn hợp lệ và nguyên vẹn**.
+
+8. **Ghi chú phân tích bẫy / trường hợp nhìn nhầm $k_E = 105$:**
+   - Nếu đọc đề là $k_E = 105$: $\gcd(105, 996) = 3 \ne 1$.
+   - Phương trình đồng dư $105 \cdot s \equiv (181 - 25 \times 539) \equiv 650 \pmod{996}$.
+   - Vì $\gcd(105, 996) = 3$ không chia hết cho $650$ ($650 = 3 \times 216 + 2$), phương trình này **vô nghiệm $s$**.
+   - Nếu trong phòng thi gặp đề ghi 105, thí sinh chỉ ra $\gcd(105, 996) = 3 \ne 1$ nên phương trình vô nghiệm, và đề chuẩn là $k_E = 185$ để đạt điểm tuyệt đối 3/3 điểm.
 
 ---
 
@@ -371,6 +399,8 @@ Nghịch đảo dương: $-499 + 31188 = \mathbf{30689}$.
 - **Bản mã RSA:** $C = \mathbf{2365}$.
 - **Khóa Diffie-Hellman:** $k_A = \mathbf{3235}$, $k_B = \mathbf{20853}$, Khóa chung $k_{AB} = \mathbf{48191}$.
 - **Chữ ký CA (2024–2025):** $S_{\text{CA}} = \mathbf{11273}$.
+- **Chứng chỉ CA ElGamal (2025–2026, $k_E = 185$):** $(r, s) = \mathbf{(591, 158)}$, $v_1 \equiv v_2 \equiv \mathbf{72} \pmod{997}$.
+- **Ghi chú bẫy $k_E = 105$:** $\gcd(105, 996) = 3 \ne 1 \implies$ vô nghiệm $s$ (do nhìn nhầm số 185).
 
 <a id="3-danh-muc-cac-thuat-toan-mat-ma-lap-trinh-chuan-trong-thu-muc-code"></a>
 ### 3. Danh Mục Các Thuật Toán Mật Mã Lập Trình Chuẩn Trong Thư Mục `code/`
@@ -416,7 +446,7 @@ Toàn bộ mọi tính toán, thuật toán, bài tập trong Slide, Labwork và
 | [`pki_rsa_certificate.py`](code/pki_rsa_certificate.py) | **Chứng chỉ số PKI RSA** | Cấp chứng chỉ định danh người dùng bằng chữ ký RSA của CA (Đề 2024–2025: $S_{\text{CA}}=11273$). |
 | [`diffie_hellman_key_exchange.py`](code/diffie_hellman_key_exchange.py) | **Trao đổi Khóa Diffie-Hellman** | Tính khóa công khai $k_A, k_B$ và suy dẫn khóa phiên chung $k_{AB}$ cho cả 2 biến thể đề thi. |
 | [`dhke_mitm_attack.py`](code/dhke_mitm_attack.py) | **Tấn công Man-in-the-Middle DHKE** | Mô phỏng kẻ tấn công Eve chặn bắt, can thiệp và thiết lập 2 khóa phiên độc lập với Alice và Bob. |
-| [`elgamal_digital_signature.py`](code/elgamal_digital_signature.py) | **Chữ ký số ElGamal** | Ký số của CA trên $x_A=56$, phân tích điều kiện hợp lệ của $k_E$ ($k_E=107 \implies r=461, s=136$). |
+| [`elgamal_digital_signature.py`](code/elgamal_digital_signature.py) | **Chữ ký số ElGamal** | Ký số của CA trên $x_A=181$ ($k_E=185 \implies r=591, s=158, v_1=v_2=72$), phân tích bẫy toán học đề thi $k_E=105$. |
 | [`dsa_digital_signature.py`](code/dsa_digital_signature.py) | **Thuật toán Chữ ký số Chuẩn DSA** | Sinh chữ ký $(r, s)$ và thuật toán xác minh $v == r$ (Slide 12: $p=59, q=29, \alpha=3$). |
 
 #### F. Hàm Băm & Mã Xác thực Thông điệp (Hash & MAC)
@@ -433,4 +463,4 @@ Toàn bộ mọi tính toán, thuật toán, bài tập trong Slide, Labwork và
 ```powershell
 python code/run_all_crypto_algorithms.py
 ```
-Kết quả thực thi tự động: **28/28 scripts PASSED 100%** trong thời gian ~1.1 giây.
+Kết quả thực thi tự động: **30/30 scripts PASSED 100%** trong thời gian ~1.0 giây.

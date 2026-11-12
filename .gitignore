@@ -7,3 +7,11 @@ __pycache__/
 .vscode/
 .idea/
 *.tmp
+
+# Node / Web / Tauri
+node_modules/
+gui/node_modules/
+gui/src-tauri/target/
+target/
+*.exe
+

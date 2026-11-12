@@ -104,14 +104,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Direct interactive flag: python dhke_mitm_attack.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: MAN-IN-THE-MIDDLE ATTACK ON DIFFIE-HELLMAN KEY EXCHANGE")
     print("=" * 65)
@@ -140,10 +133,13 @@ if __name__ == "__main__":
     o_s8 = 16
     simulate_dhke_mitm(p_s8, alpha_s8, a_s8, b_s8, o_s8, o_s8, verbose=True)
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

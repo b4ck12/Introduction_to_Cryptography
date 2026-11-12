@@ -88,25 +88,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python square_and_multiply.py 5 23 33
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        try:
-            b = int(sys.argv[1], 0)
-            e = int(sys.argv[2], 0) if len(sys.argv) > 2 else 1
-            m = int(sys.argv[3], 0) if len(sys.argv) > 3 else 1000000007
-            square_and_multiply(b, e, m, verbose=True)
-            sys.exit(0)
-        except Exception:
-            pass
-
-    # Direct interactive flag: python square_and_multiply.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: SQUARE-AND-MULTIPLY FAST EXPONENTIATION")
     print("=" * 65)
@@ -136,10 +118,28 @@ if __name__ == "__main__":
     c4 = square_and_multiply(5, 23, 33, verbose=True)
     print(f"Slide 11 Ciphertext C = {c4} (Expected: 26, Match: {c4 == 26})")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom numbers for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python square_and_multiply.py 5 23 33
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        try:
+            b = int(sys.argv[1], 0)
+            e = int(sys.argv[2], 0) if len(sys.argv) > 2 else 1
+            m = int(sys.argv[3], 0) if len(sys.argv) > 3 else 1000000007
+            square_and_multiply(b, e, m, verbose=True)
+            sys.exit(0)
+        except Exception:
+            pass
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

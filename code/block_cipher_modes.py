@@ -149,14 +149,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Direct interactive flag: python block_cipher_modes.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: BLOCK CIPHER MODES OF OPERATION (ECB, CBC, CTR)")
     print("=" * 65)
@@ -193,10 +186,13 @@ if __name__ == "__main__":
     print(f"    Decrypted text  : {p_ctr}")
     print(f"    Match           : {p_ctr == plaintext}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom parameters for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

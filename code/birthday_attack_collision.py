@@ -58,7 +58,7 @@ def simulate_birthday_collision(bits: int) -> int:
         seen.add(val)
 
 
-if __name__ == "__main__":
+def run_demo():
     print("=" * 70)
     print("DEMO: BIRTHDAY ATTACK & HASH COLLISION ANALYSIS")
     print("=" * 70)
@@ -130,55 +130,10 @@ def custom_input():
 
 if __name__ == "__main__":
     import sys
-
-    # Direct interactive flag: python birthday_attack_collision.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
         sys.exit(0)
-
-    # Run demo
-    print("=" * 65)
-    print("DEMO: BIRTHDAY PARADOX & COLLISION RESISTANCE")
-    print("=" * 65)
-
-    # 1. Theoretical collision bounds
-    print("1. Theoretical Collision Bounds (Understanding Cryptography Sec 11.2):")
-    print(f"{'Algorithm':<15} | {'Output bits (m)':<15} | {'Preimage Security':<20} | {'Collision Security (2^(m/2))'}")
-    print("-" * 75)
-    for name, bits in [("MD5", 128), ("SHA-1", 160), ("SHA-256", 256), ("SHA-512", 512)]:
-        sec = f"2^{bits} operations"
-        col = f"2^{bits//2} operations (~{1.1774 * (2**(bits//2)):.2e})"
-        print(f"{name:<15} | {bits:<15} | {sec:<20} | {col}")
-
-    # 2. Classic Birthday Paradox: 365 Days
-    print("\n2. Classic Birthday Paradox (Days in Year n = 365):")
-    print(f"{'People (k)':<12} | {'Exact Collision Prob':<22} | {'Approx Collision Prob'}")
-    print("-" * 60)
-    for k in [5, 10, 15, 20, 23, 30, 40, 50, 57]:
-        p_ex = collision_prob_exact(k, 365)
-        p_ap = collision_prob_approx(k, 365)
-        marker = " <== (50% threshold reached at k=23!)" if k == 23 else ""
-        print(f"k = {k:<8} | {p_ex * 100:>18.4f}% | {p_ap * 100:>19.4f}%{marker}")
-
-    # 3. Monte Carlo Simulation on 16-bit hash (n = 65,536)
-    sim_bits = 16
-    expected_k = 1.1774 * (2 ** (sim_bits / 2))
-    print(f"\n3. Monte Carlo Simulation on {sim_bits}-bit hash (n = 2^{sim_bits} = {2**sim_bits:,}):")
-    print(f"   Theoretical 50% collision count k ~ {expected_k:.1f} trials")
-    trials = 5
-    print(f"   Running {trials} independent empirical trials:")
-    results = []
-    for t in range(trials):
-        c = simulate_birthday_collision(sim_bits)
-        results.append(c)
-        print(f"     Trial {t+1}: Collision found at attempt {c}")
-    avg_c = sum(results) / len(results)
-    print(f"   Average trials to collision: {avg_c:.1f} (Close to theoretical {expected_k:.1f})")
-
-    # Interactive prompt if user runs directly in terminal
     if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom m or probability for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
-
+        custom_input()
+    else:
+        run_demo()

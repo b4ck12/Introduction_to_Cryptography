@@ -163,17 +163,37 @@ def solve_all_slide_exercises():
     print(f"  --> Shared keys match: Alice-Oscar ({k_AO_alice == k_AO_oscar}), Bob-Oscar ({k_BO_bob == k_BO_oscar})")
     print("=" * 80)
 
-if __name__ == "__main__":
-    import sys
-
+def run_demo():
     solve_all_slide_exercises()
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("\n" + "-" * 75)
-        print("[*] All slide exercises have been computed and displayed above.")
-        print("[*] To run specific algorithms with custom values, run any script with '-i', e.g.:")
-        print("    python square_and_multiply.py -i")
-        print("    python rsa_key_generation.py -i")
-        print("    python exam_calculator.py")
 
+def custom_input():
+    print("\n" + "=" * 75)
+    print("SLIDE EXERCISES SELECTOR")
+    print("=" * 75)
+    print("Choose an option:")
+    print("  [1] Run all slide exercise solutions (Sessions 2, 3, 6, 7, 8)")
+    print("  [2] Open master interactive exam calculator (exam_calculator.py)")
+    print("  [0] Exit")
+    try:
+        c = input("\nSelect [0-2, default 1]: ").strip()
+        if c == "2":
+            import exam_calculator
+            exam_calculator.main_menu()
+        elif c in ("", "1"):
+            solve_all_slide_exercises()
+        else:
+            print("[*] Exiting.")
+    except (KeyboardInterrupt, EOFError):
+        pass
+
+
+if __name__ == "__main__":
+    import sys
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

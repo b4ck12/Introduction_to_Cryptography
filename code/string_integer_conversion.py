@@ -94,23 +94,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python string_integer_conversion.py "flow"
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        arg = sys.argv[1]
-        if arg.isdigit():
-            int_to_string(int(arg), verbose=True)
-        else:
-            string_to_int(arg, verbose=True)
-        sys.exit(0)
-
-    # Direct interactive flag: python string_integer_conversion.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: STRING <-> INTEGER CONVERSION (LAB 3 EX 1 & EX 2)")
     print("=" * 65)
@@ -130,10 +114,26 @@ if __name__ == "__main__":
     rec_id = int_to_string(m_id, verbose=False)
     print(f"\nStudent ID Message: '{student_msg}' -> Int: {m_id} -> Recovered: '{rec_id}' (Match: {rec_id == student_msg})")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom text/number for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python string_integer_conversion.py "flow"
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        arg = sys.argv[1]
+        if arg.isdigit():
+            int_to_string(int(arg), verbose=True)
+        else:
+            string_to_int(arg, verbose=True)
+        sys.exit(0)
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

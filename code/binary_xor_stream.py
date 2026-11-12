@@ -100,14 +100,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Direct interactive flag: python binary_xor_stream.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 70)
     print("DEMO: BITWISE XOR STREAM CIPHER (LAB 1 EXERCISES 1, 2, 3)")
     print("=" * 70)
@@ -138,10 +131,17 @@ if __name__ == "__main__":
     print(f"   ID: {student_id} (0x{student_id:02X}) ^ Key (0x{k:02X}) = Cipher: {c} (0x{c:02X})")
     print(f"   Cipher: {c} ^ Key (0x{k:02X}) = Original ID: {m} (Match: {m == student_id})")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom message/key for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

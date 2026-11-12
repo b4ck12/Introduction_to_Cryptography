@@ -98,22 +98,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python affine_cipher.py "HELLO" 7 4
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        txt = sys.argv[1]
-        a = int(sys.argv[2], 0) if len(sys.argv) > 2 else 7
-        b = int(sys.argv[3], 0) if len(sys.argv) > 3 else 4
-        print(f"Encrypted: {affine_encrypt(txt, a, b)}")
-        sys.exit(0)
-
-    # Direct interactive flag: python affine_cipher.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: AFFINE CIPHER (KEY VALIDATION, ENCRYPT, DECRYPT)")
     print("=" * 65)
@@ -148,10 +133,25 @@ if __name__ == "__main__":
     print(f"    Decrypted : '{decrypted}'")
     print(f"    Match     : {decrypted == msg}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom text/keys for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python affine_cipher.py "HELLO" 7 4
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        txt = sys.argv[1]
+        a = int(sys.argv[2], 0) if len(sys.argv) > 2 else 7
+        b = int(sys.argv[3], 0) if len(sys.argv) > 3 else 4
+        print(f"Encrypted: {affine_encrypt(txt, a, b)}")
+        sys.exit(0)
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

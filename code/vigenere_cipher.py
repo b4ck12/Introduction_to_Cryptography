@@ -101,21 +101,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python vigenere_cipher.py "USTH" "KEY"
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        txt = sys.argv[1]
-        kw = sys.argv[2] if len(sys.argv) > 2 else "KEY"
-        print(f"Encrypted: {vigenere_encrypt(txt, kw, verbose=False)}")
-        sys.exit(0)
-
-    # Direct interactive flag: python vigenere_cipher.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: VIGENÈRE CIPHER (POLYALPHABETIC)")
     print("=" * 65)
@@ -133,10 +119,24 @@ if __name__ == "__main__":
     print(f"[=>] Full Recovered Plaintext: {recovered}")
     print(f"[=>] Verification Match: {recovered == message}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom text/keyword for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    # Run demo test suite only if explicitly requested or in non-interactive test pipe
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python vigenere_cipher.py "USTH" "KEY"
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        txt = sys.argv[1]
+        kw = sys.argv[2] if len(sys.argv) > 2 else "KEY"
+        print(f"Encrypted: {vigenere_encrypt(txt, kw, verbose=False)}")
+        sys.exit(0)
+
+    # Default: Open directly into Custom Exam Input prompt
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

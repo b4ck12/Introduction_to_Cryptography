@@ -23,6 +23,26 @@ This repository provides an end-to-end companion for theoretical lectures, labor
 
 ## 🚀 Quick Start & Exam Solver Modes
 
+### 0. Modern Flat Desktop GUI (Tauri v2)
+For the most intuitive exam calculation experience, launch the modern flat desktop app built with **Tauri v2 + Rust**:
+```bash
+# Launch GUI in development mode
+npm run gui
+
+# Or run the compiled standalone desktop executable directly:
+./gui/src-tauri/target/debug/gui.exe
+```
+- **Design**: Clean, flat, modern minimalist interface (no AI icons, clean mathematical line SVGs).
+- **2-Panel Split Workspace**: Left panel dynamically loads parameter input fields; right panel renders formatted step-by-step written essay traces (`[BƯỚC 1]`, `[BƯỚC 2]`, ... with tables).
+- **Features**:
+  - Instant Search across all 29 algorithms.
+  - **"Load Exam Defaults"** button: instantly populates parameters for Student ID `23BA14056` ($x = 56$).
+  - **"Copy for Exam"** button: 1-click copy formatted written essay solutions to clipboard.
+  - Dark/Light mode theme toggle.
+  - Built-in Master Test Runner button (29/29 verified).
+
+---
+
 ### 1. Interactive Exam Calculator (All-in-One CLI)
 When taking an exam or working on problem sets with custom numbers, launch the master interactive dashboard:
 ```bash
@@ -30,21 +50,22 @@ python code/exam_calculator.py
 ```
 This launches a menu of 29 algorithms. Enter the corresponding number to solve your exact exam problem with custom inputs!
 
-### 2. Standalone Script Interactive Mode
-Every individual script in `code/` supports interactive input for custom numbers:
+### 2. Standalone Script Interactive Mode (Direct Custom Input by Default)
+Every individual script in `code/` is tuned for exams: **running any script directly immediately opens custom input prompts** with zero delay or clutter, and outputs step-by-step intermediate calculations (`[BƯỚC 1]`, `[BƯỚC 2]`, ...) ready to write onto exam papers:
 ```bash
-# Method A: Direct interactive flag
-python code/rsa_key_generation.py -i
-python code/square_and_multiply.py -i
-python code/extended_euclidean.py -i
-
-# Method B: Run directly in terminal (shows default demo, then prompts for custom exam values)
+# Method A: Run directly in terminal (opens Custom Exam Input prompts immediately!)
+python code/rsa_key_generation.py
 python code/square_and_multiply.py
+python code/extended_euclidean.py
 
-# Method C: Pass values directly as command-line arguments
+# Method B: Pass custom parameters directly as command-line arguments
 python code/euclidean_gcd.py 61430 52698
 python code/square_and_multiply.py 5 23 33
 python code/rsa_key_generation.py 139 227 125
+
+# Method C: Run the course verification demo suite
+python code/rsa_key_generation.py --demo
+python code/des_sbox_lookup.py --demo
 ```
 
 ### 3. Run the Automated Master Test Suite

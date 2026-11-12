@@ -16,6 +16,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ALGORITHM_SCRIPTS = [
     # 1. Modular Arithmetic & Foundations
     ("modular_arithmetic.py", "Modular Addition, Multiplication, Cayley Tables"),
+    ("modular_equation_solver.py", "Modular Equation Solver & x Modulo Reducer (ax ≡ b mod m, CRT, ID mod m)"),
     ("euclidean_gcd.py", "Euclidean Algorithm for GCD (Lab 2 Ex 1)"),
     ("extended_euclidean.py", "Extended Euclidean Algorithm & Modular Inverse (Lab 2 Ex 4)"),
     ("euler_totient_coprime.py", "Euler's Totient Phi(m) & Pairwise Coprimes (Lab 2 Ex 2)"),
@@ -46,7 +47,7 @@ ALGORITHM_SCRIPTS = [
     ("dhke_mitm_attack.py", "Man-in-the-Middle Attack Simulation on Unauthenticated DHKE"),
 
     # 6. Digital Signatures & Hash Functions
-    ("elgamal_digital_signature.py", "ElGamal Digital Signature (k_E=105 vs k_E=107)"),
+    ("elgamal_digital_signature.py", "ElGamal Digital Signature (Exam 2025: k_E=185 & Pitfall Analysis)"),
     ("dsa_digital_signature.py", "Digital Signature Algorithm (DSA) Generation & Verification"),
     ("sha1_padding_preprocess.py", "SHA-1 Padding & Block Count (l=20260 bits & l=56 bits)"),
     ("sha1_compression_function.py", "SHA-1 Full 80-Round Compression & 16-to-80 Expansion"),
@@ -82,7 +83,7 @@ def main():
             continue
 
         t0 = time.time()
-        res = subprocess.run([sys.executable, file_path], capture_output=True, text=True)
+        res = subprocess.run([sys.executable, file_path, "--demo"], capture_output=True, text=True)
         elapsed = time.time() - t0
 
         if res.returncode == 0:

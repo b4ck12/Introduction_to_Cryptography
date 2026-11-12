@@ -154,14 +154,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Direct interactive flag: python sha1_compression_function.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     # Standard run:
     # Example 512-bit block containing ASCII for 'abc' with SHA-1 padding
     msg_abc = b"abc" + b"\x80" + b"\x00" * 52 + (24).to_bytes(8, 'big')
@@ -207,10 +200,13 @@ if __name__ == "__main__":
     print(f"   [=>] Conclusion: Both inputs produce IDENTICAL output (0x5A827999, 0, 0, 0, 0) after Round 1!")
     print("=" * 70)
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom message for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+    if sys.stdin.isatty():
+        custom_input()
+    else:
+        run_demo()

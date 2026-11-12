@@ -98,8 +98,15 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
+run_demo = solve_dhke
+
+
 if __name__ == "__main__":
     import sys
+
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        solve_dhke()
+        sys.exit(0)
 
     # Support CLI arguments: python diffie_hellman_key_exchange.py 27361 6 56 2365
     if len(sys.argv) > 4 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
@@ -113,17 +120,10 @@ if __name__ == "__main__":
         except Exception:
             pass
 
-    # Direct interactive flag: python diffie_hellman_key_exchange.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
-    solve_dhke()
-
-    # Interactive prompt if user runs directly in terminal
     if sys.stdin.isatty():
-        print("-" * 70)
-        c = input("[?] Enter custom p, alpha, a, b for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+        custom_input()
+
+    else:
+
+        run_demo()

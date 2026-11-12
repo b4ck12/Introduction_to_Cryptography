@@ -149,24 +149,7 @@ def custom_input():
         print(f"[-] Input error or cancelled: {err}")
 
 
-if __name__ == "__main__":
-    import sys
-
-    # Support CLI arguments: python aes_galois_field.py 0x57 0x83
-    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
-        try:
-            a = int(sys.argv[1], 0)
-            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0x02
-            print(f"0x{a:02X} * 0x{b:02X} = 0x{gf_multiply(a, b):02X}")
-            sys.exit(0)
-        except Exception:
-            pass
-
-    # Direct interactive flag: python aes_galois_field.py -i
-    if len(sys.argv) > 1 and sys.argv[1] in ("-i", "--interactive", "--custom"):
-        custom_input()
-        sys.exit(0)
-
+def run_demo():
     print("=" * 65)
     print("DEMO: AES GALOIS FIELD GF(2^8) ARITHMETIC & S-BOX")
     print("=" * 65)
@@ -206,10 +189,28 @@ if __name__ == "__main__":
     print(f"   Expected     : {[f'0x{x:02X}' for x in expected_mixed]}")
     print(f"   Match        : {mixed_col == expected_mixed}")
 
-    # Interactive prompt if user runs directly in terminal
-    if sys.stdin.isatty():
-        print("-" * 65)
-        c = input("[?] Enter custom bytes for your exam? [y/N]: ").strip().lower()
-        if c in ("y", "yes"):
-            custom_input()
 
+if __name__ == "__main__":
+    import sys
+
+    if "--demo" in sys.argv or (not sys.stdin.isatty() and len(sys.argv) <= 1):
+        run_demo()
+        sys.exit(0)
+
+    # Support CLI arguments: python aes_galois_field.py 0x57 0x83
+    if len(sys.argv) > 1 and sys.argv[1] not in ("-i", "--interactive", "--custom"):
+        try:
+            a = int(sys.argv[1], 0)
+            b = int(sys.argv[2], 0) if len(sys.argv) > 2 else 0x02
+            print(f"0x{a:02X} * 0x{b:02X} = 0x{gf_multiply(a, b):02X}")
+            sys.exit(0)
+        except Exception:
+            pass
+
+    if sys.stdin.isatty():
+
+        custom_input()
+
+    else:
+
+        run_demo()
